@@ -1,0 +1,2077 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embed Sender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--accent-rgb:88,101,242;
+  --bg:#1e1f22;--panel:#2b2d31;--panel2:#313338;--input:#1e1f22;--text:#dbdee1;--head:#f2f3f5;--muted:#949ba4;
+  --accent:#5865f2;--accent-h:#4752c4;--danger:#f23f43;--ok:#23a55a;--warn:#f0b232;--border:#3f4147;--link:#00a8fc;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 "gg sans","Segoe UI",system-ui,sans-serif}
+a{color:var(--link)}
+code{background:var(--input);padding:1px 4px;border-radius:3px;font-family:Consolas,monospace;font-size:.9em}
+header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:220px}
+.logo{font-size:26px}
+header h1{font-size:18px;margin:0;color:var(--head)}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px;max-width:1500px;margin:auto}
+@media(max-width:960px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--panel);border-radius:8px;padding:14px;margin-bottom:14px;border:1px solid var(--border)}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.cnt{font-weight:400;text-transform:none;letter-spacing:0;margin-left:auto}
+label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px;font-weight:600}
+label.chk{display:flex;align-items:center;gap:8px;font-weight:400;color:var(--text);margin-top:10px;cursor:pointer}
+label.chk input{width:auto}
+input,textarea,select{width:100%;background:var(--input);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:8px;font:inherit}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+button{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}
+button:hover{background:var(--accent-h)}
+button:disabled{opacity:.4;cursor:default}
+button.sec{background:#4e5058}button.sec:hover{background:#6d6f78}
+button.sm{padding:4px 10px;font-size:12px}
+button.del,button.icon{background:transparent;color:var(--muted);padding:4px 8px}
+button.del:hover,button.icon.danger:hover{background:rgba(242,63,67,.15);color:var(--danger)}
+button.icon:hover{background:#3f4147;color:var(--head)}
+button.wide{width:100%;margin-top:10px}
+details summary{cursor:pointer;color:var(--muted);font-weight:600;margin-top:10px;user-select:none}
+details summary:hover{color:var(--head)}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.muted{color:var(--muted)}.err{color:var(--danger)}.warn{color:var(--warn)}
+/* Webhook */
+.whrow,.pw{display:flex;gap:6px}
+.whrow select{flex:1}
+.pw input{flex:1;min-width:0}
+.whinfo{display:flex;align-items:center;gap:8px;margin-top:8px;min-height:24px;font-size:13px;flex-wrap:wrap}
+.whinfo img,.whinfo .dot{width:24px;height:24px;border-radius:50%;background:var(--accent)}
+/* Files */
+.drop{border:2px dashed var(--border);border-radius:6px;padding:16px;text-align:center;color:var(--muted);transition:.15s}
+.drop.over{border-color:var(--accent);background:rgba(var(--accent-rgb),.1);color:var(--head)}
+.linkish{display:inline;color:var(--link);cursor:pointer;font-size:inherit;margin:0;font-weight:600}
+.file{display:flex;align-items:center;gap:10px;background:var(--input);border-radius:4px;padding:6px 8px;margin-top:6px}
+.file img{width:36px;height:36px;object-fit:cover;border-radius:4px}.ficon{font-size:24px;width:36px;text-align:center}
+.fmeta{flex:1;min-width:0;font-size:13px}.fmeta div:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Embed editor */
+.embed-ed{border-left:4px solid var(--accent);background:var(--panel2);padding:10px 12px;border-radius:4px;margin-top:10px}
+.etop{display:flex;align-items:center;gap:6px}
+.etoggle{background:transparent;color:var(--head);padding:4px 0;flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis}
+.etoggle:hover{background:transparent}
+.ecnt{font-size:12px;color:var(--muted)}
+.ebtns{display:flex}
+.color{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.color input[type=color]{width:44px;padding:2px;height:36px;flex:none}
+.color input[type=text]{width:100px;flex:none}
+.sw{width:22px;height:22px;border-radius:50%;padding:0;border:2px solid var(--panel2);box-shadow:0 0 0 1px var(--border)}
+.sw:hover{transform:scale(1.15)}
+.field-ed{background:var(--input);padding:8px;border-radius:4px;margin-top:6px}
+.field-ed textarea{min-height:38px}
+.fbar{display:flex;align-items:center;gap:8px;margin-top:4px}
+.fbar label.chk{margin:0}
+.sendbar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 -6px 16px rgba(0,0,0,.35);z-index:5}
+.sendbar #sendInfo{flex:1;margin:0}
+.sendbar button{padding:10px 20px}
+/* Tabs */
+#right{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+@media(max-width:960px){#right{position:static;max-height:none}}
+.tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{background:transparent;color:var(--muted)}
+.tabs button:hover{background:var(--panel);color:var(--head)}
+.tabs button.on{background:var(--panel2);color:var(--head)}
+.tab{display:none;overflow:auto;min-height:0}.tab.on{display:block}
+.item{display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:6px;padding:8px 10px;margin-bottom:6px;flex-wrap:wrap}
+.ilabel{flex:1;min-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ilabel small{display:block;color:var(--muted);font-size:12px}
+.tsrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tsrow code{flex:none}.tsrow span{flex:1;min-width:120px}
+table.cheat{width:100%;border-collapse:collapse}
+table.cheat td{padding:6px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+/* Preview (Discord-like) */
+.preview{background:var(--panel2);border-radius:8px;padding:16px}
+.msg{display:flex;gap:14px}
+.avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;object-fit:cover;background:var(--accent)}
+.avatar.ph{display:flex;align-items:center;justify-content:center;font-size:20px}
+.mbody{min-width:0;flex:1}
+.uname{font-weight:600;color:var(--head)}
+.bot{background:var(--accent);color:#fff;font-size:10px;padding:1px 4px;border-radius:3px;margin-left:4px;vertical-align:middle;font-weight:600}
+.time{color:var(--muted);font-size:12px;margin-left:6px}
+.threadn{font-weight:600;color:var(--head);margin-top:4px}
+.content{margin-top:2px}
+.md .ln,.md .li,.md .sub,.md .bq{white-space:pre-wrap;word-wrap:break-word}
+.md .h1{font-size:1.5em;font-weight:700;color:var(--head);margin:8px 0 4px}
+.md .h2{font-size:1.25em;font-weight:700;color:var(--head);margin:8px 0 4px}
+.md .h3{font-size:1.1em;font-weight:700;color:var(--head);margin:8px 0 4px}
+.md .sub{font-size:12px;color:var(--muted)}
+.md .bq{border-left:4px solid #4e5058;padding-left:10px}
+.md .li{padding-left:8px}
+.md pre.cb{background:#1e1f22;border:1px solid #232428;border-radius:4px;padding:8px;margin:4px 0;white-space:pre-wrap;font-family:Consolas,monospace;font-size:.875em}
+.md code,.ti code{background:#1e1f22;padding:0 3px;border-radius:3px;font-size:.875em}
+.md a,.ti a{color:var(--link);text-decoration:none}
+.mention{background:rgba(88,101,242,.3);color:#c9cdfb;padding:0 2px;border-radius:3px;font-weight:500}
+.mention.ts{background:rgba(255,255,255,.06);color:var(--text)}
+.spoiler{background:#1e1f22;color:transparent;border-radius:3px;cursor:pointer}
+.spoiler.shown{background:rgba(255,255,255,.1);color:inherit}
+.pe{display:grid;grid-template-columns:minmax(0,1fr) auto;max-width:520px;background:var(--panel);border-left:4px solid #1e1f22;border-radius:4px;padding:8px 16px 16px 12px;margin-top:6px}
+.pe-main{min-width:0}
+.pe .au{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px;font-weight:600;color:var(--head)}
+.pe .au a{color:var(--head);text-decoration:none}.pe .au a:hover{text-decoration:underline}
+.pe .au img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+.pe .ti{font-weight:600;margin-top:8px;color:var(--head);font-size:16px}
+.pe .de{margin-top:8px;font-size:14px}
+.frow{display:grid;gap:8px;margin-top:8px}
+.fn{font-weight:600;font-size:14px;color:var(--head);margin-bottom:2px}.fv{font-size:14px}
+.pe .th{width:80px;height:80px;object-fit:cover;border-radius:4px;margin:8px 0 0 16px}
+.pe .im{max-width:100%;max-height:300px;border-radius:4px;margin-top:16px;grid-column:1/-1;justify-self:start}
+.pe .fo{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--muted);grid-column:1/-1}
+.pe .fo img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.atts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.atts img{max-width:300px;max-height:220px;border-radius:6px}
+.attf{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:24px}
+.attf .link{color:var(--link);font-size:14px}.attf .muted{font-size:12px}
+.empty{margin-top:8px;font-style:italic}
+/* Dialog & toasts */
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:8px;width:min(720px,calc(100vw - 32px));padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{margin:0 0 10px;color:var(--head)}
+dialog textarea{min-height:340px;font-family:Consolas,monospace;font-size:12px}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:50;max-width:min(420px,calc(100vw - 32px))}
+.toast{background:#111214;border-left:4px solid var(--accent);padding:10px 14px;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:pre-line;transition:.3s;word-break:break-word}
+.toast.ok{border-color:var(--ok)}.toast.err{border-color:var(--danger)}
+.toast.out{opacity:0;transform:translateX(20px)}
+/* Thème clair */
+body.light{--bg:#e3e5e8;--panel:#ffffff;--panel2:#f2f3f5;--input:#ebedef;--text:#313338;--head:#060607;--muted:#5c5e66;--border:#d4d7dc;--link:#006ce7}
+body.light .md pre.cb,body.light .md code,body.light .ti code,body.light code{background:#e3e5e8;border-color:#d4d7dc}
+body.light .spoiler{background:#c4c9ce}
+body.light .mention{color:#4752c4;background:rgba(88,101,242,.15)}
+body.light .mention.ts{background:rgba(0,0,0,.06);color:var(--text)}
+body.light .toast{background:#fff;color:var(--text)}
+body.light button.icon:hover{background:#e3e5e8}
+body.light .sendbar{box-shadow:0 -6px 16px rgba(0,0,0,.1)}
+/* Galerie */
+.gal{display:grid;gap:4px;margin-top:16px;grid-column:1/-1;max-width:400px;grid-template-columns:1fr 1fr}
+.gal img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:4px;display:block}
+.gal.n3 img:first-child{grid-column:1/-1;aspect-ratio:2/1}
+/* Sondage */
+.poll{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-top:8px;max-width:520px}
+.poll .pq{font-weight:600;color:var(--head);font-size:16px}
+.poll .ps{font-size:12px;color:var(--muted);margin:2px 0 6px}
+.poll .pa{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:6px;background:var(--panel2)}
+.poll .pa img{width:20px;height:20px}
+.poll .rad{margin-left:auto;width:18px;height:18px;border:2px solid var(--muted);border-radius:50%;flex:none}
+.poll .rad.sq{border-radius:4px}
+.poll .pf{font-size:12px;color:var(--muted);margin-top:10px}
+.ans{display:flex;gap:6px;margin-top:6px}.ans .em{width:72px;flex:none;text-align:center}
+/* Programmation */
+.sendbar{flex-wrap:wrap}
+.sched{position:relative}
+#schedPop{position:absolute;bottom:calc(100% + 10px);right:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;width:290px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#queue{flex-basis:100%;font-size:12px;color:var(--muted)}
+#queue:empty{display:none}
+.vars{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.vars button{font-weight:400}
+.imgerr{font-size:12px;color:var(--warn);background:rgba(240,178,50,.1);border-radius:4px;padding:6px 8px;margin-top:8px;grid-column:1/-1}
+#whEdit input[type=file]{padding:5px}
+/* Plusieurs messages */
+.mtabs{display:flex;flex-wrap:wrap;gap:6px}
+.mtab{background:var(--panel2);color:var(--text);font-weight:500;max-width:230px;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--border)}
+.mtab:hover{background:var(--input)}
+.mtab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mtab.add{background:transparent;border-style:dashed;color:var(--muted)}
+.mact{display:flex;align-items:center;gap:2px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.pmsg{border-radius:6px;padding:4px 6px;margin:0 -6px}
+.pmsg+.pmsg{margin-top:10px}
+.pmsg.cur{background:rgba(var(--accent-rgb),.08);box-shadow:inset 2px 0 0 var(--accent)}
+.pmsg.pick{cursor:pointer}.pmsg.pick:hover{background:rgba(255,255,255,.03)}
+.pmsg.grp{margin-top:2px}
+.avsp{width:40px;flex-shrink:0}
+.preview.mobile .avsp{width:34px}
+/* Barre de mise en forme */
+.tbw{border:1px solid var(--border);border-radius:4px;background:var(--input)}
+.tbw:focus-within{outline:2px solid var(--accent);border-color:transparent}
+.tbw textarea{border:0;border-radius:0 0 4px 4px;display:block}
+.tbw textarea:focus{outline:none}
+.tb{display:flex;flex-wrap:wrap;gap:2px;padding:3px;border-bottom:1px solid var(--border)}
+.tb button{background:transparent;color:var(--muted);padding:3px 7px;font-size:12px;min-width:26px;font-weight:600}
+.tb button:hover{background:var(--panel2);color:var(--head)}
+#emojiPop{position:fixed;z-index:60;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px;width:310px;max-height:250px;overflow:auto;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+#emojiPop[hidden]{display:none}
+#emojiPop button{background:transparent;font-size:20px;padding:4px;line-height:1}
+#emojiPop button:hover{background:var(--panel2)}
+/* Aperçu mobile */
+.ptools{display:flex;gap:4px;margin-bottom:8px}
+.ptools button.on{background:var(--accent)}
+.preview.mobile{max-width:390px;margin:0 auto;padding:12px 10px}
+.preview.mobile .pe{max-width:100%}
+.preview.mobile .avatar{width:34px;height:34px}
+.qitem{display:inline-flex;gap:4px;align-items:center;background:var(--panel2);border-radius:4px;padding:2px 2px 2px 8px;margin:2px 4px 0 0;color:var(--text)}
+
+/* ===================== Design v2 ===================== */
+:root{--accent2:#8b5cf6;--radius:14px;--shadow:0 1px 2px rgba(0,0,0,.25),0 10px 28px rgba(0,0,0,.2);--glow:0 0 0 3px rgba(var(--accent-rgb),.35);--grad:linear-gradient(135deg,var(--accent),var(--accent2))}
+body{font-family:"Inter","gg sans","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(900px 520px at 0% -10%,rgba(var(--accent-rgb),.2),transparent 60%),
+             radial-gradient(800px 520px at 100% 0%,rgba(139,92,246,.14),transparent 60%),
+             radial-gradient(700px 600px at 50% 120%,rgba(35,165,90,.06),transparent 60%),var(--bg);
+  background-attachment:fixed;min-height:100vh}
+::selection{background:rgba(var(--accent-rgb),.45)}
+*{scrollbar-width:thin;scrollbar-color:#4e5058 transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#4e5058;border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-track{background:transparent}
+/* En-tête */
+header{position:sticky;top:0;z-index:20;padding:10px 24px;background:rgba(30,31,34,.72);backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:22px;background:var(--grad);box-shadow:0 6px 18px rgba(var(--accent-rgb),.45),inset 0 1px 0 rgba(255,255,255,.25)}
+header h1{font-size:20px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,#fff 30%,#c9cdfb);-webkit-background-clip:text;background-clip:text;color:transparent}
+kbd{font-family:inherit;font-size:11px;background:var(--input);border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:0 5px;color:var(--text)}
+.hbtns button{height:36px;min-width:36px}
+/* Mise en page */
+.wrap{gap:22px;padding:22px 24px}
+#right{top:84px;max-height:calc(100vh - 100px)}
+@media(max-width:960px){.wrap{padding:16px}}
+/* Cartes */
+.card{border-radius:var(--radius);border-color:rgba(255,255,255,.06);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:16px;transition:border-color .2s;animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+.card:hover{border-color:rgba(255,255,255,.11)}
+.card h2{font-size:12.5px;font-weight:700;color:var(--head);letter-spacing:.06em;margin-bottom:12px}
+.card h2 .ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:15px;letter-spacing:0;background:rgba(var(--accent-rgb),.16);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.25);flex:none}
+#left>.card:nth-child(2){animation-delay:.03s}#left>.card:nth-child(3){animation-delay:.06s}#left>.card:nth-child(4){animation-delay:.09s}
+#left>.card:nth-child(5){animation-delay:.12s}#left>.card:nth-child(6){animation-delay:.15s}#left>.card:nth-child(7){animation-delay:.18s}#left>.card:nth-child(8){animation-delay:.21s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* Champs */
+input,textarea,select{border-radius:9px;transition:border-color .15s,box-shadow .15s,background .15s}
+input:hover,textarea:hover,select:hover{border-color:#5b5e66}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:var(--glow)}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+.tbw{border-radius:9px;transition:border-color .15s,box-shadow .15s}
+.tbw:focus-within{outline:none;border-color:var(--accent);box-shadow:var(--glow)}
+.tbw textarea{border-radius:0 0 9px 9px}.tbw textarea:focus{box-shadow:none}
+.tb button{border-radius:6px}
+/* Boutons */
+button{border-radius:9px;transition:background .15s,transform .1s,box-shadow .15s,color .15s,filter .15s}
+button:not(:disabled):active{transform:translateY(1px) scale(.98)}
+#sendBtn,#sendAllBtn,#schedGo,#whApply,#dlgOk{background:var(--grad);box-shadow:0 4px 14px rgba(var(--accent-rgb),.3)}
+#sendBtn:hover,#sendAllBtn:hover,#schedGo:hover,#whApply:hover,#dlgOk:hover{filter:brightness(1.12);box-shadow:0 6px 20px rgba(var(--accent-rgb),.45)}
+.tabs button,.ptools button,.tb button,#emojiPop button,.etoggle{box-shadow:none!important;filter:none!important}
+button.sec{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:var(--head)}
+button.sec:hover{background:rgba(255,255,255,.13)}
+button.icon,button.del{border-radius:7px}
+/* Barre d'envoi */
+.sendbar{border-radius:16px;bottom:14px;padding:12px 16px;background:rgba(43,45,49,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:rgba(255,255,255,.09);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.sendbar #sendBtn,.sendbar #sendAllBtn{padding:11px 22px;font-size:15px}
+/* Onglets */
+.tabs{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:13px;padding:4px;gap:2px;box-shadow:var(--shadow);margin-bottom:12px}
+.tabs button{flex:1;border-radius:9px;background:transparent;color:var(--muted)}
+.tabs button:hover{background:rgba(255,255,255,.06);color:var(--head)}
+.tabs button.on{background:var(--grad)!important;color:#fff;box-shadow:0 3px 12px rgba(var(--accent-rgb),.4)!important}
+.ptools{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:3px;display:inline-flex;margin-bottom:10px}
+.ptools button{background:transparent;border:0;color:var(--muted)}
+.ptools button.on{background:rgba(var(--accent-rgb),.22)!important;color:var(--head)}
+/* Cadre de l'aperçu (fenêtre Discord) */
+.pframe{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.06);background:var(--panel2);animation:rise .45s .1s both}
+.pbar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid rgba(0,0,0,.28);box-shadow:0 1px 0 rgba(255,255,255,.03)}
+.dots{display:flex;gap:6px}.dots i{width:11px;height:11px;border-radius:50%;background:#ed6a5e}.dots i:nth-child(2){background:#f5bf4f}.dots i:nth-child(3){background:#61c554}
+.chan{color:var(--muted);font-weight:600}.chan b{color:var(--head)}
+.pcount{margin-left:auto;font-size:12px;color:var(--muted)}
+.pframe .preview{border-radius:0;min-height:160px}
+.preview.mobile{border-left:1px solid var(--border);border-right:1px solid var(--border)}
+/* Éditeur d'embeds & listes */
+.embed-ed{border-radius:10px;padding:12px 14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);transition:box-shadow .2s}
+.embed-ed:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.field-ed,.file{border-radius:9px}
+.mtab{border-radius:999px;padding:6px 14px}
+.mtab.on{background:var(--grad);border-color:transparent;box-shadow:0 3px 12px rgba(var(--accent-rgb),.4)}
+.item{border-radius:11px;border:1px solid rgba(255,255,255,.05);transition:border-color .15s,background .15s}
+.item:hover{border-color:rgba(var(--accent-rgb),.55)}
+.drop{border-radius:12px;padding:22px;background:rgba(255,255,255,.02);transition:.2s}
+.drop::before{content:"📂";display:block;font-size:28px;margin-bottom:4px}
+.drop:hover{border-color:#5b5e66}
+.drop.over{transform:scale(1.01)}
+details summary{list-style:none;display:flex;align-items:center;gap:6px;padding:3px 0}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"›";display:inline-block;width:10px;font-size:17px;line-height:1;transition:transform .2s}
+details[open]>summary::before{transform:rotate(90deg)}
+.whinfo img,.whinfo .dot{box-shadow:0 0 0 2px var(--panel),0 0 0 4px rgba(35,165,90,.55)}
+.sw{transition:transform .15s,box-shadow .15s}
+/* Toasts, fenêtres */
+.toast{border-left:0;border-radius:12px;padding:12px 16px 12px 18px;position:relative;overflow:hidden;background:rgba(17,18,20,.94);backdrop-filter:blur(8px);box-shadow:0 12px 32px rgba(0,0,0,.5);animation:tin .25s cubic-bezier(.2,.8,.2,1)}
+.toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.toast.ok::before{background:var(--ok)}.toast.err::before{background:var(--danger)}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+dialog{border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+dialog[open]{animation:tin .2s ease}
+dialog::backdrop{backdrop-filter:blur(3px)}
+#schedPop,#emojiPop{border-radius:14px;animation:tin .15s ease}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+/* Thème clair v2 */
+body.light{background:radial-gradient(900px 520px at 0% -10%,rgba(var(--accent-rgb),.13),transparent 60%),radial-gradient(800px 520px at 100% 0%,rgba(139,92,246,.09),transparent 60%),var(--bg);background-attachment:fixed}
+body.light header{background:rgba(255,255,255,.75);border-bottom-color:rgba(0,0,0,.07)}
+body.light header h1{background:linear-gradient(90deg,#1e1f22 30%,#4752c4);-webkit-background-clip:text;background-clip:text}
+body.light .card,body.light .tabs,body.light .pframe,body.light .ptools{border-color:rgba(0,0,0,.07);box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 28px rgba(0,0,0,.06)}
+body.light .card:hover{border-color:rgba(0,0,0,.13)}
+body.light button.sec{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.09);color:var(--text)}
+body.light button.sec:hover{background:rgba(0,0,0,.1)}
+body.light input:hover,body.light textarea:hover,body.light select:hover{border-color:#b5b8bd}
+body.light .sendbar{background:rgba(255,255,255,.88);border-color:rgba(0,0,0,.08);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+body.light .toast{background:rgba(255,255,255,.97)}
+body.light .item{border-color:rgba(0,0,0,.06)}
+body.light .embed-ed{box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+/* Apparence */
+.accs{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.acc{width:34px;height:34px;border-radius:50%;padding:0;border:3px solid var(--panel);box-shadow:0 0 0 1px var(--border)}
+.acc:hover{transform:scale(1.12)}
+.acc.on{box-shadow:0 0 0 2px var(--head)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:100}
+/* Aide */
+#help{max-width:600px}
+dialog{max-height:calc(100vh - 32px);overflow:auto}
+#help h3{font-size:20px}
+#help h4{margin:18px 0 6px;color:var(--head)}
+.steps{padding-left:0;list-style:none;counter-reset:st;margin:0}
+.steps li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;margin:10px 0;line-height:1.5}
+.steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:var(--grad)}
+table.keys{width:100%;border-collapse:collapse}
+table.keys td{padding:5px 4px;border-bottom:1px solid var(--border)}
+table.keys td:first-child{white-space:nowrap;width:1%;padding-right:14px}
+#helpClose{background:var(--grad);box-shadow:0 4px 14px rgba(var(--accent-rgb),.3)}
+/* Glisser-déposer */
+.grip{cursor:grab;color:var(--muted);padding:2px 4px;border-radius:5px;user-select:none;letter-spacing:-2px;font-weight:700}
+.grip:hover{background:rgba(255,255,255,.07);color:var(--head)}
+.embed-ed.dragging,.mtab.dragging{opacity:.45}
+.embed-ed.over{box-shadow:inset 0 0 0 2px var(--accent)!important}
+.mtab.over{box-shadow:0 0 0 2px var(--accent)}
+/* Compteur de caractères */
+#ccount{position:fixed;transform:translate(-100%,-100%);font-size:11px;font-weight:600;padding:1px 7px;border-radius:7px;background:var(--panel2);color:var(--muted);pointer-events:none;z-index:30;border:1px solid var(--border)}
+#ccount.warn{color:var(--warn);border-color:var(--warn)}
+#ccount.full{color:var(--danger);border-color:var(--danger)}
+/* Profils */
+.personas{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.persona{display:inline-flex;align-items:center;background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding-right:2px;transition:border-color .15s}
+.persona.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pchip{background:transparent;color:var(--text);display:flex;align-items:center;gap:6px;padding:3px 8px 3px 3px;font-weight:500;border-radius:999px}
+.pchip:hover{background:rgba(255,255,255,.06)}
+.pchip img,.pav{width:22px;height:22px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:var(--input);font-size:12px}
+.persona .del{padding:2px 7px;border-radius:999px}
+/* Ajout rapide */
+.quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+.qchip{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-left:3px solid var(--c);font-weight:500;padding:5px 10px;font-size:12.5px}
+.qchip:hover{background:var(--input);border-color:var(--c)}
+/* Emojis */
+#emojiPop{display:flex;flex-direction:column;padding:0;max-height:310px;overflow:hidden;width:330px}
+#emojiPop .etabs{display:flex;gap:2px;padding:6px;border-bottom:1px solid var(--border)}
+#emojiPop .etabs button{font-size:16px;padding:5px 0;border-radius:7px;flex:1}
+#emojiPop .etabs button.on{background:rgba(var(--accent-rgb),.22)}
+#emojiPop .ecat{font-size:11px;color:var(--muted);padding:6px 10px 0;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+#emojiPop .egrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:6px 8px 8px;overflow:auto}
+.toast .tact{margin-top:8px}
+.steps.small li{margin:8px 0;font-size:13px}
+.steps.small li::before{width:22px;height:22px;font-size:12px}
+/* Version téléphone */
+.mnav{display:none}
+@media(max-width:960px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  #left,#right{min-width:0}
+  .card h2{flex-wrap:wrap}
+  .card{padding:14px}
+  .whrow,.pw{flex-wrap:wrap}
+  .whrow select,.pw input{flex-basis:100%}
+  .mnav{display:flex;position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:25;gap:4px;padding:4px;border-radius:999px;
+    background:rgba(43,45,49,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .mnav button{border-radius:999px;background:transparent;color:var(--muted);padding:9px 18px;font-size:14px}
+  .mnav button.on{background:var(--grad);color:#fff}
+  body{padding-bottom:72px}
+  body:not(.mv-view) #right{display:none}
+  body.mv-view #left>*:not(.sendbar){display:none}
+  .sendbar{bottom:72px}
+  header{padding:8px 12px}
+  header .hint{display:none}
+  .brand{min-width:0}
+  .logo{width:36px;height:36px;font-size:18px}
+  .hbtns{gap:4px}
+  .hbtns button{height:32px;padding:4px 9px;font-size:13px}
+  #btnShare,#btnExport,#btnImport,#btnNew{font-size:12px}
+}
+body.light .mnav{background:rgba(255,255,255,.94);border-color:rgba(0,0,0,.08)}
+body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
+body.light *{scrollbar-color:#c4c9ce transparent}
+body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">📨</span><div><h1>Embed Sender</h1><div class="hint" style="margin:0">Crée et envoie des embeds Discord via webhook · <kbd>Ctrl</kbd>+<kbd>Entrée</kbd> pour envoyer</div></div></div>
+  <div class="hbtns">
+    <button class="sec" id="btnUndo" title="Annuler (Ctrl+Z hors d'un champ)">↶</button>
+    <button class="sec" id="btnRedo" title="Rétablir (Ctrl+Y hors d'un champ)">↷</button>
+    <button class="sec" id="btnTheme" title="Thème clair / sombre">🌙</button>
+    <button class="sec" id="btnHelp" title="Aide et raccourcis (touche ?)">❓</button>
+    <button class="sec" id="btnShare" title="Créer un lien qui contient ton message (sans l'URL du webhook)">🔗 Partager</button>
+    <button class="sec" id="btnExport">{ } JSON</button>
+    <button class="sec" id="btnImport">Importer</button>
+    <button class="sec" id="btnNew">Nouveau message</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="left">
+    <div class="card">
+      <h2><span class="ic">🔗</span>Webhook</h2>
+      <div class="whrow">
+        <select id="whSelect" aria-label="Webhooks enregistrés"></select>
+        <button class="sec" id="whSave">Enregistrer</button>
+        <button class="del" id="whDel" title="Retirer ce webhook de la liste">✕</button>
+      </div>
+      <label for="whUrl">URL du webhook</label>
+      <div class="pw">
+        <input id="whUrl" type="password" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" spellcheck="false">
+        <button class="sec" id="whEye" title="Afficher / masquer">👁</button>
+        <button class="sec" id="whCheck">Vérifier</button>
+      </div>
+      <div id="whInfo" class="whinfo"></div>
+      <div id="whMulti"></div>
+      <details id="whEdit" hidden>
+        <summary>Modifier le nom / l'avatar du webhook sur Discord</summary>
+        <div class="row">
+          <div><label>Nouveau nom</label><input id="whNewName" maxlength="80"></div>
+          <div><label>Nouvel avatar (image)</label><input type="file" id="whNewAv" accept="image/png,image/jpeg,image/gif,image/webp"></div>
+        </div>
+        <div class="actions" style="justify-content:flex-start"><button class="sm" id="whApply">Mettre à jour le webhook</button></div>
+        <div class="hint">Change le nom et l'avatar par défaut du webhook sur Discord, pour tous les messages où tu ne mets pas de « Nom affiché ».</div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">🗂️</span>Messages <span class="cnt">jusqu'à 10, envoyés dans l'ordre</span></h2>
+      <div id="msgTabs" class="mtabs"></div>
+      <div class="mact">Message actuel :
+        <button class="icon" data-ma="left" title="Déplacer avant">←</button><button class="icon" data-ma="right" title="Déplacer après">→</button>
+        <button class="icon" data-ma="dup" title="Dupliquer ce message">⧉ Dupliquer</button><button class="icon danger" data-ma="del" title="Supprimer ce message">✕ Supprimer</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">👤</span>Profil & options</h2>
+      <div class="row">
+        <div><label>Nom affiché</label><input data-s="username" maxlength="80" placeholder="Nom du webhook par défaut"></div>
+        <div><label>Avatar (URL)</label><input data-s="avatar" placeholder="https://..."></div>
+      </div>
+      <div class="personas" id="personas"></div>
+      <details id="advanced">
+        <summary>Options avancées</summary>
+        <div class="row">
+          <div><label>Nom du post (salon forum)</label><input data-s="threadName" maxlength="100" placeholder="Crée un post dans un forum"></div>
+          <div><label>ID du fil (thread)</label><input data-s="threadId" placeholder="Envoyer dans un fil existant"></div>
+        </div>
+        <label>Message à modifier (ID ou lien du message)</label>
+        <div class="pw"><input data-s="editId" placeholder="Vide = nouveau message"><button class="sec" id="loadMsg" title="Récupérer le contenu actuel de ce message depuis Discord">⬇ Charger</button></div>
+        <div class="hint">Colle l'ID ou le lien d'un message envoyé par ce webhook, puis « Charger » pour le récupérer et le modifier.</div>
+        <label class="chk"><input type="checkbox" data-s="silent"> Message silencieux (pas de notification)</label>
+        <label class="chk"><input type="checkbox" data-s="noMentions"> Désactiver les mentions (@everyone, rôles, membres)</label>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">💬</span>Message <span class="cnt" id="contentCnt"></span></h2>
+      <textarea data-s="content" maxlength="2000" placeholder="Texte au-dessus des embeds… (markdown Discord supporté)"></textarea>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">📊</span>Sondage <span class="cnt" id="pollCnt"></span></h2>
+      <label class="chk" style="margin-top:0"><input type="checkbox" id="pollOn"> Ajouter un sondage au message</label>
+      <div id="pollBody" hidden>
+        <label>Question</label><input id="pollQ" maxlength="300" placeholder="Quelle est ta question ?">
+        <label>Réponses (emoji facultatif)</label><div id="pollAns"></div>
+        <button class="sec sm" id="pollAdd" style="margin-top:8px">+ Réponse</button>
+        <div class="row">
+          <div><label>Durée</label><select id="pollDur">
+            <option value="1">1 heure</option><option value="4">4 heures</option><option value="8">8 heures</option>
+            <option value="24">24 heures</option><option value="72">3 jours</option><option value="168">1 semaine</option><option value="336">2 semaines</option></select></div>
+          <div><label>&nbsp;</label><label class="chk" style="margin-top:6px"><input type="checkbox" id="pollMulti"> Plusieurs réponses possibles</label></div>
+        </div>
+        <div class="hint">Un sondage ne peut plus être modifié une fois envoyé.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">📎</span>Fichiers <span class="cnt" id="fileCnt"></span></h2>
+      <div id="drop" class="drop">Glisse des fichiers ici ou <label class="linkish">parcours<input type="file" id="fileIn" multiple hidden></label></div>
+      <div id="fileList"></div>
+      <div class="hint">Astuce : mets <code>attachment://nom.png</code> comme URL d'image d'un embed pour y afficher un fichier joint (bouton « Copier le lien »).</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">🧩</span>Embeds <span class="cnt" id="embedCnt"></span></h2>
+      <div id="embeds"></div>
+      <div class="quick" id="quickAdd"><span class="hint" style="margin:0">Ajout rapide :</span></div>
+      <button class="sec wide" id="addEmbed">+ Ajouter un embed vide</button>
+    </div>
+
+    <div class="sendbar">
+      <div id="sendInfo" class="hint"></div>
+      <div class="sched">
+        <button class="sec" id="schedBtn" title="Programmer l'envoi">⏰</button>
+        <div id="schedPop" hidden>
+          <label style="margin-top:0">Envoyer ce message le…</label>
+          <input type="datetime-local" id="schedAt">
+          <label>Répéter</label>
+          <select id="schedRep">
+            <option value="0">Jamais (une seule fois)</option><option value="3600000">Toutes les heures</option>
+            <option value="86400000">Tous les jours</option><option value="604800000">Toutes les semaines</option>
+          </select>
+          <label class="chk" id="schedAllWrap" hidden><input type="checkbox" id="schedAll"> <span id="schedAllTxt">Programmer tous les messages</span></label>
+          <div class="hint">⚠️ Garde cette page ouverte : l'envoi part de ton navigateur.</div>
+          <div class="actions"><button class="sec sm" id="schedCancel">Fermer</button><button class="sm" id="schedGo">Programmer</button></div>
+        </div>
+      </div>
+      <button id="sendBtn">🚀 Envoyer</button>
+      <button id="sendAllBtn" hidden title="Envoie tous les messages à la suite">📚 Envoyer tout</button>
+      <div id="queue"></div>
+    </div>
+  </section>
+
+  <section id="right">
+    <nav class="tabs">
+      <button data-tab="preview" class="on">👁 Aperçu</button>
+      <button data-tab="history">🕘 Historique</button>
+      <button data-tab="templates">📁 Modèles</button>
+      <button data-tab="tools">🧰 Outils</button>
+    </nav>
+    <div class="tab on" id="tab-preview">
+      <div class="ptools"><button class="sec sm" data-pv="desk">🖥 Ordinateur</button><button class="sec sm" data-pv="mob">📱 Mobile</button></div>
+      <div class="pframe">
+        <div class="pbar"><span class="dots"><i></i><i></i><i></i></span><span class="chan"># <b>aperçu</b></span><span class="pcount" id="pcount"></span></div>
+        <div class="preview" id="preview"></div>
+      </div>
+    </div>
+    <div class="tab" id="tab-history">
+      <div class="hint" style="margin:0 0 8px">Les messages envoyés depuis ce navigateur. Tu peux les recharger pour les modifier ou les supprimer de Discord.</div>
+      <input id="histQ" placeholder="🔎 Rechercher dans l'historique…" style="margin-bottom:8px">
+      <div id="history"></div>
+    </div>
+    <div class="tab" id="tab-templates">
+      <div class="card">
+        <h2><span class="ic">⭐</span>Mes modèles</h2>
+        <div id="tplMine"></div>
+        <button class="sec wide" id="tplSave">💾 Enregistrer le message actuel comme modèle</button>
+      </div>
+      <div class="card">
+        <h2><span class="ic">✨</span>Modèles prêts à l'emploi</h2>
+        <div id="tplBuiltin"></div>
+      </div>
+    </div>
+    <div class="tab" id="tab-tools">
+      <div class="card">
+        <h2><span class="ic">🎨</span>Apparence</h2>
+        <label style="margin-top:0">Couleur du site</label>
+        <div class="accs" id="accs"></div>
+        <label class="chk"><input type="checkbox" id="optConfetti"> Confettis quand un message est envoyé 🎉</label>
+      </div>
+      <div class="card">
+        <h2><span class="ic">🕒</span>Générateur de date dynamique</h2>
+        <input type="datetime-local" id="tsIn">
+        <div id="tsOut"></div>
+        <div class="hint">Colle un de ces codes dans ton texte ou un embed : Discord affiche la date dans le fuseau horaire de chaque membre.</div>
+      </div>
+      <div class="card">
+        <h2><span class="ic">🔤</span>Variables</h2>
+        <div class="hint" style="margin-top:0">Écris <code>{nom}</code> n'importe où dans ton message : la valeur est remplacée au moment de l'envoi (pratique avec l'envoi répété). Clique pour copier.</div>
+        <div id="varBuiltin" class="vars"></div>
+        <label>Mes variables</label>
+        <div id="varList"></div>
+        <button class="sec sm" id="varAdd" style="margin-top:8px">+ Variable</button>
+      </div>
+      <div class="card">
+        <h2><span class="ic">💾</span>Sauvegarde</h2>
+        <div class="hint" style="margin-top:0">Tes webhooks, modèles et ton historique sont stockés dans ce navigateur. Exporte-les pour les garder ou les transférer sur un autre PC.</div>
+        <div class="actions" style="justify-content:flex-start">
+          <button class="sec sm" id="bkExport">⬇ Exporter mes données</button>
+          <button class="sec sm" id="bkImport">⬆ Importer une sauvegarde</button>
+          <input type="file" id="bkFile" accept=".json,application/json" hidden>
+        </div>
+        <div class="hint">⚠️ Le fichier contient les URL de tes webhooks : ne le partage pas.</div>
+      </div>
+      <div class="card">
+        <h2><span class="ic">🌍</span>Mettre le site en ligne</h2>
+        <div class="hint" style="margin-top:0">Pour l'utiliser depuis ton téléphone, n'importe où, ou le partager avec ton équipe, tu peux l'héberger gratuitement :</div>
+        <ol class="steps small">
+          <li><span>Renomme le fichier <code>webhook-embed.html</code> en <code>index.html</code> et place-le seul dans un dossier.</span></li>
+          <li><span>Va sur <b>app.netlify.com/drop</b> (ou GitHub Pages) et glisse ce dossier dans la page.</span></li>
+          <li><span>Tu obtiens une adresse <code>https://…</code> à ouvrir partout. Crée un compte gratuit pour la garder.</span></li>
+        </ol>
+        <div class="hint">🔒 Les webhooks restent enregistrés dans le navigateur de chaque personne, jamais sur le site lui-même. Les liens « 🔗 Partager » fonctionnent pleinement une fois le site en ligne.</div>
+      </div>
+      <div class="card">
+        <h2><span class="ic">📘</span>Aide-mémoire markdown</h2>
+        <table class="cheat" id="cheat"></table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg">
+  <form method="dialog">
+    <h3 id="dlgTitle"></h3>
+    <textarea id="dlgText" spellcheck="false"></textarea>
+    <div class="actions"><button value="cancel" class="sec">Fermer</button><button id="dlgOk" value="ok"></button></div>
+  </form>
+</dialog>
+<dialog id="help">
+  <h3>👋 Bienvenue sur Embed Sender</h3>
+  <div class="hint" style="margin-top:0">Crée de beaux messages Discord et envoie-les avec un webhook, en 4 étapes :</div>
+  <ol class="steps">
+    <li><span><b>Crée un webhook</b> dans Discord : Paramètres du salon → Intégrations → Webhooks → Nouveau webhook → « Copier l'URL du webhook ».</span></li>
+    <li><span><b>Colle l'URL</b> dans la carte 🔗 Webhook, puis clique sur « Vérifier » et « Enregistrer ».</span></li>
+    <li><span><b>Compose ton message</b> : texte, embeds, sondage, fichiers… L'aperçu se met à jour en direct.</span></li>
+    <li><span><b>Envoie</b> avec 🚀, ou programme l'envoi avec ⏰.</span></li>
+  </ol>
+  <h4>⌨️ Raccourcis clavier</h4>
+  <table class="keys">
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Entrée</kbd></td><td>Envoyer le message ouvert</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Enregistrer comme modèle</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Z</kbd> / <kbd>Y</kbd></td><td>Annuler / rétablir (en dehors d'un champ de texte)</td></tr>
+    <tr><td><kbd>?</kbd></td><td>Ouvrir cette aide</td></tr>
+    <tr><td><kbd>Échap</kbd></td><td>Fermer une fenêtre ou le sélecteur d'emojis</td></tr>
+  </table>
+  <h4>💡 Astuces</h4>
+  <div class="hint" style="margin-top:0">Glisse la poignée <b>⋮⋮</b> d'un embed ou un onglet de message pour changer l'ordre. Tout est enregistré dans ton navigateur : pense à la Sauvegarde (onglet Outils).</div>
+  <div class="actions"><button id="helpClose">C'est parti !</button></div>
+</dialog>
+<div id="toasts"></div>
+<div id="ccount" hidden></div>
+<nav class="mnav" id="mnav"><button data-mv="edit" class="on">✏️ Édition</button><button data-mv="view">👁 Aperçu</button></nav>
+<div id="emojiPop" hidden></div>
+
+<script>
+/* ---------- Utilitaires ---------- */
+const $ = id => document.getElementById(id);
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const WH_RE = /^https:\/\/(?:(?:canary|ptb)\.)?discord(?:app)?\.com\/api(?:\/v\d+)?\/webhooks\/(\d+)\/([\w-]+)/;
+const COLORS = ['#5865f2','#57f287','#fee75c','#eb459e','#ed4245','#e67e22','#3498db','#9b59b6','#1abc9c','#ffffff','#99aab5','#2b2d31'];
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtSize(n){ return n < 1024 ? n + ' o' : n < 1048576 ? (n/1024).toFixed(1) + ' Ko' : (n/1048576).toFixed(1) + ' Mo'; }
+function toLocalInput(d){ const z = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; }
+function getP(o, p){ return p.split('.').reduce((a, k) => a?.[k], o); }
+function setP(o, p, v){ const ks = p.split('.'); const l = ks.pop(); ks.reduce((a, k) => a[k], o)[l] = v; }
+
+function toast(msg, type = '', ms, action){
+  ms = ms || (type === 'err' ? 6000 : 2500);
+  const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+  if (action){
+    const b = document.createElement('button'); b.className = 'sec sm tact'; b.textContent = action.label; b.onclick = action.fn;
+    t.appendChild(document.createElement('br')); t.appendChild(b); ms += 3000;
+  }
+  $('toasts').appendChild(t);
+  setTimeout(() => t.classList.add('out'), ms); setTimeout(() => t.remove(), ms + 400);
+}
+function copy(text){
+  const done = () => toast('Copié dans le presse-papiers', 'ok');
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  function fallback(){ const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); done(); }catch(e){ toast('Copie impossible', 'err'); } t.remove(); }
+}
+function dialog(title, text, okLabel){
+  return new Promise(resolve => {
+    $('dlgTitle').textContent = title; $('dlgText').value = text; $('dlgOk').textContent = okLabel;
+    const d = $('dlg'); d.returnValue = '';
+    d.onclose = () => resolve(d.returnValue === 'ok' ? $('dlgText').value : null);
+    d.showModal();
+  });
+}
+
+/* ---------- Dates Discord ---------- */
+function fmtTs(sec, style){
+  const d = new Date(sec * 1000);
+  if (style === 'R'){
+    const diff = (d - Date.now()) / 1000, rtf = new Intl.RelativeTimeFormat('fr', {numeric:'auto'});
+    for (const [u, s] of [['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60],['second',1]])
+      if (Math.abs(diff) >= s || u === 'second') return rtf.format(Math.round(diff / s), u);
+  }
+  const o = {t:{timeStyle:'short'},T:{timeStyle:'medium'},d:{dateStyle:'short'},D:{dateStyle:'long'},f:{dateStyle:'long',timeStyle:'short'},F:{dateStyle:'full',timeStyle:'short'}};
+  return d.toLocaleString('fr-FR', o[style] || o.f);
+}
+function fmtFooterTs(d){
+  const t = d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  const today = new Date(); const y = new Date(); y.setDate(y.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Aujourd'hui à " + t;
+  if (d.toDateString() === y.toDateString()) return 'Hier à ' + t;
+  return d.toLocaleDateString('fr-FR') + ' ' + t;
+}
+
+/* ---------- Markdown Discord (aperçu) ---------- */
+function md(src, inlineOnly){
+  const stash = []; const keep = h => '\u0001' + (stash.push(h) - 1) + '\u0002';
+  const restore = h => { let prev; do { prev = h; h = h.replace(/\u0001(\d+)\u0002/g, (m, i) => stash[i]); } while (h !== prev); return h; };
+  let s = esc(src);
+  if (!inlineOnly) s = s.replace(/```(?:[\w+-]*\n)?([\s\S]*?)```/g, (m, c) => keep(`<pre class="cb">${c.replace(/\n$/, '')}</pre>`));
+  s = s.replace(/`([^`\n]+)`/g, (m, c) => keep(`<code>${c}</code>`));
+  const fmt = t => t
+    .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, a, b) => keep(`<a href="${b}" target="_blank" rel="noopener">${a}</a>`))
+    .replace(/https?:\/\/[^\s<]+[^\s<.,:;"')\]]/g, m => keep(`<a href="${m}" target="_blank" rel="noopener">${m}</a>`))
+    .replace(/&lt;t:(-?\d+)(?::([tTdDfFR]))?&gt;/g, (m, a, b) => keep(`<span class="mention ts">${fmtTs(+a, b || 'f')}</span>`))
+    .replace(/&lt;@&amp;\d+&gt;/g, () => keep('<span class="mention">@rôle</span>'))
+    .replace(/&lt;@!?\d+&gt;/g, () => keep('<span class="mention">@membre</span>'))
+    .replace(/&lt;#\d+&gt;/g, () => keep('<span class="mention">#salon</span>'))
+    .replace(/@(everyone|here)\b/g, m => keep(`<span class="mention">${m}</span>`))
+    .replace(/\|\|(.+?)\|\|/g, '<span class="spoiler" onclick="this.classList.add(\'shown\')">$1</span>')
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<b><i>$1</i></b>')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/__(.+?)__/g, '<u>$1</u>')
+    .replace(/\*(.+?)\*/g, '<i>$1</i>')
+    .replace(/(^|[^\w])_(.+?)_(?!\w)/g, '$1<i>$2</i>')
+    .replace(/~~(.+?)~~/g, '<s>$1</s>');
+  if (inlineOnly) return restore(fmt(s));
+  const out = [];
+  for (const line of s.split('\n')){
+    let m;
+    if ((m = line.match(/^(#{1,3}) (.+)/))) out.push(`<div class="h${m[1].length}">${fmt(m[2])}</div>`);
+    else if ((m = line.match(/^-# (.+)/))) out.push(`<div class="sub">${fmt(m[1])}</div>`);
+    else if ((m = line.match(/^&gt;(?: (.*))?$/))) out.push(`<div class="bq">${fmt(m[1] || '') || '&#8203;'}</div>`);
+    else if ((m = line.match(/^(\s*)[-*] (.+)/))) out.push(`<div class="li" style="margin-left:${m[1].length ? 20 : 0}px">• ${fmt(m[2])}</div>`);
+    else if ((m = line.match(/^(\d+)\. (.+)/))) out.push(`<div class="li">${m[1]}. ${fmt(m[2])}</div>`);
+    else out.push(`<div class="ln">${fmt(line) || '&#8203;'}</div>`);
+  }
+  return restore(out.join(''));
+}
+
+/* ---------- État ---------- */
+function newEmbed(){
+  return {color:'#5865f2', author:{name:'',url:'',icon_url:''}, title:'', url:'', description:'', fields:[],
+    image:'', gallery:['','',''], thumbnail:'', footer:{text:'',icon_url:''}, tsMode:'none', tsValue:'', _open:true, _sec:{}};
+}
+const blankPoll = () => ({enabled:false, question:'', answers:[], duration:24, multi:false});
+const blankState = () => ({content:'', username:'', avatar:'', threadName:'', threadId:'', editId:'', silent:false, noMentions:false, embeds:[newEmbed()], poll:blankPoll()});
+const state = blankState();
+let files = [];                              // {file, url}
+let webhooks = LS.get('webhooks', []);       // {name, url, info}
+let history = LS.get('history', []);
+let templates = LS.get('templates', []);     // {name, state}
+let whInfo = null;
+
+function embedLen(e){
+  return (e.title||'').length + (e.description||'').length + (e.author.name||'').length + (e.footer.text||'').length
+    + e.fields.reduce((a, f) => a + (f.name||'').length + (f.value||'').length, 0);
+}
+
+/* ---------- Conversion vers / depuis l'API Discord ---------- */
+function toApiEmbed(e){
+  const o = {}, t = v => (v || '').trim();
+  if (t(e.author.name)){ o.author = {name:e.author.name}; if (t(e.author.url)) o.author.url = t(e.author.url); if (t(e.author.icon_url)) o.author.icon_url = t(e.author.icon_url); }
+  if (t(e.title)) o.title = e.title;
+  if (t(e.url)) o.url = t(e.url);
+  if (t(e.description)) o.description = e.description;
+  const fs = e.fields.filter(f => t(f.name) || t(f.value)).map(f => ({name: t(f.name) ? f.name : '​', value: t(f.value) ? f.value : '​', inline: !!f.inline}));
+  if (fs.length) o.fields = fs;
+  if (t(e.image)) o.image = {url: t(e.image)};
+  if (t(e.thumbnail)) o.thumbnail = {url: t(e.thumbnail)};
+  if (t(e.footer.text)){ o.footer = {text:e.footer.text}; if (t(e.footer.icon_url)) o.footer.icon_url = t(e.footer.icon_url); }
+  if (e.tsMode === 'now') o.timestamp = new Date().toISOString();
+  else if (e.tsMode === 'custom' && e.tsValue){ const d = new Date(e.tsValue); if (!isNaN(d)) o.timestamp = d.toISOString(); }
+  if (!Object.keys(o).length) return null;
+  if (/^#[0-9a-f]{6}$/i.test(e.color)) o.color = parseInt(e.color.slice(1), 16);
+  return o;
+}
+function buildPayload(s = state){
+  const p = {};
+  if (s.content.trim()) p.content = s.content;
+  if (s.username.trim()) p.username = s.username.trim();
+  if (s.avatar.trim()) p.avatar_url = s.avatar.trim();
+  if (!s.editId.trim()){
+    if (s.threadName.trim()) p.thread_name = s.threadName.trim();
+    if (s.silent) p.flags = 4096;
+  }
+  if (s.noMentions) p.allowed_mentions = {parse: []};
+  // Embeds (+ images de galerie : embeds supplémentaires partageant le même lien)
+  const em = s.embeds.flatMap(e => {
+    const o = toApiEmbed(e); if (!o) return [];
+    const g = (e.gallery || []).map(x => (x || '').trim()).filter(Boolean);
+    if (!g.length) return [o];
+    if (!o.image) o.image = {url: g.shift()};
+    if (!g.length) return [o];
+    o.url = o.url || 'https://discord.com';
+    return [o, ...g.map(u => ({url: o.url, image: {url: u}}))];
+  });
+  if (em.length) p.embeds = em;
+  // Sondage
+  const P = s.poll;
+  if (P && P.enabled && !s.editId.trim() && P.question.trim()){
+    const ans = P.answers.filter(a => a.text.trim()).map(a => {
+      const m = {text: a.text.trim()}, emo = (a.emoji || '').trim(), c = emo.match(/^<a?:\w+:(\d+)>$/);
+      if (c) m.emoji = {id: c[1]}; else if (emo) m.emoji = {name: emo};
+      return {poll_media: m};
+    });
+    if (ans.length) p.poll = {question: {text: P.question.trim()}, answers: ans, duration: +P.duration || 24, allow_multiselect: !!P.multi};
+  }
+  return p;
+}
+function checkSendable(s, fl){
+  if (!whBase($('whUrl').value)) return 'Ajoute une URL de webhook valide';
+  const p = buildPayload(s);
+  if (!p.content && !p.embeds && !p.poll && !fl.length) return 'Le message est vide';
+  const tot = s.embeds.reduce((a, e) => a + embedLen(e), 0);
+  if (tot > 6000) return `Trop de texte dans les embeds (${tot}/6000 caractères)`;
+  if ((p.embeds || []).length > 10) return "Trop d'embeds : 10 maximum (chaque image de galerie compte comme un embed)";
+  if (s.poll?.enabled && !s.editId.trim() && !p.poll) return 'Le sondage doit avoir une question et au moins une réponse';
+  return null;
+}
+function fromApi(p){
+  if (p?.messages?.[0]?.data) p = p.messages[0].data;    // format Discohook
+  const s = blankState();
+  s.content = p.content || ''; s.username = p.username || ''; s.avatar = p.avatar_url || '';
+  s.threadName = p.thread_name || ''; s.silent = !!(p.flags & 4096);
+  s.noMentions = !!(p.allowed_mentions && !(p.allowed_mentions.parse || []).length);
+  if (p.poll){
+    const em = a => a.poll_media?.emoji?.id ? `<:e:${a.poll_media.emoji.id}>` : a.poll_media?.emoji?.name || '';
+    s.poll = {enabled: true, question: p.poll.question?.text || '', answers: (p.poll.answers || []).slice(0, 10).map(a => ({text: a.poll_media?.text || '', emoji: em(a)})),
+      duration: p.poll.duration || 24, multi: !!p.poll.allow_multiselect};
+  }
+  // Regroupe les embeds « galerie » (même lien, seulement une image) dans l'embed précédent
+  const merged = [];
+  for (const e of p.embeds || []){
+    const prev = merged[merged.length - 1];
+    const keys = Object.keys(e).filter(k => e[k] != null && k !== 'type');
+    const onlyImage = keys.includes('image') && !['title','description','fields','author','footer','thumbnail','timestamp'].some(k => e[k]);
+    if (prev && e.url && prev.url === e.url && e.image?.url && onlyImage && prev._g.length < 3){ prev._g.push(e.image.url); continue; }
+    merged.push({...e, _g: []});
+  }
+  s.embeds = merged.slice(0, 10).map(e => ({...newEmbed(), gallery: [...e._g, '', '', ''].slice(0, 3),
+    color: e.color != null ? '#' + Number(e.color).toString(16).padStart(6, '0') : '#5865f2',
+    author: {name: e.author?.name || '', url: e.author?.url || '', icon_url: e.author?.icon_url || ''},
+    title: e.title || '', url: e.url || '', description: e.description || '',
+    fields: (e.fields || []).map(f => ({name: f.name === '​' ? '' : f.name || '', value: f.value === '​' ? '' : f.value || '', inline: !!f.inline})),
+    image: e.image?.url || '', thumbnail: e.thumbnail?.url || '',
+    footer: {text: e.footer?.text || '', icon_url: e.footer?.icon_url || ''},
+    tsMode: e.timestamp === 'now' ? 'now' : e.timestamp ? 'custom' : 'none',
+    tsValue: e.timestamp && e.timestamp !== 'now' ? toLocalInput(new Date(e.timestamp)) : ''
+  }));
+  return s;
+}
+function loadState(s){
+  Object.assign(state, blankState(), structuredClone(s));
+  if (!Array.isArray(state.embeds)) state.embeds = [];
+  state.embeds.forEach(e => { e._sec = e._sec || {}; e._open = e._open !== false; });
+  if (!state.poll) state.poll = blankPoll();
+  refreshTop(); renderEmbeds(); renderPoll(); update();
+}
+const isEmpty = () => !state.content.trim() && !state.embeds.some(e => toApiEmbed(e)) && !(state.poll.enabled && state.poll.question.trim());
+
+/* ---------- Sondage ---------- */
+function renderPoll(){
+  const P = state.poll;
+  $('pollOn').checked = P.enabled; $('pollBody').hidden = !P.enabled;
+  $('pollQ').value = P.question; $('pollDur').value = String(P.duration); $('pollMulti').checked = P.multi;
+  $('pollAns').innerHTML = P.answers.map((a, i) => `<div class="ans">
+      <input class="em" data-pe="${i}" value="${esc(a.emoji)}" placeholder="😀" maxlength="64" title="Emoji (ex : 🍕 ou <:nom:id>)">
+      <input data-pt="${i}" value="${esc(a.text)}" maxlength="55" placeholder="Réponse ${i + 1}">
+      <button class="del" data-pr="${i}" title="Retirer">✕</button></div>`).join('');
+  $('pollAdd').hidden = P.answers.length >= 10;
+}
+$('pollOn').onchange = () => {
+  state.poll.enabled = $('pollOn').checked;
+  if (state.poll.enabled && !state.poll.answers.length) state.poll.answers = [{text:'', emoji:''}, {text:'', emoji:''}];
+  renderPoll(); update();
+};
+$('pollQ').oninput = () => { state.poll.question = $('pollQ').value; update(); };
+$('pollDur').onchange = () => { state.poll.duration = +$('pollDur').value; update(); };
+$('pollMulti').onchange = () => { state.poll.multi = $('pollMulti').checked; update(); };
+$('pollAns').oninput = e => {
+  const t = e.target;
+  if (t.dataset.pt) state.poll.answers[+t.dataset.pt].text = t.value;
+  if (t.dataset.pe) state.poll.answers[+t.dataset.pe].emoji = t.value;
+  update();
+};
+$('pollAns').onclick = e => { const b = e.target.closest('[data-pr]'); if (!b) return; state.poll.answers.splice(+b.dataset.pr, 1); renderPoll(); update(); };
+$('pollAdd').onclick = () => {
+  if (state.poll.answers.length >= 10) return;
+  state.poll.answers.push({text:'', emoji:''}); renderPoll(); update();
+  $('pollAns').querySelector('.ans:last-child [data-pt]').focus();
+};
+const durLabel = h => h < 24 ? `${h} h` : `${Math.round(h / 24)} j`;
+
+/* ---------- Liaison des champs ---------- */
+function bindAll(root, obj, attr){
+  root.querySelectorAll(`[data-${attr}]`).forEach(el => {
+    const p = el.dataset[attr], v = typeof obj === 'function' ? getP(obj(), p) : getP(obj, p);
+    if (el.type === 'checkbox') el.checked = !!v; else el.value = v ?? '';
+    el.addEventListener('input', () => {
+      setP(typeof obj === 'function' ? obj() : obj, p, el.type === 'checkbox' ? el.checked : el.value);
+      el.dispatchEvent(new CustomEvent('bound', {bubbles: true}));
+      update();
+    });
+  });
+}
+function refreshTop(){
+  document.querySelectorAll('[data-s]').forEach(el => { const v = state[el.dataset.s]; if (el.type === 'checkbox') el.checked = !!v; else el.value = v ?? ''; });
+  if (state.threadName || state.threadId || state.editId || state.silent || state.noMentions) $('advanced').open = true;
+}
+
+/* ---------- Webhooks ---------- */
+function whBase(u){ const m = (u || '').trim().match(WH_RE); return m ? `https://discord.com/api/webhooks/${m[1]}/${m[2]}` : null; }
+function renderWhSelect(){
+  const sel = $('whSelect'), cur = whBase($('whUrl').value);
+  sel.innerHTML = '<option value="">＋ Nouveau webhook</option>' + webhooks.map((w, i) => `<option value="${i}">${esc(w.name)}</option>`).join('');
+  const i = webhooks.findIndex(w => w.url === cur); sel.value = i >= 0 ? String(i) : '';
+  renderWhMulti();
+}
+function renderWhInfo(err){
+  const el = $('whInfo');
+  $('whEdit').hidden = !whInfo || !!err;
+  if (whInfo) $('whNewName').placeholder = whInfo.name;
+  if (err){ el.innerHTML = `<span class="err">✖ ${esc(err)}</span>`; return; }
+  if (!whInfo){ el.innerHTML = whBase($('whUrl').value) ? '<span class="muted">Clique sur « Vérifier » pour tester le webhook.</span>' : ($('whUrl').value.trim() ? '<span class="err">URL invalide</span>' : ''); return; }
+  el.innerHTML = `${whInfo.avatar ? `<img src="${esc(whInfo.avatar)}" alt="">` : '<span class="dot"></span>'}<b>${esc(whInfo.name)}</b><span class="muted">· salon ${esc(whInfo.channel_id)}</span><span style="color:var(--ok)">✔</span>`;
+}
+function onWhChange(){
+  const b = whBase($('whUrl').value), w = webhooks.find(w => w.url === b);
+  whInfo = w?.info || null;
+  renderWhSelect(); renderWhInfo(); LS.set('currentWh', $('whUrl').value); update();
+}
+async function checkWebhook(quiet){
+  const b = whBase($('whUrl').value);
+  if (!b){ if (!quiet) toast('URL de webhook invalide', 'err'); return null; }
+  try{
+    const r = await fetch(b);
+    if (!r.ok) throw new Error(r.status === 404 || r.status === 401 ? 'webhook introuvable (supprimé ?)' : 'erreur ' + r.status);
+    const j = await r.json();
+    whInfo = {name: j.name, avatar: j.avatar ? `https://cdn.discordapp.com/avatars/${j.id}/${j.avatar}.png` : '', guild_id: j.guild_id, channel_id: j.channel_id};
+    const w = webhooks.find(w => w.url === b); if (w){ w.info = whInfo; LS.set('webhooks', webhooks); }
+    renderWhInfo(); update(); if (!quiet) toast('Webhook valide ✔', 'ok');
+    return whInfo;
+  }catch(e){ whInfo = null; renderWhInfo(e.message); if (!quiet) toast('Webhook : ' + e.message, 'err'); return null; }
+}
+$('whSelect').onchange = () => { const w = webhooks[$('whSelect').value]; $('whUrl').value = w ? w.url : ''; onWhChange(); };
+$('whUrl').oninput = onWhChange;
+$('whEye').onclick = () => { const u = $('whUrl'); u.type = u.type === 'password' ? 'text' : 'password'; };
+$('whCheck').onclick = () => checkWebhook();
+$('whSave').onclick = async () => {
+  const b = whBase($('whUrl').value); if (!b) return toast('URL de webhook invalide', 'err');
+  if (!whInfo) await checkWebhook(true);
+  const i = webhooks.findIndex(w => w.url === b);
+  const name = prompt('Nom pour ce webhook :', webhooks[i]?.name || whInfo?.name || 'Mon webhook'); if (!name) return;
+  const w = {name, url: b, info: whInfo};
+  if (i >= 0) webhooks[i] = w; else webhooks.push(w);
+  LS.set('webhooks', webhooks); $('whUrl').value = b; renderWhSelect(); toast('Webhook enregistré', 'ok');
+};
+$('whDel').onclick = () => {
+  const i = $('whSelect').value; if (i === '') return;
+  if (!confirm(`Retirer « ${webhooks[i].name} » de la liste ? (le webhook n'est pas supprimé sur Discord)`)) return;
+  webhooks.splice(i, 1); LS.set('webhooks', webhooks); renderWhSelect();
+};
+
+/* ---------- Fichiers ---------- */
+function addFiles(list){
+  for (const f of list){
+    if (files.length >= 10){ toast('Maximum 10 fichiers', 'err'); break; }
+    files.push({file: f, url: URL.createObjectURL(f)});
+  }
+  renderFiles(); update();
+}
+function renderFiles(){
+  const total = files.reduce((a, f) => a + f.file.size, 0);
+  $('fileCnt').innerHTML = files.length ? `${files.length}/10 · <span class="${total > 10485760 ? 'warn' : ''}">${fmtSize(total)}</span>` : '';
+  $('fileList').innerHTML = files.map((f, i) => `<div class="file">
+    ${f.file.type.startsWith('image/') ? `<img src="${f.url}" alt="">` : '<span class="ficon">📄</span>'}
+    <div class="fmeta"><div>${esc(f.file.name)}</div><div class="muted">${fmtSize(f.file.size)}</div></div>
+    <button class="sec sm" data-copy="attachment://${esc(f.file.name)}">Copier le lien</button>
+    <button class="del" data-rm="${i}" title="Retirer">✕</button></div>`).join('');
+}
+$('fileList').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.rm !== undefined){ URL.revokeObjectURL(files[b.dataset.rm].url); files.splice(+b.dataset.rm, 1); renderFiles(); update(); }
+  if (b.dataset.copy) copy(b.dataset.copy);
+};
+$('fileIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+const drop = $('drop');
+['dragover','dragenter'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+function res(u, fl = files){
+  if (!u) return '';
+  const m = u.match(/^attachment:\/\/(.+)$/);
+  if (m){ const f = fl.find(f => f.file.name === m[1]); return f ? f.url : ''; }
+  return u;
+}
+
+/* ---------- Éditeur d'embeds ---------- */
+let dragEmbed = null;
+function renderEmbeds(){
+  const c = $('embeds'); c.innerHTML = '';
+  $('embedCnt').textContent = `${state.embeds.length}/10`;
+  state.embeds.forEach((e, i) => {
+    e._sec = e._sec || {};
+    if (!Array.isArray(e.gallery)) e.gallery = ['', '', ''];
+    const open = (k, def) => (e._sec[k] ?? def) ? 'open' : '';
+    const d = document.createElement('div'); d.className = 'embed-ed'; d.style.borderLeftColor = e.color;
+    d.innerHTML = `
+      <div class="etop">
+        <span class="grip" title="Glisser pour déplacer">⋮⋮</span>
+        <button class="etoggle" data-a="toggle">${e._open ? '▾' : '▸'} <span class="elabel"></span></button>
+        <span class="ecnt"></span>
+        <span class="ebtns">
+          <button class="icon" data-a="up" title="Monter">↑</button><button class="icon" data-a="down" title="Descendre">↓</button>
+          <button class="icon" data-a="dup" title="Dupliquer">⧉</button><button class="icon danger" data-a="rm" title="Supprimer">✕</button>
+        </span>
+      </div>
+      <div class="ebody" ${e._open ? '' : 'hidden'}>
+        <details data-sec="author" ${open('author', !!(e.author.name || e.author.icon_url))}><summary>Auteur</summary>
+          <div class="row"><div><label>Nom</label><input data-k="author.name" maxlength="256"></div>
+          <div><label>Icône (URL)</label><input data-k="author.icon_url" placeholder="https://..."></div></div>
+          <label>Lien</label><input data-k="author.url" placeholder="https://..."></details>
+        <details data-sec="body" ${open('body', true)}><summary>Corps</summary>
+          <label>Titre</label><input data-k="title" maxlength="256">
+          <label>Lien du titre</label><input data-k="url" placeholder="https://...">
+          <label>Description</label><textarea data-k="description" maxlength="4096" rows="5"></textarea>
+          <label>Couleur</label>
+          <div class="color"><input type="color" data-k="color"><input type="text" data-k="color" maxlength="7">
+            ${COLORS.map(col => `<button class="sw" style="background:${col}" data-color="${col}" title="${col}"></button>`).join('')}
+            <button class="sec sm" data-auto="1" title="Choisir la couleur d'après l'image ou la miniature de l'embed">🪄 Auto</button></div></details>
+        <details data-sec="fields" ${open('fields', e.fields.length > 0)}><summary>Champs (${e.fields.length}/25)</summary>
+          <div class="flds">${e.fields.map((f, j) => `
+            <div class="field-ed" data-j="${j}">
+              <div class="row"><div><label>Nom</label><input data-f="name" maxlength="256"></div>
+              <div><label>Valeur</label><textarea data-f="value" maxlength="1024"></textarea></div></div>
+              <div class="fbar"><label class="chk"><input type="checkbox" data-f="inline"> En ligne</label>
+                <span style="flex:1"></span>
+                <button class="icon" data-fa="up" data-j="${j}" title="Monter">↑</button>
+                <button class="icon danger" data-fa="rm" data-j="${j}" title="Supprimer">✕</button></div>
+            </div>`).join('')}</div>
+          <button class="sec sm" style="margin-top:8px" data-fa="add">+ Champ</button></details>
+        <details data-sec="images" ${open('images', !!(e.image || e.thumbnail || e.gallery.some(Boolean)))}><summary>Images</summary>
+          <label>Grande image (URL ou attachment://)</label><input data-k="image" placeholder="https://...">
+          <label>Galerie : jusqu'à 3 images en plus</label>
+          <div class="row"><input data-k="gallery.0" placeholder="Image 2"><input data-k="gallery.1" placeholder="Image 3"></div>
+          <input data-k="gallery.2" placeholder="Image 4" style="margin-top:8px">
+          <div class="hint">Discord les affiche en mosaïque dans l'embed. Elles utilisent le « Lien du titre » (https://discord.com s'il est vide) et chacune compte comme un embed.</div>
+          <label>Miniature (URL ou attachment://)</label><input data-k="thumbnail" placeholder="https://..."></details>
+        <details data-sec="footer" ${open('footer', !!(e.footer.text || e.tsMode !== 'none'))}><summary>Pied de page & date</summary>
+          <div class="row"><div><label>Texte</label><input data-k="footer.text" maxlength="2048"></div>
+          <div><label>Icône (URL)</label><input data-k="footer.icon_url" placeholder="https://..."></div></div>
+          <div class="row"><div><label>Date affichée</label>
+            <select data-k="tsMode"><option value="none">Aucune</option><option value="now">Heure d'envoi</option><option value="custom">Date personnalisée</option></select></div>
+          <div class="tsv" ${e.tsMode === 'custom' ? '' : 'hidden'}><label>Date</label><input type="datetime-local" data-k="tsValue"></div></div></details>
+      </div>`;
+    const label = () => { d.querySelector('.elabel').textContent = `Embed ${i + 1}${e.title ? ' — ' + e.title : e.author.name ? ' — ' + e.author.name : ''}`; };
+    label();
+    bindAll(d.querySelector('.ebody'), e, 'k');
+    d.querySelectorAll('textarea').forEach(addToolbar);
+    // Glisser-déposer par la poignée
+    const grip = d.querySelector('.grip');
+    grip.onmousedown = () => { d.draggable = true; };
+    grip.onmouseup = () => { d.draggable = false; };
+    d.addEventListener('dragstart', ev => { if (!d.draggable) return; dragEmbed = i; d.classList.add('dragging'); ev.dataTransfer.effectAllowed = 'move'; ev.dataTransfer.setData('text/plain', ''); });
+    d.addEventListener('dragend', () => { d.draggable = false; dragEmbed = null; d.classList.remove('dragging'); document.querySelectorAll('.embed-ed.over').forEach(x => x.classList.remove('over')); });
+    d.addEventListener('dragover', ev => { if (dragEmbed == null || dragEmbed === i) return; ev.preventDefault(); d.classList.add('over'); });
+    d.addEventListener('dragleave', () => d.classList.remove('over'));
+    d.addEventListener('drop', ev => {
+      if (dragEmbed == null) return;
+      ev.preventDefault(); ev.stopPropagation();
+      const E = state.embeds, [m] = E.splice(dragEmbed, 1); E.splice(i, 0, m);
+      dragEmbed = null; renderEmbeds(); update();
+    });
+    d.querySelectorAll('.field-ed').forEach(fd => bindAll(fd, e.fields[+fd.dataset.j], 'f'));
+    d.querySelectorAll('details[data-sec]').forEach(x => x.addEventListener('toggle', () => { e._sec[x.dataset.sec] = x.open; }));
+    d.addEventListener('bound', ev => {
+      const k = ev.target.dataset.k;
+      if (k === 'color' && /^#[0-9a-f]{6}$/i.test(e.color)){ d.style.borderLeftColor = e.color; d.querySelectorAll('[data-k=color]').forEach(x => { if (x !== ev.target) x.value = e.color; }); }
+      if (k === 'tsMode'){ d.querySelector('.tsv').hidden = e.tsMode !== 'custom'; if (e.tsMode === 'custom' && !e.tsValue){ e.tsValue = toLocalInput(new Date()); d.querySelector('[data-k=tsValue]').value = e.tsValue; } }
+      if (k === 'title' || k === 'author.name') label();
+    });
+    d.querySelector('.etop').onclick = ev => {
+      const b = ev.target.closest('[data-a]'); if (!b) return;
+      const a = b.dataset.a, E = state.embeds;
+      if (a === 'toggle') e._open = !e._open;
+      if (a === 'up' && i > 0) [E[i - 1], E[i]] = [E[i], E[i - 1]];
+      if (a === 'down' && i < E.length - 1) [E[i + 1], E[i]] = [E[i], E[i + 1]];
+      if (a === 'dup'){ if (E.length >= 10) return toast('Maximum 10 embeds', 'err'); E.splice(i + 1, 0, structuredClone(e)); }
+      if (a === 'rm'){ if (embedLen(e) && !confirm('Supprimer cet embed ?')) return; E.splice(i, 1); }
+      renderEmbeds(); update();
+    };
+    d.querySelector('.ebody').addEventListener('click', ev => {
+      const b = ev.target.closest('button'); if (!b) return;
+      ev.preventDefault();
+      if (b.dataset.auto){
+        const src = res(e.thumbnail) || res(e.image) || res((e.gallery || []).find(Boolean)) || res(e.author.icon_url);
+        if (!src) return toast("Ajoute d'abord une image ou une miniature à cet embed", 'err');
+        b.disabled = true;
+        dominantColor(src).then(col => {
+          e.color = col; d.style.borderLeftColor = col;
+          d.querySelectorAll('[data-k=color]').forEach(x => x.value = col); update();
+          toast(`🎨 Couleur ${col} appliquée`, 'ok');
+        }).catch(err => toast('Couleur auto impossible : ' + err.message, 'err')).finally(() => { b.disabled = false; });
+        return;
+      }
+      if (b.dataset.color){
+        e.color = b.dataset.color; d.style.borderLeftColor = e.color;
+        d.querySelectorAll('[data-k=color]').forEach(x => x.value = e.color); update();
+      }
+      if (b.dataset.fa){
+        const j = +b.dataset.j, F = e.fields;
+        if (b.dataset.fa === 'add'){ if (F.length >= 25) return toast('Maximum 25 champs', 'err'); F.push({name:'', value:'', inline:true}); e._sec.fields = true; }
+        if (b.dataset.fa === 'rm') F.splice(j, 1);
+        if (b.dataset.fa === 'up' && j > 0) [F[j - 1], F[j]] = [F[j], F[j - 1]];
+        renderEmbeds(); update();
+      }
+    });
+    c.appendChild(d);
+  });
+  $('addEmbed').hidden = state.embeds.length >= 10;
+}
+$('addEmbed').onclick = () => {
+  if (state.embeds.length >= 10) return toast('Maximum 10 embeds', 'err');
+  const last = state.embeds[state.embeds.length - 1];
+  const e = newEmbed(); if (last) e.color = last.color;
+  state.embeds.push(e); renderEmbeds(); update();
+};
+
+/* ---------- Aperçu ---------- */
+function fieldsHTML(fs, max){
+  const rows = []; let cur = [];
+  for (const f of fs){
+    if (f.inline){ cur.push(f); if (cur.length === max){ rows.push(cur); cur = []; } }
+    else { if (cur.length){ rows.push(cur); cur = []; } rows.push([f]); }
+  }
+  if (cur.length) rows.push(cur);
+  return rows.map(r => `<div class="frow" style="grid-template-columns:repeat(${r.length},minmax(0,1fr))">${
+    r.map(f => `<div><div class="fn">${md(f.name, true)}</div><div class="fv md">${md(f.value)}</div></div>`).join('')}</div>`).join('');
+}
+const IMGERR = `onerror="this.outerHTML='<div class=imgerr>⚠️ Image introuvable : vérifie le lien</div>'"`;
+// Rend un message (p = payload, fl = ses fichiers, grp = regroupé avec le précédent comme sur Discord, s = son état)
+function renderPreview(p, fl = files, grp = false, s = state){
+  const used = new Set();
+  const R = u => { const m = u && u.match(/^attachment:\/\/(.+)$/); if (m) used.add(m[1]); return res(u, fl); };
+  const name = p.username || whInfo?.name || 'Webhook', av = R(p.avatar_url) || whInfo?.avatar || '';
+  const now = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  const tags = `${p.flags & 4096 ? '<span class="time" title="Silencieux">🔕</span>' : ''}${s.editId.trim() ? '<span class="time">(modifié)</span>' : ''}`;
+  let h = grp ? `<div class="msg"><div class="avsp"></div><div class="mbody">${tags ? `<div>${tags}</div>` : ''}`
+    : `<div class="msg">${av ? `<img class="avatar" src="${esc(av)}" alt="" onerror="this.style.visibility='hidden'">` : '<div class="avatar ph">🤖</div>'}
+    <div class="mbody"><div><span class="uname">${esc(name)}</span><span class="bot">APP</span><span class="time">Aujourd'hui à ${now}</span>${tags}</div>`;
+  if (p.thread_name) h += `<div class="threadn">🧵 ${esc(p.thread_name)}</div>`;
+  if (p.content) h += `<div class="content md">${md(p.content)}</div>`;
+  if (p.poll){
+    const P = p.poll;
+    const emo = m => m.emoji?.id ? `<img src="https://cdn.discordapp.com/emojis/${esc(m.emoji.id)}.png" alt="">` : m.emoji?.name ? `<span>${esc(m.emoji.name)}</span>` : '';
+    h += `<div class="poll"><div class="pq">${esc(P.question.text)}</div>
+      <div class="ps">${P.allow_multiselect ? 'Sélectionne une ou plusieurs réponses' : 'Sélectionne une réponse'}</div>
+      ${P.answers.map(a => `<div class="pa">${emo(a.poll_media)}<span>${esc(a.poll_media.text)}</span><span class="rad ${P.allow_multiselect ? 'sq' : ''}"></span></div>`).join('')}
+      <div class="pf">0 vote · ${durLabel(P.duration)} restant(e)s</div></div>`;
+  }
+  const list = [];
+  for (const e of p.embeds || []){
+    const prev = list[list.length - 1];
+    if (prev && e.url && prev.url === e.url && e.image && Object.keys(e).every(k => k === 'url' || k === 'image') && prev._imgs.length < 4){ prev._imgs.push(e.image.url); continue; }
+    list.push({...e, _imgs: e.image ? [e.image.url] : []});
+  }
+  for (const e of list){
+    const col = e.color != null ? '#' + e.color.toString(16).padStart(6, '0') : '#1e1f22';
+    const th = e.thumbnail ? R(e.thumbnail.url) : '';
+    h += `<div class="pe" style="border-left-color:${col}"><div class="pe-main">`;
+    if (e.author){ const ic = R(e.author.icon_url); h += `<div class="au">${ic ? `<img src="${esc(ic)}" alt="" onerror="this.remove()">` : ''}${e.author.url ? `<a href="${esc(e.author.url)}" target="_blank" rel="noopener">${esc(e.author.name)}</a>` : esc(e.author.name)}</div>`; }
+    if (e.title) h += `<div class="ti">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">${md(e.title, true)}</a>` : md(e.title, true)}</div>`;
+    if (e.description) h += `<div class="de md">${md(e.description)}</div>`;
+    if (e.fields) h += fieldsHTML(e.fields, th ? 2 : 3);
+    h += `</div>${th ? `<img class="th" src="${esc(th)}" alt="" ${IMGERR}>` : '<div></div>'}`;
+    const imgs = e._imgs.map(R).filter(Boolean);
+    if (imgs.length === 1) h += `<img class="im" src="${esc(imgs[0])}" alt="" ${IMGERR}>`;
+    else if (imgs.length > 1) h += `<div class="gal n${imgs.length}">${imgs.map(u => `<img src="${esc(u)}" alt="" ${IMGERR}>`).join('')}</div>`;
+    if (e.footer || e.timestamp){
+      const ic = e.footer ? R(e.footer.icon_url) : '', ts = e.timestamp ? fmtFooterTs(new Date(e.timestamp)) : '';
+      h += `<div class="fo">${ic ? `<img src="${esc(ic)}" alt="" onerror="this.remove()">` : ''}<span>${e.footer ? esc(e.footer.text) : ''}${e.footer && ts ? ' • ' : ''}${ts}</span></div>`;
+    }
+    h += '</div>';
+  }
+  const extra = fl.filter(f => !used.has(f.file.name));
+  if (extra.length) h += `<div class="atts">${extra.map(f => f.file.type.startsWith('image/') ? `<img src="${f.url}" alt="">`
+    : `<div class="attf">📄<div><div class="link">${esc(f.file.name)}</div><div class="muted">${fmtSize(f.file.size)}</div></div></div>`).join('')}</div>`;
+  if (!p.content && !p.embeds && !p.poll && !fl.length) h += '<div class="muted empty">Le message est vide.</div>';
+  return h + '</div></div>';
+}
+function renderAllPreviews(p){
+  const list = allMessages(); let html = '', prevKey = null;
+  list.forEach((m, i) => {
+    const pp = finalize(i === cur ? p : buildPayload(m)), fl = i === cur ? files : (msgFiles[i] || []);
+    const key = (pp.username || '') + '|' + (pp.avatar_url || '');
+    const grp = i > 0 && key === prevKey;
+    const cls = list.length > 1 ? (i === cur ? ' cur' : ' pick') : '';
+    html += `<div class="pmsg${cls}${grp ? ' grp' : ''}" data-pm="${i}" ${i !== cur ? 'title="Cliquer pour modifier ce message"' : ''}>${renderPreview(pp, fl, grp, m)}</div>`;
+    prevKey = key;
+  });
+  $('preview').innerHTML = html;
+  $('pcount').textContent = list.length > 1 ? `${list.length} messages` : (whInfo ? 'via ' + whInfo.name : '');
+}
+$('preview').addEventListener('click', e => {
+  if (e.target.closest('a, .spoiler')) return;
+  const d = e.target.closest('[data-pm]');
+  if (d && +d.dataset.pm !== cur) switchMsg(+d.dataset.pm);
+});
+
+/* ---------- Mise à jour globale ---------- */
+function update(){
+  const p = buildPayload();
+  $('contentCnt').textContent = state.content.length ? `${state.content.length}/2000` : '';
+  const lens = state.embeds.map(embedLen), tot = lens.reduce((a, b) => a + b, 0);
+  document.querySelectorAll('#embeds .ecnt').forEach((el, i) => el.textContent = lens[i] ? lens[i] + ' car.' : '');
+  const b = whBase($('whUrl').value);
+  $('sendInfo').innerHTML = [
+    whInfo ? `→ <b>${esc(whInfo.name)}</b>` : b ? '→ webhook non vérifié' : '<span class="err">Aucun webhook</span>',
+    state.editId.trim() ? '<span class="warn">✎ modification du message ' + esc(state.editId.trim()) + '</span>' : '',
+    tot ? `<span class="${tot > 6000 ? 'err' : ''}">${tot}/6000 car.</span>` : '',
+    (p.embeds || []).length > 10 ? `<span class="err">${p.embeds.length}/10 embeds</span>` : '',
+    state.poll.enabled && state.editId.trim() ? '<span class="warn">sondage ignoré en modification</span>' : '',
+    !state.editId.trim() && targets().length > 1 ? `<span class="warn">+${targets().length - 1} autre(s) webhook(s)</span>` : ''
+  ].filter(Boolean).join(' · ');
+  $('pollCnt').textContent = state.poll.enabled ? `${state.poll.answers.filter(a => a.text.trim()).length}/10 réponses` : '';
+  if (!sending) $('sendBtn').textContent = state.editId.trim() ? '✎ Modifier' : '🚀 Envoyer';
+  renderAllPreviews(p);
+  renderMsgTabs();
+  renderPersonas();
+  LS.set('msgs', {list: allMessages(), cur});
+  snapPush();
+}
+
+/* ---------- Envoi ---------- */
+let sending = false;
+function explain(j){
+  if (!j) return '';
+  let s = j.message || '';
+  const walk = (o, path) => {
+    if (!o || typeof o !== 'object') return;
+    if (Array.isArray(o._errors)) s += `\n• ${path} : ${o._errors.map(e => e.message).join(', ')}`;
+    for (const k in o) if (k !== '_errors') walk(o[k], path ? path + '.' + k : k);
+  };
+  walk(j.errors, '');
+  return s;
+}
+// Envoie un message (s = état du message, fl = fichiers, b = webhook). Réessaie tout seul si Discord limite.
+async function doSend(s, fl, b, attempt = 0){
+  const p = finalize(buildPayload(s));
+  const editId = msgId(s.editId), q = new URLSearchParams();
+  if (!editId) q.set('wait', 'true');
+  if (s.threadId.trim()) q.set('thread_id', s.threadId.trim());
+  const url = b + (editId ? '/messages/' + encodeURIComponent(editId) : '') + (q.toString() ? '?' + q : '');
+  let body, headers = {};
+  if (fl.length){
+    const fd = new FormData(); fd.append('payload_json', JSON.stringify(p));
+    fl.forEach((f, i) => fd.append(`files[${i}]`, f.file, f.file.name)); body = fd;
+  } else { body = JSON.stringify(p); headers['Content-Type'] = 'application/json'; }
+  try{
+    const r = await fetch(url, {method: editId ? 'PATCH' : 'POST', headers, body});
+    const txt = await r.text(); let j = null; try{ j = JSON.parse(txt); }catch(e){}
+    if (r.ok){ if (j && j.id) addHistory(j, b, p, s, fl); const guild = webhooks.find(w => w.url === b)?.info?.guild_id || (whBase($('whUrl').value) === b ? whInfo?.guild_id : null);
+      toast(`${editId ? '✅ Message modifié' : '✅ Message envoyé'} → ${whNameFor(b)}`, 'ok', 0,
+        guild && j?.id ? {label: 'Ouvrir dans Discord ↗', fn: () => window.open(`https://discord.com/channels/${guild}/${j.channel_id}/${j.id}`, '_blank')} : null);
+      return true; }
+    if (r.status === 429){
+      const wait = j?.retry_after || 1;
+      if (attempt < 3 && wait <= 15){
+        toast(`⏳ Limite de Discord atteinte, nouvel essai dans ${Math.ceil(wait)} s…`, '', wait * 1000);
+        await new Promise(res => setTimeout(res, wait * 1000 + 250));
+        return doSend(s, fl, b, attempt + 1);
+      }
+      toast(`⏳ Trop de requêtes, réessaie dans ${Math.ceil(wait)} s`, 'err'); return false;
+    }
+    toast(`❌ ${whNameFor(b)} — erreur ${r.status} : ${explain(j) || txt.slice(0, 300)}`, 'err', 10000); return false;
+  }catch(e){ toast('❌ Erreur réseau : ' + e.message, 'err'); return false; }
+}
+// Envoie vers tous les webhooks cibles, l'un après l'autre
+async function sendAll(s, fl, list){
+  let ok = 0;
+  for (const [i, t] of list.entries()){
+    if (i) await new Promise(r => setTimeout(r, 400));
+    if (await doSend(s, fl, t)) ok++;
+  }
+  if (list.length > 1) toast(`${ok}/${list.length} webhooks ont reçu le message`, ok === list.length ? 'ok' : 'err', 4000);
+  return ok;
+}
+async function send(){
+  if (sending) return;
+  const err = checkSendable(state, files);
+  if (err){ toast(err, 'err'); if (err.includes('webhook')) $('whUrl').focus(); return; }
+  sending = true; const btn = $('sendBtn'); btn.disabled = true; btn.textContent = 'Envoi…';
+  if (await sendAll(structuredClone(state), [...files], targets())) celebrate();
+  sending = false; btn.disabled = false; update();
+}
+
+/* ---------- Envoi programmé ---------- */
+let queue = [];   // {id, at, s, files, b, name, timer}
+const fmtShort = d => new Date(d).toLocaleString('fr-FR', {dateStyle: 'short', timeStyle: 'short'});
+const REP = {3600000: 'toutes les heures', 86400000: 'tous les jours', 604800000: 'toutes les semaines'};
+// Arme le minuteur d'un envoi programmé (et le ré-arme s'il se répète)
+function armJob(job){
+  job.timer = setTimeout(async () => {
+    if (job.rep){ do job.at += job.rep; while (job.at <= Date.now()); armJob(job); }
+    else queue = queue.filter(q => q !== job);
+    renderQueue();
+    const ok = await job.run();
+    try{
+      if (document.hidden && 'Notification' in window && Notification.permission === 'granted')
+        new Notification('Embed Sender', {body: ok ? `✅ Envoi programmé effectué : ${job.name}` : `❌ L'envoi programmé a échoué : ${job.name}`});
+    }catch(e){}
+  }, Math.max(0, job.at - Date.now()));
+}
+function renderQueue(){
+  queue.sort((a, b) => a.at - b.at);
+  $('queue').innerHTML = queue.length ? '⏰ Programmé : ' + queue.map(q => `<span class="qitem" title="${q.rep ? 'Répété ' + REP[q.rep] : 'Une seule fois'}">${q.rep ? '🔁 ' : ''}${fmtShort(q.at)} → ${esc(q.name)}<button class="del" data-q="${q.id}" title="Annuler cet envoi">✕</button></span>`).join('') : '';
+}
+$('schedBtn').onclick = () => {
+  const pop = $('schedPop'); pop.hidden = !pop.hidden;
+  if (!pop.hidden && !$('schedAt').value) $('schedAt').value = toLocalInput(new Date(Date.now() + 3600e3));
+};
+$('schedCancel').onclick = () => { $('schedPop').hidden = true; };
+$('schedGo').onclick = () => {
+  const at = new Date($('schedAt').value), delay = at - Date.now();
+  if (isNaN(at)) return toast('Date invalide', 'err');
+  if (delay < 5000) return toast('Choisis une date dans le futur', 'err');
+  if (delay > 2147483647) return toast("Maximum 24 jours à l'avance", 'err');
+  const multi = $('schedAll').checked && messages.length > 1;
+  const msgs = multi ? allMessages().map(m => structuredClone(m)) : [structuredClone(state)];
+  const fls = multi ? allFiles() : [[...files]];
+  for (const [i, m] of msgs.entries()){ const err = checkSendable(m, fls[i]); if (err) return toast((multi ? `Message ${i + 1} : ` : '') + err, 'err'); }
+  const list = multi ? allTargets() : targets();
+  const rep = +$('schedRep').value;
+  try{ if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); }catch(e){}
+  const job = {id: Date.now(), at: +at, list, rep,
+    name: (multi ? `${msgs.length} messages → ` : '') + (list.length > 1 ? `${list.length} webhooks` : whNameFor(list[0])),
+    run: () => multi ? sendAllMessages(msgs, fls, list) : sendAll(msgs[0], fls[0], list)};
+  armJob(job);
+  queue.push(job); renderQueue(); $('schedPop').hidden = true;
+  toast(`Envoi programmé pour le ${fmtShort(at)}${rep ? ', puis ' + REP[rep] : ''}. Laisse la page ouverte !`, 'ok', 4500);
+};
+$('queue').onclick = e => {
+  const b = e.target.closest('[data-q]'); if (!b) return;
+  const job = queue.find(q => String(q.id) === b.dataset.q);
+  if (job){ clearTimeout(job.timer); queue = queue.filter(q => q !== job); renderQueue(); toast('Envoi programmé annulé', 'ok'); }
+};
+window.addEventListener('beforeunload', e => { if (queue.length){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- Annuler / rétablir ---------- */
+const undo = {stack: [], i: -1, lock: false, t: null};
+const snapStr = () => JSON.stringify(state, (k, v) => k.startsWith('_') ? undefined : v);
+function updUndoBtns(){ $('btnUndo').disabled = undo.i <= 0; $('btnRedo').disabled = undo.i >= undo.stack.length - 1; }
+function snapPush(){
+  if (undo.lock) return;
+  clearTimeout(undo.t);
+  undo.t = setTimeout(() => {
+    const s = snapStr(); if (undo.stack[undo.i] === s) return;
+    undo.stack = undo.stack.slice(0, undo.i + 1); undo.stack.push(s);
+    if (undo.stack.length > 100) undo.stack.shift();
+    undo.i = undo.stack.length - 1; updUndoBtns();
+  }, 400);
+}
+function doUndo(d){
+  clearTimeout(undo.t);
+  const j = undo.i + d; if (j < 0 || j >= undo.stack.length) return;
+  undo.i = j; undo.lock = true; loadState(JSON.parse(undo.stack[j])); undo.lock = false; updUndoBtns();
+}
+$('btnUndo').onclick = () => doUndo(-1);
+$('btnRedo').onclick = () => doUndo(1);
+document.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey) || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z' && !e.shiftKey){ e.preventDefault(); doUndo(-1); }
+  else if (k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); doUndo(1); }
+});
+
+/* ---------- Thème ---------- */
+function setTheme(t){ document.body.classList.toggle('light', t === 'light'); $('btnTheme').textContent = t === 'light' ? '☀️' : '🌙'; LS.set('theme', t); }
+$('btnTheme').onclick = () => setTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+
+/* ---------- Sauvegarde ---------- */
+$('bkExport').onclick = () => {
+  const data = {app: 'embed-sender', version: 3, date: new Date().toISOString(), webhooks, templates, history};
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
+  a.download = `embed-sender-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('bkImport').onclick = () => $('bkFile').click();
+$('bkFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    if (d.app !== 'embed-sender') throw new Error("ce fichier n'est pas une sauvegarde Embed Sender");
+    const merge = (cur, add, key) => { const out = [...cur]; for (const x of add || []) if (!out.some(y => y[key] === x[key])) out.push(x); return out; };
+    webhooks = merge(webhooks, d.webhooks, 'url'); templates = merge(templates, d.templates, 'name');
+    history = merge(history, d.history, 'id').sort((a, b) => b.date - a.date).slice(0, 50);
+    LS.set('webhooks', webhooks); LS.set('templates', templates); LS.set('history', history);
+    renderWhSelect(); renderTemplates(); renderHistory();
+    toast(`Sauvegarde importée : ${(d.webhooks || []).length} webhook(s), ${(d.templates || []).length} modèle(s), ${(d.history || []).length} message(s)`, 'ok', 4000);
+  }catch(err){ toast('Import impossible : ' + err.message, 'err'); }
+};
+$('sendBtn').onclick = send;
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); send(); } });
+
+/* ---------- Historique ---------- */
+function addHistory(msg, b, p, s, fl){
+  const snap = structuredClone(s); snap.editId = '';
+  const saved = webhooks.find(w => w.url === b), cur = whBase($('whUrl').value) === b ? whInfo : null;
+  history.unshift({id: msg.id, channel: msg.channel_id, guild: saved?.info?.guild_id || cur?.guild_id || null, wh: b,
+    whName: saved?.name || cur?.name || 'Webhook', thread: s.threadId.trim() || null,
+    date: Date.now(), label: (p.embeds?.[0]?.title || p.embeds?.[0]?.author?.name || p.poll?.question?.text || p.content || (fl.length ? '📎 Fichiers' : 'Message')).slice(0, 80), state: snap});
+  history = history.filter((h, i, a) => a.findIndex(x => x.id === h.id) === i).slice(0, 50);
+  LS.set('history', history); renderHistory();
+}
+function renderHistory(){
+  const q = ($('histQ').value || '').toLowerCase().trim();
+  const shown = history.map((h, i) => [h, i]).filter(([h]) => !q || (h.label + ' ' + h.whName).toLowerCase().includes(q));
+  $('history').innerHTML = !history.length ? '<div class="muted">Aucun message envoyé pour l\'instant.</div>'
+    : !shown.length ? '<div class="muted">Aucun résultat.</div>'
+    : shown.map(([h, i]) => `<div class="item">
+      <div class="ilabel">${esc(h.label)}<small>${esc(h.whName)} · ${new Date(h.date).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}</small></div>
+      <button class="sec sm" data-h="edit" data-i="${i}" title="Recharger et modifier ce message sur Discord">✎ Modifier</button>
+      <button class="sec sm" data-h="copy" data-i="${i}" title="Recharger comme nouveau message">⧉ Réutiliser</button>
+      ${h.guild ? `<button class="sec sm" data-h="link" data-i="${i}" title="Ouvrir dans Discord">↗</button>` : ''}
+      <button class="del" data-h="del" data-i="${i}" title="Supprimer de Discord">🗑</button>
+    </div>`).join('') + '<button class="sec sm" id="histClear" style="margin-top:6px">Vider l\'historique</button>';
+}
+$('histQ').oninput = renderHistory;
+$('history').onclick = async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.id === 'histClear'){ if (confirm("Vider l'historique local ? (les messages restent sur Discord)")){ history = []; LS.set('history', history); renderHistory(); } return; }
+  const h = history[+b.dataset.i]; if (!h) return;
+  if (b.dataset.h === 'edit' || b.dataset.h === 'copy'){
+    if (!isEmpty() && !confirm('Remplacer le message en cours ?')) return;
+    loadState(h.state);
+    if (b.dataset.h === 'edit'){ state.editId = h.id; state.threadId = h.thread || ''; $('whUrl').value = h.wh; onWhChange(); refreshTop(); update(); toast('Message chargé : modifie-le puis clique sur « Modifier »', 'ok', 4000); }
+    else { $('whUrl').value = h.wh; onWhChange(); toast('Message rechargé comme nouveau', 'ok'); }
+    showTab('preview');
+  }
+  if (b.dataset.h === 'link') window.open(`https://discord.com/channels/${h.guild}/${h.channel}/${h.id}`, '_blank');
+  if (b.dataset.h === 'del'){
+    if (!confirm(`Supprimer définitivement « ${h.label} » de Discord ? Cette action est irréversible.`)) return;
+    try{
+      const r = await fetch(`${h.wh}/messages/${h.id}${h.thread ? '?thread_id=' + h.thread : ''}`, {method: 'DELETE'});
+      if (r.ok || r.status === 404){ history.splice(+b.dataset.i, 1); LS.set('history', history); renderHistory(); toast(r.ok ? 'Message supprimé' : 'Message déjà supprimé', 'ok'); }
+      else toast('Erreur ' + r.status + ' lors de la suppression', 'err');
+    }catch(err){ toast('Erreur réseau : ' + err.message, 'err'); }
+  }
+};
+
+/* ---------- Modèles ---------- */
+function builtins(){
+  const T = Math.floor(Date.now() / 1000) + 3 * 86400;
+  return [
+    {name:'📢 Annonce', p:{content:'@everyone', embeds:[{title:'📢 Annonce importante', description:'Écris ton annonce ici.\n\n**Quoi :** …\n**Quand :** <t:' + T + ':F>\n**Où :** …', color:0xfee75c, footer:{text:"L'équipe"}, timestamp:'now'}]}},
+    {name:'👋 Bienvenue', p:{embeds:[{title:'👋 Bienvenue sur le serveur !', description:"On est ravis de t'accueillir.\nPrends un moment pour lire les règles et te présenter.", color:0x57f287,
+      fields:[{name:'📜 Règles', value:'Lis le salon règlement', inline:true},{name:'💬 Discussion', value:'Viens dire bonjour', inline:true},{name:'🎭 Rôles', value:'Choisis tes rôles', inline:true}]}]}},
+    {name:'📜 Règlement', p:{embeds:[{title:'📜 Règlement du serveur', description:'1. Respecte tous les membres.\n2. Pas de spam ni de pub.\n3. Pas de contenu choquant.\n4. Utilise les bons salons.\n5. Écoute le staff.\n\n-# En restant sur le serveur, tu acceptes ces règles.', color:0xed4245}]}},
+    {name:'🎉 Giveaway', p:{content:'@everyone', embeds:[{title:'🎉 GIVEAWAY 🎉', description:'Réagis avec 🎉 pour participer !', color:0xeb459e,
+      fields:[{name:'🎁 Lot', value:'…', inline:true},{name:'🏆 Gagnants', value:'1', inline:true},{name:'⏰ Fin', value:'<t:' + T + ':R>', inline:true}], timestamp:'now'}]}},
+    {name:'🔧 Maintenance', p:{embeds:[{author:{name:'Statut du service'}, title:'🔧 Maintenance prévue', description:'Une maintenance aura lieu le **<t:' + T + ':F>**.\nDurée estimée : ~1 h.\n\n> Merci de votre patience !', color:0xe67e22}]}},
+    {name:'📊 Sondage', p:{content:'Votez ! 👇', poll:{question:{text:'Quel jour pour la prochaine soirée ?'}, duration:24, allow_multiselect:false,
+      answers:[{poll_media:{text:'Vendredi', emoji:{name:'🎉'}}},{poll_media:{text:'Samedi', emoji:{name:'🍕'}}},{poll_media:{text:'Dimanche', emoji:{name:'🎮'}}}]}}},
+    {name:'📰 Mise à jour', p:{embeds:[{title:'📰 Mise à jour v1.2', description:'## Nouveautés\n- Ajout de …\n- Amélioration de …\n## Corrections\n- Correction de …', color:0x3498db, footer:{text:'Changelog'}, timestamp:'now'}]}}
+  ];
+}
+function renderTemplates(){
+  $('tplMine').innerHTML = templates.length ? templates.map((t, i) => `<div class="item"><div class="ilabel">${esc(t.name)}${t.msgs ? `<small>${t.msgs.length} messages</small>` : ''}</div>
+      <button class="sec sm" data-tl="${i}">Charger</button><button class="del" data-td="${i}" title="Supprimer">✕</button></div>`).join('')
+    : '<div class="muted">Aucun modèle enregistré.</div>';
+  $('tplBuiltin').innerHTML = builtins().map((t, i) => `<div class="item"><div class="ilabel">${esc(t.name)}</div><button class="sec sm" data-tb="${i}">Utiliser</button></div>`).join('');
+}
+function useTemplate(s){
+  if (!isEmpty() && !confirm('Remplacer le message en cours par ce modèle ?')) return;
+  loadState(s); showTab('preview'); toast('Modèle chargé', 'ok');
+}
+$('tab-templates').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tl){
+    const t = templates[+b.dataset.tl];
+    if (t.msgs){
+      if (!confirm(`Remplacer tous tes messages par les ${t.msgs.length} messages de ce modèle ?`)) return;
+      replaceAllMessages(structuredClone(t.msgs)); showTab('preview'); toast('Modèle chargé', 'ok');
+    } else useTemplate(t.state);
+  }
+  if (b.dataset.tb) useTemplate(fromApi(builtins()[+b.dataset.tb].p));
+  if (b.dataset.td && confirm(`Supprimer le modèle « ${templates[+b.dataset.td].name} » ?`)){ templates.splice(+b.dataset.td, 1); LS.set('templates', templates); renderTemplates(); }
+};
+$('tplSave').onclick = () => {
+  if (isEmpty()) return toast('Le message est vide', 'err');
+  const name = prompt('Nom du modèle :', state.embeds[0]?.title || 'Mon modèle'); if (!name) return;
+  const s = structuredClone(state); s.editId = '';
+  const all = messages.length > 1 && confirm(`Enregistrer les ${messages.length} messages dans ce modèle ?\n(Annuler = seulement le message actuel)`);
+  const t = {name, state: s};
+  if (all) t.msgs = allMessages().map(m => { const c = structuredClone(m); c.editId = ''; return c; });
+  const i = templates.findIndex(x => x.name === name);
+  if (i >= 0){ if (!confirm('Un modèle porte déjà ce nom. Le remplacer ?')) return; templates[i] = t; }
+  else templates.push(t);
+  LS.set('templates', templates); renderTemplates(); toast('Modèle enregistré', 'ok');
+};
+
+/* ---------- Outils ---------- */
+function renderTs(){
+  const d = new Date($('tsIn').value); if (isNaN(d)) return;
+  const sec = Math.floor(d / 1000);
+  const names = {t:'Heure courte', T:'Heure longue', d:'Date courte', D:'Date longue', f:'Date + heure', F:'Date complète', R:'Relatif'};
+  $('tsOut').innerHTML = Object.keys(names).map(k => `<div class="tsrow"><code>&lt;t:${sec}:${k}&gt;</code><span>${esc(fmtTs(sec, k))} <span class="muted">· ${names[k]}</span></span>
+    <button class="sec sm" data-c="<t:${sec}:${k}>">Copier</button></div>`).join('');
+}
+$('tsIn').value = toLocalInput(new Date(Date.now() + 3600e3));
+$('tsIn').oninput = renderTs;
+$('tsOut').onclick = e => { const b = e.target.closest('button'); if (b) copy(b.dataset.c); };
+$('cheat').innerHTML = [
+  '**gras**', '*italique*', '__souligné__', '~~barré~~', '||spoiler||', '`code`', '# Grand titre', '## Titre moyen', '-# petit texte',
+  '> citation', '- élément de liste', '[texte du lien](https://discord.com)', '<@123456789>', '<@&123456789>', '<#123456789>'
+].map(x => `<tr><td><code>${esc(x)}</code></td><td class="md">${md(x)}</td></tr>`).join('')
+  + '<tr><td colspan="2" class="muted">Pour mentionner : active le mode développeur de Discord puis clic droit → « Copier l\'identifiant ».</td></tr>';
+
+/* ---------- Onglets ---------- */
+function showTab(t){
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.id === 'tab-' + t));
+  LS.set('tab', t);
+}
+document.querySelector('.tabs').onclick = e => { const b = e.target.closest('button'); if (b) showTab(b.dataset.tab); };
+
+/* ---------- En-tête ---------- */
+$('btnExport').onclick = async () => {
+  const list = allMessages();
+  const j = list.length > 1
+    ? JSON.stringify({messages: list.map(m => ({data: buildPayload(m)}))}, null, 2)
+    : JSON.stringify(buildPayload(), null, 2);
+  const r = await dialog(list.length > 1 ? `JSON des ${list.length} messages` : 'JSON du message', j, 'Copier');
+  if (r != null) copy(r);
+};
+$('btnImport').onclick = async () => {
+  const t = await dialog('Colle un JSON, un lien Discohook ou un lien de partage', '', 'Importer'); if (!t || !t.trim()) return;
+  try{
+    const j = await parseImport(t);
+    if (Array.isArray(j.messages) && j.messages.length > 1
+        && confirm(`Ce JSON contient ${j.messages.length} messages. Les importer tous ? (remplace tes messages actuels)`)){
+      const arr = j.messages.slice(0, 10).map(m => fromApi(m.data || m));
+      replaceAllMessages(arr); toast(`${arr.length} messages importés`, 'ok');
+    } else { loadState(fromApi(j)); toast('JSON importé', 'ok'); }
+  }catch(e){ toast('JSON invalide : ' + e.message, 'err'); }
+};
+$('btnNew').onclick = () => {
+  if (!isEmpty() && !confirm('Effacer le message en cours ?')) return;
+  files.forEach(f => URL.revokeObjectURL(f.url)); files = []; renderFiles();
+  loadState(blankState());
+};
+
+/* ---------- Variables ---------- */
+let vars = LS.get('vars', []);   // {name, value}
+function builtinVars(){
+  const d = new Date(), z = n => String(n).padStart(2, '0'), t = Math.floor(d / 1000);
+  return {date: d.toLocaleDateString('fr-FR'), heure: `${z(d.getHours())}:${z(d.getMinutes())}`,
+    jour: d.toLocaleDateString('fr-FR', {weekday: 'long'}), mois: d.toLocaleDateString('fr-FR', {month: 'long'}),
+    annee: String(d.getFullYear()), timestamp: `<t:${t}:f>`, relatif: `<t:${t}:R>`};
+}
+function applyVars(str){
+  if (!str.includes('{')) return str;
+  const b = builtinVars();
+  return str.replace(/\{([\w-]+)\}/g, (m, k) => { const c = vars.find(v => v.name && v.name === k); return c ? c.value : (b[k] ?? m); });
+}
+// Remplace les variables dans toutes les chaînes du message
+function finalize(p){
+  const map = o => typeof o === 'string' ? applyVars(o)
+    : Array.isArray(o) ? o.map(map)
+    : o && typeof o === 'object' ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, map(v)])) : o;
+  return map(p);
+}
+function renderVars(){
+  const b = builtinVars();
+  $('varBuiltin').innerHTML = Object.entries(b).map(([k, v]) => `<button class="sec sm" data-cv="{${k}}" title="Copier {${k}}"><code>{${k}}</code> ${esc(k === 'timestamp' || k === 'relatif' ? '→ date Discord' : '→ ' + v)}</button>`).join('');
+  $('varList').innerHTML = vars.length ? vars.map((v, i) => `<div class="ans">
+      <input data-vn="${i}" value="${esc(v.name)}" placeholder="nom" style="width:140px;flex:none">
+      <input data-vv="${i}" value="${esc(v.value)}" placeholder="valeur">
+      <button class="del" data-vr="${i}" title="Supprimer">✕</button></div>`).join('')
+    : '<div class="muted">Aucune variable perso. Exemple : <code>{serveur}</code> → le nom de ton serveur.</div>';
+}
+$('varBuiltin').onclick = e => { const b = e.target.closest('[data-cv]'); if (b) copy(b.dataset.cv); };
+$('varList').oninput = e => {
+  const t = e.target;
+  if (t.dataset.vn){ const clean = t.value.replace(/[^\w-]/g, ''); if (clean !== t.value) t.value = clean; vars[+t.dataset.vn].name = clean; }
+  if (t.dataset.vv) vars[+t.dataset.vv].value = t.value;
+  LS.set('vars', vars); update();
+};
+$('varList').onclick = e => { const b = e.target.closest('[data-vr]'); if (!b) return; vars.splice(+b.dataset.vr, 1); LS.set('vars', vars); renderVars(); update(); };
+$('varAdd').onclick = () => { vars.push({name: '', value: ''}); LS.set('vars', vars); renderVars(); $('varList').querySelector('.ans:last-child [data-vn]').focus(); };
+document.querySelector('[data-tab=tools]').addEventListener('click', renderVars);
+
+/* ---------- Profil du webhook ---------- */
+$('whApply').onclick = async () => {
+  const b = whBase($('whUrl').value); if (!b) return toast('URL de webhook invalide', 'err');
+  const body = {}, n = $('whNewName').value.trim(), f = $('whNewAv').files[0];
+  if (n) body.name = n;
+  if (f){
+    if (f.size > 8e6) return toast('Image trop lourde (8 Mo maximum)', 'err');
+    body.avatar = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
+  }
+  if (!Object.keys(body).length) return toast('Indique un nouveau nom ou choisis une image', 'err');
+  if (!confirm(`Modifier le webhook « ${whInfo?.name || 'webhook'} » sur Discord ?`)) return;
+  try{
+    const r = await fetch(b, {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return toast(`Erreur ${r.status} : ${explain(j)}`, 'err', 7000);
+    $('whNewName').value = ''; $('whNewAv').value = '';
+    await checkWebhook(true);
+    toast('Webhook mis à jour sur Discord ✔', 'ok');
+  }catch(e){ toast('Erreur réseau : ' + e.message, 'err'); }
+};
+
+/* ---------- Plusieurs messages ---------- */
+let messages = [null];   // messages[cur] est remplacé par l'état en cours (`state`)
+let msgFiles = [[]];
+let cur = 0;
+const allMessages = () => messages.map((m, i) => i === cur ? state : m);
+const allFiles = () => messages.map((m, i) => i === cur ? [...files] : [...(msgFiles[i] || [])]);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function resetUndo(){ clearTimeout(undo.t); undo.stack = [snapStr()]; undo.i = 0; updUndoBtns(); }
+function msgLabel(m){
+  const e = (m.embeds || []).find(e => e.title || e.author?.name);
+  return (e?.title || e?.author?.name || m.content || (m.poll?.enabled && m.poll.question) || 'Vide').replace(/\s+/g, ' ').slice(0, 26);
+}
+function renderMsgTabs(){
+  const list = allMessages();
+  $('msgTabs').innerHTML = list.map((m, i) => `<button class="mtab ${i === cur ? 'on' : ''}" draggable="true" data-m="${i}" title="${esc(msgLabel(m))}"><b>${i + 1}</b> · ${esc(msgLabel(m))}${(m.editId || '').trim() ? ' ✎' : ''}</button>`).join('')
+    + (list.length < 10 ? '<button class="mtab add" data-madd="1" title="Ajouter un message vide">+ Message</button>' : '');
+  document.querySelectorAll('.mact [data-ma=left], .mact [data-ma=right], .mact [data-ma=del]').forEach(b => b.disabled = list.length < 2);
+  $('sendAllBtn').hidden = list.length < 2; $('sendAllBtn').textContent = `📚 Envoyer les ${list.length}`;
+  $('schedAllWrap').hidden = list.length < 2; $('schedAllTxt').textContent = `Programmer les ${list.length} messages`;
+}
+function openMsg(j){
+  cur = j; files = msgFiles[j] || [];
+  undo.lock = true; loadState(messages[j]); undo.lock = false; resetUndo();
+  renderFiles(); renderMsgTabs();
+}
+function switchMsg(j){
+  if (j === cur || j < 0 || j >= messages.length) return;
+  messages[cur] = structuredClone(state); msgFiles[cur] = files;
+  openMsg(j);
+}
+function addMsg(copy){
+  if (messages.length >= 10) return toast('Maximum 10 messages', 'err');
+  messages[cur] = structuredClone(state); msgFiles[cur] = files;
+  const n = copy ? structuredClone(state) : {...blankState(), username: state.username, avatar: state.avatar, threadId: state.threadId};
+  n.editId = '';
+  messages.splice(cur + 1, 0, n); msgFiles.splice(cur + 1, 0, copy ? [...files] : []);
+  openMsg(cur + 1);
+  toast(copy ? 'Message dupliqué' : `Message ${cur + 1} ajouté`, 'ok', 1500);
+}
+function delMsg(){
+  if (messages.length < 2) return;
+  if (!isEmpty() && !confirm(`Supprimer le message ${cur + 1} ?`)) return;
+  files.forEach(f => URL.revokeObjectURL(f.url));
+  messages.splice(cur, 1); msgFiles.splice(cur, 1);
+  openMsg(Math.min(cur, messages.length - 1));
+}
+function moveMsg(d){
+  const j = cur + d; if (j < 0 || j >= messages.length) return;
+  messages[cur] = structuredClone(state); msgFiles[cur] = files;
+  [messages[cur], messages[j]] = [messages[j], messages[cur]];
+  [msgFiles[cur], msgFiles[j]] = [msgFiles[j], msgFiles[cur]];
+  cur = j; update();
+}
+function replaceAllMessages(arr){
+  msgFiles.flat().concat(files).forEach(f => URL.revokeObjectURL(f.url));
+  messages = arr; msgFiles = arr.map(() => []); openMsg(0);
+}
+$('msgTabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.madd) addMsg(false); else switchMsg(+b.dataset.m); };
+document.querySelector('.mact').onclick = e => {
+  const b = e.target.closest('[data-ma]'); if (!b) return;
+  ({left: () => moveMsg(-1), right: () => moveMsg(1), dup: () => addMsg(true), del: delMsg})[b.dataset.ma]();
+};
+// Envoie plusieurs messages dans l'ordre, vers chaque webhook
+async function sendAllMessages(list, fls, all){
+  let ok = 0, total = 0;
+  for (const t of all){
+    for (const [i, m] of list.entries()){
+      if (msgId(m.editId) && t !== all[0]) continue;   // une modification ne concerne que le webhook principal
+      if (total++) await sleep(600);
+      if (await doSend(m, fls[i], t)) ok++;
+    }
+  }
+  toast(`${ok}/${total} message(s) envoyé(s)`, ok === total ? 'ok' : 'err', 5000);
+  return ok;
+}
+$('sendAllBtn').onclick = async () => {
+  if (sending) return;
+  const list = allMessages().map(m => structuredClone(m)), fls = allFiles();
+  for (const [i, m] of list.entries()){
+    const err = checkSendable(m, fls[i]);
+    if (err){ switchMsg(i); return toast(`Message ${i + 1} : ${err}`, 'err'); }
+  }
+  const all = allTargets();
+  if (!confirm(`Envoyer les ${list.length} messages à la suite${all.length > 1 ? ` vers ${all.length} webhooks` : ''} ?`)) return;
+  sending = true; $('sendBtn').disabled = $('sendAllBtn').disabled = true; $('sendAllBtn').textContent = 'Envoi…';
+  if (await sendAllMessages(list, fls, all)) celebrate();
+  sending = false; $('sendBtn').disabled = $('sendAllBtn').disabled = false; update();
+};
+
+/* ---------- Plusieurs webhooks ---------- */
+let extraWh = new Set(LS.get('extraWh', []));
+function whNameFor(b){ return webhooks.find(w => w.url === b)?.name || (whBase($('whUrl').value) === b ? whInfo?.name : '') || 'webhook'; }
+function allTargets(){
+  const b = whBase($('whUrl').value);
+  return b ? [b, ...[...extraWh].filter(u => u !== b)] : [];
+}
+function targets(){ const all = allTargets(); return state.editId.trim() ? all.slice(0, 1) : all; }
+function renderWhMulti(){
+  const el = $('whMulti'), cur = whBase($('whUrl').value), others = webhooks.filter(w => w.url !== cur);
+  for (const u of [...extraWh]) if (!webhooks.some(w => w.url === u)) extraWh.delete(u);
+  if (!others.length){ el.innerHTML = ''; return; }
+  const sel = others.filter(w => extraWh.has(w.url)).length;
+  const open = el.querySelector('details')?.open || sel > 0;
+  el.innerHTML = `<details ${open ? 'open' : ''}><summary>Envoyer aussi vers d'autres webhooks${sel ? ` (${sel})` : ''}</summary>
+    ${others.map(w => `<label class="chk"><input type="checkbox" data-wm="${esc(w.url)}" ${extraWh.has(w.url) ? 'checked' : ''}> ${esc(w.name)}</label>`).join('')}
+    <div class="hint">Pratique pour publier la même annonce sur plusieurs serveurs. Ignoré quand tu modifies un message.</div></details>`;
+}
+$('whMulti').onchange = e => {
+  const u = e.target.dataset.wm; if (!u) return;
+  if (e.target.checked) extraWh.add(u); else extraWh.delete(u);
+  LS.set('extraWh', [...extraWh]); renderWhMulti(); update();
+};
+
+/* ---------- Charger un message existant ---------- */
+function msgId(v){ v = (v || '').trim(); const m = v.match(/(\d{15,})\/?(?:\?.*)?$/); return m ? m[1] : v; }
+$('loadMsg').onclick = async () => {
+  const b = whBase($('whUrl').value); if (!b) return toast("Ajoute d'abord l'URL du webhook", 'err');
+  const id = msgId(state.editId); if (!/^\d+$/.test(id)) return toast("Colle l'ID ou le lien du message", 'err');
+  const tid = state.threadId.trim();
+  try{
+    const r = await fetch(`${b}/messages/${id}${tid ? '?thread_id=' + encodeURIComponent(tid) : ''}`);
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return toast(r.status === 404 ? 'Message introuvable : il doit avoir été envoyé par ce webhook (et le fil doit être indiqué s\'il est dans un fil)' : `Erreur ${r.status} : ${explain(j)}`, 'err', 7000);
+    if (!isEmpty() && !confirm('Remplacer le message en cours par celui de Discord ?')) return;
+    const s = fromApi(j); s.poll = blankPoll();
+    loadState({...s, username: state.username, avatar: state.avatar, threadId: tid, editId: id});
+    const att = j.attachments?.length;
+    toast(`Message chargé : modifie-le puis clique sur « Modifier »${att ? `\n(${att} fichier(s) déjà joint(s) resteront sur le message)` : ''}${j.poll ? '\n(le sondage ne peut pas être modifié)' : ''}`, 'ok', 5000);
+  }catch(e){ toast('Erreur réseau : ' + e.message, 'err'); }
+};
+
+/* ---------- Barre de mise en forme & emojis ---------- */
+const TB = '<div class="tb">' + [['b','<b>B</b>','Gras'],['i','<i>I</i>','Italique'],['u','<u>U</u>','Souligné'],['s','<s>S</s>','Barré'],['sp','▒','Spoiler'],
+  ['code','&lt;/&gt;','Code'],['cb','{ }','Bloc de code'],['h','H','Titre'],['q','❝','Citation'],['li','•','Liste'],['link','🔗','Lien'],['emoji','😀','Emoji']]
+  .map(([k, l, t]) => `<button type="button" data-md="${k}" title="${t}">${l}</button>`).join('') + '</div>';
+function addToolbar(ta){
+  if (ta.parentElement.classList.contains('tbw')) return;
+  const w = document.createElement('div'); w.className = 'tbw'; ta.before(w); w.innerHTML = TB; w.appendChild(ta);
+}
+const fire = ta => { ta.focus(); ta.dispatchEvent(new Event('input', {bubbles: true})); };
+function wrapSel(ta, b, a = b, ph = 'texte'){
+  const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value, sel = v.slice(s, e) || ph;
+  ta.value = v.slice(0, s) + b + sel + a + v.slice(e);
+  fire(ta); ta.setSelectionRange(s + b.length, s + b.length + sel.length);
+}
+function linePrefix(ta, pre){
+  const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value, ls = v.lastIndexOf('\n', s - 1) + 1;
+  const nb = v.slice(ls, e).split('\n').map(l => pre + l).join('\n');
+  ta.value = v.slice(0, ls) + nb + v.slice(e);
+  fire(ta); ta.setSelectionRange(ls + nb.length, ls + nb.length);
+}
+const ECATS = [
+  ['🕘', 'Récents', ''],
+  ['😀', 'Smileys', '😀 😃 😄 😁 😆 😅 😂 🤣 🥲 🥹 😊 😇 🙂 😉 😍 🥰 😘 😋 😛 😜 🤪 😎 🤩 🥳 😏 😒 😔 😢 😭 😤 😡 🤯 😳 🥺 😱 🤔 🤫 🤭 🙄 😴 🤤 😷 🤒 🤠 🤡 👻 💀 🤖 👽 😺'],
+  ['👋', 'Gestes', '👋 🤚 ✋ 🖐️ 👌 🤌 ✌️ 🤞 🫶 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ 👍 👎 ✊ 👊 👏 🙌 👐 🤝 🙏 💪 🫡 👀 🧠 👑 💅'],
+  ['❤️', 'Cœurs', '❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 ✨ ⭐ 🌟 💫 🔥 💥 💯'],
+  ['🎉', 'Fête & jeux', '🎉 🎊 🎁 🎈 🎂 🏆 🥇 🥈 🥉 🏅 🎖️ 🎯 🎮 🕹️ 🎲 🧩 ♟️ 🎵 🎶 🎤 🎧 🎸 🎨 🎬 📷 ⚽ 🏀 🏈 ⚾ 🎾 🏐 🏓 🥊'],
+  ['🍕', 'Nature & nourriture', '🍕 🍔 🍟 🌭 🌮 🍣 🍩 🍪 🍫 🍿 ☕ 🍵 🧃 🍺 🍷 🍎 🍓 🍉 🍌 🌸 🌹 🌻 🌲 🍀 🍁 🌈 ☀️ 🌙 ⚡ ❄️ 🌊 🐶 🐱 🦊 🐻 🐼 🐸 🦄 🐉'],
+  ['📢', 'Objets', '📢 📣 📌 📍 📅 🗓️ ⏰ ⏳ 🔔 🔕 💬 💭 📝 📜 📄 📊 📈 📉 🔗 🔒 🔓 🔑 🛠️ ⚙️ 🔧 🔨 💡 🚀 💻 📱 🖥️ 💾 📦 🎫 💰 💎 🛡️ ⚔️ 🏹 🧪 📚'],
+  ['✅', 'Symboles', '✅ ❌ ⚠️ ❗ ❓ ‼️ ⁉️ 🚫 ⛔ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ➡️ ⬅️ ⬆️ ⬇️ ↗️ 🔄 🔁 ➕ ➖ ✖️ 💲 ©️ ®️ ™️ 🆕 🆗 🆙 🔝 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟']
+];
+let ecat = LS.get('ecat', 1), recentEmoji = LS.get('recentEmoji', []);
+function renderEmojiPop(){
+  if (ecat === 0 && !recentEmoji.length) ecat = 1;
+  const list = ecat === 0 ? recentEmoji : ECATS[ecat][2].split(' ');
+  $('emojiPop').innerHTML = `<div class="etabs">${ECATS.map((c, i) => `<button type="button" data-ec="${i}" class="${i === ecat ? 'on' : ''}" title="${c[1]}">${c[0]}</button>`).join('')}</div>
+    <div class="ecat">${ECATS[ecat][1]}</div>
+    <div class="egrid">${list.map(x => `<button type="button" data-em="1">${x}</button>`).join('')}</div>`;
+}
+let emojiTarget = null, emojiSel = [0, 0];
+function openEmoji(btn, ta){
+  emojiTarget = ta; emojiSel = [ta.selectionStart, ta.selectionEnd];
+  const pop = $('emojiPop'), r = btn.getBoundingClientRect();
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - 320)) + 'px';
+  pop.style.top = (r.bottom + 260 > innerHeight ? Math.max(8, r.top - 258) : r.bottom + 4) + 'px';
+  renderEmojiPop();
+  pop.hidden = false;
+}
+$('emojiPop').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  e.stopPropagation();
+  if (b.dataset.ec){ ecat = +b.dataset.ec; LS.set('ecat', ecat); renderEmojiPop(); return; }
+  if (!emojiTarget) return;
+  const ta = emojiTarget, x = b.textContent;
+  recentEmoji = [x, ...recentEmoji.filter(y => y !== x)].slice(0, 32); LS.set('recentEmoji', recentEmoji);
+  if (ta.classList.contains('em')){ ta.value = x; fire(ta); $('emojiPop').hidden = true; return; }   // emoji d'une réponse de sondage
+  const [s, en] = emojiSel;
+  ta.value = ta.value.slice(0, s) + x + ta.value.slice(en);
+  emojiSel = [s + x.length, s + x.length];
+  fire(ta); ta.setSelectionRange(emojiSel[0], emojiSel[0]);
+};
+['focusin', 'click'].forEach(t => $('pollAns').addEventListener(t, e => {
+  if (e.target.classList.contains('em') && ($('emojiPop').hidden || emojiTarget !== e.target)) openEmoji(e.target, e.target);
+}));
+document.addEventListener('click', e => {
+  const b = e.target.closest('.tb button');
+  if (b){
+    e.preventDefault();
+    const ta = b.closest('.tbw').querySelector('textarea'), k = b.dataset.md;
+    const W = {b:'**', i:'*', u:'__', s:'~~', sp:'||', code:'`'};
+    if (W[k]) wrapSel(ta, W[k]);
+    else if (k === 'cb') wrapSel(ta, '```\n', '\n```', 'code');
+    else if (k === 'h') linePrefix(ta, '## ');
+    else if (k === 'q') linePrefix(ta, '> ');
+    else if (k === 'li') linePrefix(ta, '- ');
+    else if (k === 'link') wrapSel(ta, '[', '](https://)', 'texte du lien');
+    else if (k === 'emoji'){ if (!$('emojiPop').hidden && emojiTarget === ta) $('emojiPop').hidden = true; else openEmoji(b, ta); }
+    return;
+  }
+  if (!e.target.closest('#emojiPop') && e.target !== emojiTarget) $('emojiPop').hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ $('emojiPop').hidden = true; $('schedPop').hidden = true; } });
+document.addEventListener('scroll', () => { $('emojiPop').hidden = true; }, true);
+
+/* ---------- Aperçu ordinateur / mobile ---------- */
+function setPv(m){
+  $('preview').classList.toggle('mobile', m === 'mob');
+  document.querySelectorAll('.ptools button').forEach(b => b.classList.toggle('on', b.dataset.pv === m));
+  LS.set('pv', m);
+}
+document.querySelector('.ptools').onclick = e => { const b = e.target.closest('[data-pv]'); if (b) setPv(b.dataset.pv); };
+
+/* ---------- Profils (nom + avatar) ---------- */
+let personas = LS.get('personas', []);
+function renderPersonas(){
+  const u = state.username.trim(), a = state.avatar.trim();
+  let h = personas.map((p, i) => `<span class="persona ${p.name === u && p.avatar === a ? 'on' : ''}">
+      <button class="pchip" data-pp="${i}" title="Utiliser ce profil">${p.avatar ? `<img src="${esc(p.avatar)}" alt="" onerror="this.outerHTML='<span class=pav>👤</span>'">` : '<span class="pav">👤</span>'}${esc(p.name)}</button>
+      <button class="del" data-pd="${i}" title="Supprimer ce profil">✕</button></span>`).join('');
+  if (u && !personas.some(p => p.name === u && p.avatar === a)) h += '<button class="sec sm" data-psave="1">＋ Enregistrer ce profil</button>';
+  $('personas').innerHTML = h || '<span class="hint" style="margin:0">Astuce : remplis un nom (et un avatar) pour l\'enregistrer comme profil réutilisable.</span>';
+}
+$('personas').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.pp){ const p = personas[+b.dataset.pp]; state.username = p.name; state.avatar = p.avatar; refreshTop(); update(); }
+  if (b.dataset.pd){ personas.splice(+b.dataset.pd, 1); LS.set('personas', personas); renderPersonas(); }
+  if (b.dataset.psave){
+    if (personas.length >= 20) return toast('Maximum 20 profils', 'err');
+    personas.push({name: state.username.trim(), avatar: state.avatar.trim()}); LS.set('personas', personas); renderPersonas(); toast('Profil enregistré', 'ok');
+  }
+};
+
+/* ---------- Embeds rapides ---------- */
+const PRESETS = [
+  ['✅ Succès', '#57f287', '✅ Succès', "L'opération s'est bien déroulée."],
+  ['ℹ️ Info', '#3498db', 'ℹ️ Information', 'Voici une information importante.'],
+  ['⚠️ Attention', '#fee75c', '⚠️ Attention', 'Merci de faire attention à…'],
+  ['❌ Erreur', '#ed4245', '❌ Erreur', 'Un problème est survenu.'],
+  ['📢 Annonce', '#5865f2', '📢 Annonce', 'Écris ton annonce ici.'],
+  ['🎉 Événement', '#eb459e', '🎉 Événement', 'Rejoins-nous pour un moment spécial !\n\n📅 **Quand :** …\n📍 **Où :** …']
+];
+$('quickAdd').insertAdjacentHTML('beforeend', PRESETS.map((p, i) => `<button class="qchip" data-qp="${i}" style="--c:${p[1]}">${p[0]}</button>`).join(''));
+$('quickAdd').onclick = e => {
+  const b = e.target.closest('[data-qp]'); if (!b) return;
+  const p = PRESETS[+b.dataset.qp], em = newEmbed();
+  em.color = p[1]; em.title = p[2]; em.description = p[3];
+  if (state.embeds.length === 1 && !toApiEmbed(state.embeds[0])) state.embeds = [em];   // remplace l'embed vide
+  else { if (state.embeds.length >= 10) return toast('Maximum 10 embeds', 'err'); state.embeds.push(em); }
+  renderEmbeds(); update();
+};
+
+/* ---------- Couleur dominante d'une image ---------- */
+function dominantColor(url){
+  return new Promise((resolve, reject) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try{
+        const S = 48, c = document.createElement('canvas'); c.width = c.height = S;
+        const x = c.getContext('2d'); x.drawImage(img, 0, 0, S, S);
+        const d = x.getImageData(0, 0, S, S).data, buckets = {};
+        for (let i = 0; i < d.length; i += 4){
+          if (d[i + 3] < 128) continue;
+          const r = d[i], g = d[i + 1], bl = d[i + 2], mx = Math.max(r, g, bl), mn = Math.min(r, g, bl), sat = mx ? (mx - mn) / mx : 0;
+          if (mx < 40 || (sat < .12 && mx > 235)) continue;   // ignore le noir et le blanc
+          const k = (r >> 5) << 6 | (g >> 5) << 3 | (bl >> 5), B = buckets[k] || (buckets[k] = {n: 0, r: 0, g: 0, b: 0, s: 0});
+          B.n++; B.r += r; B.g += g; B.b += bl; B.s += sat;
+        }
+        let best = null, score = -1;
+        for (const k in buckets){ const B = buckets[k], sc = B.n * (.35 + B.s / B.n); if (sc > score){ score = sc; best = B; } }
+        if (!best) return reject(new Error('image trop sombre ou vide'));
+        const hx = v => Math.round(v / best.n).toString(16).padStart(2, '0');
+        resolve('#' + hx(best.r) + hx(best.g) + hx(best.b));
+      }catch(e){ reject(new Error("le site de l'image n'autorise pas sa lecture")); }
+    };
+    img.onerror = () => reject(new Error('image introuvable ou non autorisée'));
+    img.src = url;
+  });
+}
+
+/* ---------- Apparence ---------- */
+const ACCENTS = [['Blurple','#5865f2','#8b5cf6'],['Violet','#8b5cf6','#d946ef'],['Rose','#ec4899','#f97316'],['Rouge','#ef4444','#f97316'],
+  ['Orange','#f97316','#eab308'],['Vert','#10b981','#06b6d4'],['Cyan','#06b6d4','#3b82f6'],['Nuit','#6366f1','#0ea5e9']];
+function setAccent(i){
+  const a = ACCENTS[i] || ACCENTS[0], st = document.documentElement.style, n = parseInt(a[1].slice(1), 16);
+  const [R, G, B] = [n >> 16, (n >> 8) & 255, n & 255];
+  st.setProperty('--accent', a[1]); st.setProperty('--accent2', a[2]); st.setProperty('--accent-rgb', `${R},${G},${B}`);
+  st.setProperty('--accent-h', `rgb(${R * .82 | 0},${G * .82 | 0},${B * .82 | 0})`);
+  LS.set('accent', ACCENTS[i] ? i : 0);
+  document.querySelectorAll('[data-acc]').forEach(b => b.classList.toggle('on', +b.dataset.acc === i));
+}
+$('accs').innerHTML = ACCENTS.map((a, i) => `<button class="acc" data-acc="${i}" title="${a[0]}" style="background:linear-gradient(135deg,${a[1]},${a[2]})"></button>`).join('');
+$('accs').onclick = e => { const b = e.target.closest('[data-acc]'); if (b) setAccent(+b.dataset.acc); };
+$('optConfetti').onchange = () => LS.set('confetti', $('optConfetti').checked);
+
+/* ---------- Confettis ---------- */
+function celebrate(){
+  if (!LS.get('confetti', true) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.createElement('canvas'); c.className = 'confetti'; document.body.appendChild(c);
+  const W = c.width = innerWidth, H = c.height = innerHeight, x = c.getContext('2d'), cs = getComputedStyle(document.documentElement);
+  const cols = [cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--accent2').trim(), '#57f287', '#fee75c', '#eb459e', '#ffffff'];
+  const b = $('sendBtn').getBoundingClientRect(), ox = b.left + b.width / 2, oy = b.top;
+  const P = Array.from({length: 150}, () => ({x: ox, y: oy, vx: (Math.random() - .5) * 16, vy: -Math.random() * 17 - 6,
+    r: Math.random() * 6 + 5, c: cols[Math.random() * cols.length | 0], a: Math.random() * 6, va: (Math.random() - .5) * .4}));
+  const t0 = performance.now();
+  (function frame(t){
+    const k = (t - t0) / 1900; x.clearRect(0, 0, W, H);
+    for (const p of P){
+      p.vy += .45; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+      x.save(); x.globalAlpha = Math.max(0, 1 - k * k); x.translate(p.x, p.y); x.rotate(p.a);
+      x.fillStyle = p.c; x.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); x.restore();
+    }
+    if (k < 1) requestAnimationFrame(frame); else c.remove();
+  })(t0);
+}
+
+/* ---------- Aide & raccourcis ---------- */
+const openHelp = () => { if (!$('help').open) $('help').showModal(); };
+$('btnHelp').onclick = openHelp;
+$('helpClose').onclick = () => $('help').close();
+document.addEventListener('keydown', e => {
+  const inField = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); $('tplSave').click(); }
+  else if (e.key === '?' && !inField && !e.ctrlKey && !document.querySelector('dialog[open]')){ e.preventDefault(); openHelp(); }
+});
+
+/* ---------- Glisser-déposer des onglets de messages ---------- */
+let dragMsg = null;
+function moveMsgTo(from, to){
+  if (from === to) return;
+  messages[cur] = structuredClone(state); msgFiles[cur] = files;
+  const order = messages.map((_, i) => i), [x] = order.splice(from, 1); order.splice(to, 0, x);
+  messages = order.map(i => messages[i]); msgFiles = order.map(i => msgFiles[i]);
+  cur = order.indexOf(cur); update();
+}
+$('msgTabs').addEventListener('dragstart', e => { const t = e.target.closest('[data-m]'); if (!t) return; dragMsg = +t.dataset.m; t.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', ''); });
+$('msgTabs').addEventListener('dragover', e => { const t = e.target.closest('[data-m]'); if (dragMsg == null || !t) return; e.preventDefault(); document.querySelectorAll('.mtab.over').forEach(x => x.classList.remove('over')); t.classList.add('over'); });
+$('msgTabs').addEventListener('drop', e => { const t = e.target.closest('[data-m]'); if (dragMsg == null || !t) return; e.preventDefault(); e.stopPropagation(); const from = dragMsg; dragMsg = null; moveMsgTo(from, +t.dataset.m); });
+$('msgTabs').addEventListener('dragend', () => { dragMsg = null; renderMsgTabs(); });
+
+/* ---------- Compteur de caractères ---------- */
+function showCount(el){
+  const cc = $('ccount'), max = +el.getAttribute?.('maxlength');
+  if (!max || !/^(INPUT|TEXTAREA)$/.test(el.tagName)){ cc.hidden = true; return; }
+  const n = el.value.length;
+  if (n < max * .7){ cc.hidden = true; return; }
+  const r = el.getBoundingClientRect();
+  cc.textContent = `${n}/${max}`; cc.className = n >= max ? 'full' : n > max * .9 ? 'warn' : '';
+  cc.style.left = (r.right - 6) + 'px'; cc.style.top = (r.bottom - 6) + 'px'; cc.hidden = false;
+}
+document.addEventListener('input', e => showCount(e.target));
+document.addEventListener('focusin', e => showCount(e.target));
+document.addEventListener('focusout', () => { $('ccount').hidden = true; });
+document.addEventListener('scroll', () => { $('ccount').hidden = true; }, true);
+
+/* ---------- Liens de partage ---------- */
+function bytesToB64u(u8){
+  let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uToBytes(s){
+  s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+  return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+async function pack(obj){
+  const data = new TextEncoder().encode(JSON.stringify(obj));
+  if ('CompressionStream' in window){
+    const st = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return 'z' + bytesToB64u(new Uint8Array(await new Response(st).arrayBuffer()));
+  }
+  return 'j' + bytesToB64u(data);
+}
+async function unpack(str){
+  let data = b64uToBytes(str.slice(1));
+  if (str[0] === 'z'){
+    const st = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    data = new Uint8Array(await new Response(st).arrayBuffer());
+  }
+  return JSON.parse(new TextDecoder().decode(data));
+}
+// Accepte : lien de partage (#m=…), ancien lien Discohook (?data=…) ou JSON brut
+async function parseImport(t){
+  t = t.trim();
+  let m = t.match(/#m=([\w-]+)/);
+  if (m) return unpack(m[1]);
+  m = t.match(/[?&#]data=([^&\s#]+)/);
+  if (m) return JSON.parse(new TextDecoder().decode(b64uToBytes(decodeURIComponent(m[1]))));
+  return JSON.parse(t);
+}
+$('btnShare').onclick = async () => {
+  const list = allMessages();
+  if (list.every(m => { const p = buildPayload(m); return !p.content && !p.embeds && !p.poll; })) return toast('Le message est vide', 'err');
+  const link = location.href.split('#')[0] + '#m=' + await pack({messages: list.map(m => ({data: buildPayload(m)}))});
+  const note = [list.length > 1 ? `${list.length} messages` : '', msgFiles.flat().length || files.length ? 'les fichiers joints ne sont pas inclus' : '',
+    location.protocol === 'file:' ? 'le lien marchera pour les autres une fois le site en ligne (voir Outils)' : ''].filter(Boolean).join(' · ');
+  const r = await dialog(`🔗 Lien de partage${note ? ' — ' + note : ''}`, link, 'Copier le lien');
+  if (r != null) copy(r);
+};
+async function loadFromHash(){
+  const m = location.hash.match(/^#m=([\w-]+)$/); if (!m) return;
+  window.history.replaceState(null, '', location.pathname + location.search);
+  try{
+    const d = await unpack(m[1]);
+    const arr = (d.messages || [d]).slice(0, 10).map(x => fromApi(x.data || x));
+    if (confirm(`Ce lien contient ${arr.length} message(s). Les ouvrir ?\n(cela remplace tes messages en cours)`)){ replaceAllMessages(arr); toast('Message partagé chargé 🔗', 'ok'); }
+  }catch(e){ toast('Lien de partage invalide ou abîmé', 'err'); }
+}
+
+/* ---------- Version téléphone ---------- */
+$('mnav').onclick = e => {
+  const b = e.target.closest('[data-mv]'); if (!b) return;
+  document.body.classList.toggle('mv-view', b.dataset.mv === 'view');
+  document.querySelectorAll('#mnav button').forEach(x => x.classList.toggle('on', x === b));
+  window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
+/* ---------- Démarrage ---------- */
+const savedMsgs = LS.get('msgs', null), draft = LS.get('draft', null);
+if (savedMsgs && Array.isArray(savedMsgs.list) && savedMsgs.list.length){
+  messages = savedMsgs.list.slice(0, 10).map(m => Object.assign(blankState(), m));
+  cur = Math.min(Math.max(savedMsgs.cur | 0, 0), messages.length - 1);
+  msgFiles = messages.map(() => []);
+  Object.assign(state, messages[cur]);
+} else if (draft && typeof draft === 'object') Object.assign(state, blankState(), draft);
+if (!Array.isArray(state.embeds)) state.embeds = [newEmbed()];
+if (!state.poll) state.poll = blankPoll();
+setTheme(LS.get('theme', 'dark'));
+bindAll(document, () => state, 's');
+addToolbar(document.querySelector('textarea[data-s=content]'));
+refreshTop();
+renderPoll();
+setPv(LS.get('pv', 'desk'));
+renderVars();
+setAccent(LS.get('accent', 0));
+$('optConfetti').checked = LS.get('confetti', true);
+if (location.hash.startsWith('#m=')) setTimeout(loadFromHash, 300);
+else if (!LS.get('seenHelp', false)){ LS.set('seenHelp', true); setTimeout(openHelp, 500); }
+$('whUrl').value = LS.get('currentWh', '') || (webhooks[0]?.url || '');
+onWhChange();
+renderEmbeds(); renderFiles(); renderHistory(); renderTemplates(); renderTs();
+showTab(LS.get('tab', 'preview'));
+update();
+clearTimeout(undo.t); undo.stack = [snapStr()]; undo.i = 0; updUndoBtns();
+</script>
+</body>
+</html>
