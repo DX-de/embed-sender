@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Embed Sender</title>
+<meta name="description" content="Crée et envoie de beaux messages Discord (embeds, sondages, boutons) avec un webhook.">
+<meta name="theme-color" content="#5865f2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -398,6 +403,25 @@ table.keys td:first-child{white-space:nowrap;width:1%;padding-right:14px}
   #btnShare,#btnExport,#btnImport,#btnNew{font-size:12px}
 }
 body.light .mnav{background:rgba(255,255,255,.94);border-color:rgba(0,0,0,.08)}
+/* Boutons de lien (aperçu façon Discord) */
+.dbrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.dbtn{display:inline-flex;align-items:center;gap:6px;background:#4e5058;color:#fff!important;text-decoration:none!important;border-radius:8px;padding:6px 14px;font-size:14px;font-weight:500;min-height:32px;transition:background .15s}
+.dbtn:hover{background:#6d6f78}
+.dbtn .dext{opacity:.8;font-size:12px}
+body.light .dbtn{background:#6d6f78}
+.brow{flex-wrap:wrap}
+.cemoji{width:1.375em;height:1.375em;vertical-align:-.3em;object-fit:contain}
+.dbtn .cemoji,.poll .cemoji{width:20px;height:20px;vertical-align:middle}
+#emojiPop .egrid .cemoji{width:24px;height:24px}
+/* Résultats des sondages */
+#pollDlg{max-width:520px}
+.pres{margin:12px 0}
+.ptop{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px}
+.ptop small{color:var(--muted);font-weight:400}
+.pres .bar{height:10px;border-radius:6px;background:var(--panel2);overflow:hidden}
+.pres .bar i{display:block;height:100%;background:var(--grad);border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.pres.win .ptop span{color:var(--ok);font-weight:600}
+#pollClose,#btnInstall{background:var(--grad);box-shadow:0 4px 14px rgba(var(--accent-rgb),.3)}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
@@ -410,6 +434,7 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
     <button class="sec" id="btnUndo" title="Annuler (Ctrl+Z hors d'un champ)">↶</button>
     <button class="sec" id="btnRedo" title="Rétablir (Ctrl+Y hors d'un champ)">↷</button>
     <button class="sec" id="btnTheme" title="Thème clair / sombre">🌙</button>
+    <button id="btnInstall" hidden title="Installer Embed Sender comme une application">📲 Installer</button>
     <button class="sec" id="btnHelp" title="Aide et raccourcis (touche ?)">❓</button>
     <button class="sec" id="btnShare" title="Créer un lien qui contient ton message (sans l'URL du webhook)">🔗 Partager</button>
     <button class="sec" id="btnExport">{ } JSON</button>
@@ -496,6 +521,13 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
         </div>
         <div class="hint">Un sondage ne peut plus être modifié une fois envoyé.</div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="ic">🔘</span>Boutons de lien <span class="cnt" id="btnCnt"></span></h2>
+      <div id="btnList"></div>
+      <button class="sec sm" id="btnAdd" style="margin-top:8px">+ Bouton</button>
+      <div class="hint">Jusqu'à 25 boutons sous le message (5 par ligne), qui ouvrent un lien. Les boutons qui font une action (donner un rôle…) demandent un vrai bot.</div>
     </div>
 
     <div class="card">
@@ -642,6 +674,10 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
   <div class="hint" style="margin-top:0">Glisse la poignée <b>⋮⋮</b> d'un embed ou un onglet de message pour changer l'ordre. Tout est enregistré dans ton navigateur : pense à la Sauvegarde (onglet Outils).</div>
   <div class="actions"><button id="helpClose">C'est parti !</button></div>
 </dialog>
+<dialog id="pollDlg">
+  <div id="pollRes"></div>
+  <div class="actions"><button class="sec" id="pollRefresh">🔄 Actualiser</button><button id="pollClose">Fermer</button></div>
+</dialog>
 <div id="toasts"></div>
 <div id="ccount" hidden></div>
 <nav class="mnav" id="mnav"><button data-mv="edit" class="on">✏️ Édition</button><button data-mv="view">👁 Aperçu</button></nav>
@@ -717,6 +753,7 @@ function md(src, inlineOnly){
     .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, a, b) => keep(`<a href="${b}" target="_blank" rel="noopener">${a}</a>`))
     .replace(/https?:\/\/[^\s<]+[^\s<.,:;"')\]]/g, m => keep(`<a href="${m}" target="_blank" rel="noopener">${m}</a>`))
     .replace(/&lt;t:(-?\d+)(?::([tTdDfFR]))?&gt;/g, (m, a, b) => keep(`<span class="mention ts">${fmtTs(+a, b || 'f')}</span>`))
+    .replace(/&lt;(a?):(\w+):(\d+)&gt;/g, (m, a, n, id) => keep(emojiImg({id, name: n, animated: !!a})))
     .replace(/&lt;@&amp;\d+&gt;/g, () => keep('<span class="mention">@rôle</span>'))
     .replace(/&lt;@!?\d+&gt;/g, () => keep('<span class="mention">@membre</span>'))
     .replace(/&lt;#\d+&gt;/g, () => keep('<span class="mention">#salon</span>'))
@@ -748,7 +785,14 @@ function newEmbed(){
     image:'', gallery:['','',''], thumbnail:'', footer:{text:'',icon_url:''}, tsMode:'none', tsValue:'', _open:true, _sec:{}};
 }
 const blankPoll = () => ({enabled:false, question:'', answers:[], duration:24, multi:false});
-const blankState = () => ({content:'', username:'', avatar:'', threadName:'', threadId:'', editId:'', silent:false, noMentions:false, embeds:[newEmbed()], poll:blankPoll()});
+const blankState = () => ({content:'', username:'', avatar:'', threadName:'', threadId:'', editId:'', silent:false, noMentions:false, embeds:[newEmbed()], poll:blankPoll(), buttons:[]});
+// Emoji « 🍕 » ou « <:nom:id> » → objet emoji Discord
+function emojiObj(str){
+  const e = (str || '').trim(), c = e.match(/^<(a?):(\w+):(\d+)>$/);
+  return c ? {id: c[3], name: c[2], animated: !!c[1]} : e ? {name: e} : null;
+}
+const emojiStr = o => !o ? '' : o.id ? `<${o.animated ? 'a' : ''}:${o.name || 'e'}:${o.id}>` : (o.name || '');
+const emojiImg = o => o?.id ? `<img class="cemoji" src="https://cdn.discordapp.com/emojis/${esc(o.id)}.${o.animated ? 'gif' : 'png'}" alt=":${esc(o.name || 'emoji')}:">` : o?.name ? esc(o.name) : '';
 const state = blankState();
 let files = [];                              // {file, url}
 let webhooks = LS.get('webhooks', []);       // {name, url, info}
@@ -810,6 +854,17 @@ function buildPayload(s = state){
     });
     if (ans.length) p.poll = {question: {text: P.question.trim()}, answers: ans, duration: +P.duration || 24, allow_multiselect: !!P.multi};
   }
+  // Boutons de lien (5 par ligne, 5 lignes max)
+  const btns = (s.buttons || []).filter(b => (b.label || '').trim() || (b.emoji || '').trim() || (b.url || '').trim()).slice(0, 25).map(b => {
+    const o = {type: 2, style: 5, url: (b.url || '').trim()};
+    if ((b.label || '').trim()) o.label = b.label.trim();
+    const em = emojiObj(b.emoji); if (em) o.emoji = em;
+    return o;
+  });
+  if (btns.length){
+    p.components = [];
+    for (let i = 0; i < btns.length; i += 5) p.components.push({type: 1, components: btns.slice(i, i + 5)});
+  }
   return p;
 }
 function checkSendable(s, fl){
@@ -820,6 +875,10 @@ function checkSendable(s, fl){
   if (tot > 6000) return `Trop de texte dans les embeds (${tot}/6000 caractères)`;
   if ((p.embeds || []).length > 10) return "Trop d'embeds : 10 maximum (chaque image de galerie compte comme un embed)";
   if (s.poll?.enabled && !s.editId.trim() && !p.poll) return 'Le sondage doit avoir une question et au moins une réponse';
+  for (const [i, b] of (p.components || []).flatMap(r => r.components).entries()){
+    if (!/^(https?|discord):\/\/\S+$/i.test(b.url)) return `Bouton ${i + 1} : ajoute un lien valide (https://…)`;
+    if (!b.label && !b.emoji) return `Bouton ${i + 1} : ajoute un texte ou un emoji`;
+  }
   return null;
 }
 function fromApi(p){
@@ -828,6 +887,8 @@ function fromApi(p){
   s.content = p.content || ''; s.username = p.username || ''; s.avatar = p.avatar_url || '';
   s.threadName = p.thread_name || ''; s.silent = !!(p.flags & 4096);
   s.noMentions = !!(p.allowed_mentions && !(p.allowed_mentions.parse || []).length);
+  s.buttons = (p.components || []).flatMap(r => r.components || []).filter(c => c.type === 2 && c.url).slice(0, 25)
+    .map(c => ({label: c.label || '', url: c.url, emoji: emojiStr(c.emoji)}));
   if (p.poll){
     const em = a => a.poll_media?.emoji?.id ? `<:e:${a.poll_media.emoji.id}>` : a.poll_media?.emoji?.name || '';
     s.poll = {enabled: true, question: p.poll.question?.text || '', answers: (p.poll.answers || []).slice(0, 10).map(a => ({text: a.poll_media?.text || '', emoji: em(a)})),
@@ -859,7 +920,8 @@ function loadState(s){
   if (!Array.isArray(state.embeds)) state.embeds = [];
   state.embeds.forEach(e => { e._sec = e._sec || {}; e._open = e._open !== false; });
   if (!state.poll) state.poll = blankPoll();
-  refreshTop(); renderEmbeds(); renderPoll(); update();
+  if (!Array.isArray(state.buttons)) state.buttons = [];
+  refreshTop(); renderEmbeds(); renderPoll(); renderButtons(); update();
 }
 const isEmpty = () => !state.content.trim() && !state.embeds.some(e => toApiEmbed(e)) && !(state.poll.enabled && state.poll.question.trim());
 
@@ -1189,6 +1251,8 @@ function renderPreview(p, fl = files, grp = false, s = state){
     }
     h += '</div>';
   }
+  if (p.components) h += p.components.map(r => `<div class="dbrow">${r.components.map(b =>
+    `<a class="dbtn" href="${esc(b.url)}" target="_blank" rel="noopener">${emojiImg(b.emoji)}${b.label ? `<span>${esc(b.label)}</span>` : ''}<span class="dext">↗</span></a>`).join('')}</div>`).join('');
   const extra = fl.filter(f => !used.has(f.file.name));
   if (extra.length) h += `<div class="atts">${extra.map(f => f.file.type.startsWith('image/') ? `<img src="${f.url}" alt="">`
     : `<div class="attf">📄<div><div class="link">${esc(f.file.name)}</div><div class="muted">${fmtSize(f.file.size)}</div></div></div>`).join('')}</div>`;
@@ -1229,6 +1293,7 @@ function update(){
     state.poll.enabled && state.editId.trim() ? '<span class="warn">sondage ignoré en modification</span>' : '',
     !state.editId.trim() && targets().length > 1 ? `<span class="warn">+${targets().length - 1} autre(s) webhook(s)</span>` : ''
   ].filter(Boolean).join(' · ');
+  $('btnCnt').textContent = state.buttons?.length ? `${state.buttons.length}/25` : '';
   $('pollCnt').textContent = state.poll.enabled ? `${state.poll.answers.filter(a => a.text.trim()).length}/10 réponses` : '';
   if (!sending) $('sendBtn').textContent = state.editId.trim() ? '✎ Modifier' : '🚀 Envoyer';
   renderAllPreviews(p);
@@ -1257,6 +1322,7 @@ async function doSend(s, fl, b, attempt = 0){
   const editId = msgId(s.editId), q = new URLSearchParams();
   if (!editId) q.set('wait', 'true');
   if (s.threadId.trim()) q.set('thread_id', s.threadId.trim());
+  if (p.components) q.set('with_components', 'true');
   const url = b + (editId ? '/messages/' + encodeURIComponent(editId) : '') + (q.toString() ? '?' + q : '');
   let body, headers = {};
   if (fl.length){
@@ -1430,6 +1496,7 @@ function renderHistory(){
       <div class="ilabel">${esc(h.label)}<small>${esc(h.whName)} · ${new Date(h.date).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}</small></div>
       <button class="sec sm" data-h="edit" data-i="${i}" title="Recharger et modifier ce message sur Discord">✎ Modifier</button>
       <button class="sec sm" data-h="copy" data-i="${i}" title="Recharger comme nouveau message">⧉ Réutiliser</button>
+      ${h.state?.poll?.enabled ? `<button class="sec sm" data-h="poll" data-i="${i}" title="Voir les votes du sondage">📊</button>` : ''}
       ${h.guild ? `<button class="sec sm" data-h="link" data-i="${i}" title="Ouvrir dans Discord">↗</button>` : ''}
       <button class="del" data-h="del" data-i="${i}" title="Supprimer de Discord">🗑</button>
     </div>`).join('') + '<button class="sec sm" id="histClear" style="margin-top:6px">Vider l\'historique</button>';
@@ -1439,6 +1506,7 @@ $('history').onclick = async e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.id === 'histClear'){ if (confirm("Vider l'historique local ? (les messages restent sur Discord)")){ history = []; LS.set('history', history); renderHistory(); } return; }
   const h = history[+b.dataset.i]; if (!h) return;
+  if (b.dataset.h === 'poll') return showPollResults(h);
   if (b.dataset.h === 'edit' || b.dataset.h === 'copy'){
     if (!isEmpty() && !confirm('Remplacer le message en cours ?')) return;
     loadState(h.state);
@@ -1470,6 +1538,18 @@ function builtins(){
     {name:'🔧 Maintenance', p:{embeds:[{author:{name:'Statut du service'}, title:'🔧 Maintenance prévue', description:'Une maintenance aura lieu le **<t:' + T + ':F>**.\nDurée estimée : ~1 h.\n\n> Merci de votre patience !', color:0xe67e22}]}},
     {name:'📊 Sondage', p:{content:'Votez ! 👇', poll:{question:{text:'Quel jour pour la prochaine soirée ?'}, duration:24, allow_multiselect:false,
       answers:[{poll_media:{text:'Vendredi', emoji:{name:'🎉'}}},{poll_media:{text:'Samedi', emoji:{name:'🍕'}}},{poll_media:{text:'Dimanche', emoji:{name:'🎮'}}}]}}},
+    {name:'🎭 Rôles', p:{embeds:[{title:'🎭 Choisis tes rôles', color:0x9b59b6,
+      description:'Réagis à ce message pour obtenir un rôle :\n\n🎮 → **Joueur**\n🎨 → **Créatif**\n📢 → **Notifications**\n🎵 → **Musique**\n\n-# Retire ta réaction pour enlever le rôle.'}]}},
+    {name:'❓ FAQ', p:{embeds:[{title:'❓ Questions fréquentes', color:0x3498db, description:'Tu as une question ? La réponse est peut-être ici !',
+      fields:[{name:'Comment rejoindre le staff ?', value:'Les recrutements sont annoncés dans ce salon.'},{name:'Comment signaler un problème ?', value:'Ouvre un ticket ou contacte un modérateur.'},{name:'Où trouver le règlement ?', value:'Dans le salon règlement, à lire avant tout !'}],
+      footer:{text:'Une autre question ? Demande au staff'}}]}},
+    {name:'🛡️ Recrutement staff', p:{content:'@everyone', embeds:[{title:'🛡️ Recrutement staff ouvert !', color:0x57f287,
+      description:'On cherche de nouvelles personnes motivées pour rejoindre l\'équipe.',
+      fields:[{name:'📋 Postes', value:'• Modérateur\n• Animateur\n• Support', inline:true},{name:'✅ Conditions', value:'• 16 ans minimum\n• Actif sur le serveur\n• Mature et respectueux', inline:true},{name:'⏰ Date limite', value:'<t:' + (T + 4 * 86400) + ':D>'}]}],
+      components:[{type:1, components:[{type:2, style:5, label:'Postuler', url:'https://forms.gle/', emoji:{name:'📝'}}]}]}},
+    {name:'🤝 Partenariat', p:{embeds:[{author:{name:'Partenariat'}, title:'🤝 Nouveau partenaire !', color:0xe67e22,
+      description:'Nous sommes fiers d\'annoncer notre partenariat avec **Nom du serveur** !\n\n> Petite description du serveur partenaire.'}],
+      components:[{type:1, components:[{type:2, style:5, label:'Rejoindre le serveur', url:'https://discord.gg/', emoji:{name:'🔗'}}]}]}},
     {name:'📰 Mise à jour', p:{embeds:[{title:'📰 Mise à jour v1.2', description:'## Nouveautés\n- Ajout de …\n- Amélioration de …\n## Corrections\n- Correction de …', color:0x3498db, footer:{text:'Changelog'}, timestamp:'now'}]}}
   ];
 }
@@ -1779,15 +1859,24 @@ const ECATS = [
   ['🎉', 'Fête & jeux', '🎉 🎊 🎁 🎈 🎂 🏆 🥇 🥈 🥉 🏅 🎖️ 🎯 🎮 🕹️ 🎲 🧩 ♟️ 🎵 🎶 🎤 🎧 🎸 🎨 🎬 📷 ⚽ 🏀 🏈 ⚾ 🎾 🏐 🏓 🥊'],
   ['🍕', 'Nature & nourriture', '🍕 🍔 🍟 🌭 🌮 🍣 🍩 🍪 🍫 🍿 ☕ 🍵 🧃 🍺 🍷 🍎 🍓 🍉 🍌 🌸 🌹 🌻 🌲 🍀 🍁 🌈 ☀️ 🌙 ⚡ ❄️ 🌊 🐶 🐱 🦊 🐻 🐼 🐸 🦄 🐉'],
   ['📢', 'Objets', '📢 📣 📌 📍 📅 🗓️ ⏰ ⏳ 🔔 🔕 💬 💭 📝 📜 📄 📊 📈 📉 🔗 🔒 🔓 🔑 🛠️ ⚙️ 🔧 🔨 💡 🚀 💻 📱 🖥️ 💾 📦 🎫 💰 💎 🛡️ ⚔️ 🏹 🧪 📚'],
-  ['✅', 'Symboles', '✅ ❌ ⚠️ ❗ ❓ ‼️ ⁉️ 🚫 ⛔ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ➡️ ⬅️ ⬆️ ⬇️ ↗️ 🔄 🔁 ➕ ➖ ✖️ 💲 ©️ ®️ ™️ 🆕 🆗 🆙 🔝 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟']
+  ['✅', 'Symboles', '✅ ❌ ⚠️ ❗ ❓ ‼️ ⁉️ 🚫 ⛔ 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟥 🟧 🟨 🟩 🟦 🟪 ➡️ ⬅️ ⬆️ ⬇️ ↗️ 🔄 🔁 ➕ ➖ ✖️ 💲 ©️ ®️ ™️ 🆕 🆗 🆙 🔝 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟'],
+  ['⭐', 'Emojis de ton serveur', '']
 ];
+const SERVER_CAT = ECATS.length - 1;
+let customEmojis = LS.get('customEmojis', []);   // {name, id, animated}
+function emoBtn(x){
+  const o = emojiObj(x);
+  return o?.id ? `<button type="button" data-em="1" data-code="${esc(x)}" title=":${esc(o.name)}:">${emojiImg(o)}</button>` : `<button type="button" data-em="1">${x}</button>`;
+}
 let ecat = LS.get('ecat', 1), recentEmoji = LS.get('recentEmoji', []);
 function renderEmojiPop(){
   if (ecat === 0 && !recentEmoji.length) ecat = 1;
-  const list = ecat === 0 ? recentEmoji : ECATS[ecat][2].split(' ');
+  if (ecat >= ECATS.length) ecat = 1;
+  const list = ecat === 0 ? recentEmoji : ecat === SERVER_CAT ? customEmojis.map(emojiStr) : ECATS[ecat][2].split(' ');
   $('emojiPop').innerHTML = `<div class="etabs">${ECATS.map((c, i) => `<button type="button" data-ec="${i}" class="${i === ecat ? 'on' : ''}" title="${c[1]}">${c[0]}</button>`).join('')}</div>
     <div class="ecat">${ECATS[ecat][1]}</div>
-    <div class="egrid">${list.map(x => `<button type="button" data-em="1">${x}</button>`).join('')}</div>`;
+    <div class="egrid">${list.map(emoBtn).join('')}${ecat === SERVER_CAT ? '<button type="button" data-addce="1" title="Ajouter un emoji de ton serveur">＋</button>' : ''}</div>
+    ${ecat === SERVER_CAT ? `<div class="hint" style="margin:0 10px 8px">${customEmojis.length ? 'Clic droit sur un emoji pour le retirer. ' : ''}Pour ajouter : dans Discord, tape <code>\\:nom_emoji:</code>, envoie, copie le résultat <code>&lt;:nom:123…&gt;</code> puis clique sur ＋.</div>` : ''}`;
 }
 let emojiTarget = null, emojiSel = [0, 0];
 function openEmoji(btn, ta){
@@ -1802,8 +1891,16 @@ $('emojiPop').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
   e.stopPropagation();
   if (b.dataset.ec){ ecat = +b.dataset.ec; LS.set('ecat', ecat); renderEmojiPop(); return; }
+  if (b.dataset.addce){
+    const t = prompt('Colle un ou plusieurs emojis de ton serveur au format <:nom:id> :');
+    const found = [...(t || '').matchAll(/<(a?):(\w+):(\d+)>/g)].map(m => ({name: m[2], id: m[3], animated: !!m[1]}));
+    if (!found.length){ if (t) toast('Format non reconnu : il faut <:nom:123456789>', 'err'); return; }
+    for (const f of found) if (!customEmojis.some(c => c.id === f.id)) customEmojis.push(f);
+    LS.set('customEmojis', customEmojis); renderEmojiPop(); toast(`${found.length} emoji(s) ajouté(s)`, 'ok');
+    return;
+  }
   if (!emojiTarget) return;
-  const ta = emojiTarget, x = b.textContent;
+  const ta = emojiTarget, x = b.dataset.code || b.textContent;
   recentEmoji = [x, ...recentEmoji.filter(y => y !== x)].slice(0, 32); LS.set('recentEmoji', recentEmoji);
   if (ta.classList.contains('em')){ ta.value = x; fire(ta); $('emojiPop').hidden = true; return; }   // emoji d'une réponse de sondage
   const [s, en] = emojiSel;
@@ -1811,9 +1908,68 @@ $('emojiPop').onclick = e => {
   emojiSel = [s + x.length, s + x.length];
   fire(ta); ta.setSelectionRange(emojiSel[0], emojiSel[0]);
 };
-['focusin', 'click'].forEach(t => $('pollAns').addEventListener(t, e => {
+['pollAns', 'btnList'].forEach(id => ['focusin', 'click'].forEach(t => $(id).addEventListener(t, e => {
   if (e.target.classList.contains('em') && ($('emojiPop').hidden || emojiTarget !== e.target)) openEmoji(e.target, e.target);
-}));
+})));
+$('emojiPop').addEventListener('contextmenu', e => {
+  const b = e.target.closest('[data-code]'); if (!b || ecat !== SERVER_CAT) return;
+  e.preventDefault();
+  customEmojis = customEmojis.filter(c => emojiStr(c) !== b.dataset.code); LS.set('customEmojis', customEmojis); renderEmojiPop();
+});
+
+/* ---------- Boutons de lien ---------- */
+function renderButtons(){
+  const B = state.buttons;
+  $('btnList').innerHTML = B.map((b, i) => `<div class="ans brow">
+      <input class="em" data-be="${i}" value="${esc(b.emoji)}" placeholder="🔗" maxlength="64" title="Emoji (facultatif)">
+      <input data-bl="${i}" value="${esc(b.label)}" maxlength="80" placeholder="Texte du bouton" style="flex:1 1 120px">
+      <input data-bu="${i}" value="${esc(b.url)}" placeholder="https://…" style="flex:2 1 160px">
+      <button class="icon" data-bm="${i}" title="Monter">↑</button><button class="del" data-br="${i}" title="Retirer">✕</button></div>`).join('')
+    || '<div class="muted" style="font-size:13px">Aucun bouton. Exemple : « 🌐 Notre site » → https://…</div>';
+  $('btnAdd').hidden = B.length >= 25;
+}
+$('btnList').oninput = e => {
+  const t = e.target, B = state.buttons;
+  if (t.dataset.bl) B[+t.dataset.bl].label = t.value;
+  if (t.dataset.bu) B[+t.dataset.bu].url = t.value;
+  if (t.dataset.be) B[+t.dataset.be].emoji = t.value;
+  update();
+};
+$('btnList').onclick = e => {
+  const b = e.target.closest('[data-br],[data-bm]'); if (!b) return;
+  const B = state.buttons;
+  if (b.dataset.br) B.splice(+b.dataset.br, 1);
+  if (b.dataset.bm && +b.dataset.bm > 0){ const j = +b.dataset.bm; [B[j - 1], B[j]] = [B[j], B[j - 1]]; }
+  renderButtons(); update();
+};
+$('btnAdd').onclick = () => {
+  if (state.buttons.length >= 25) return;
+  state.buttons.push({label: '', url: '', emoji: ''}); renderButtons(); update();
+  $('btnList').querySelector('.brow:last-child [data-bl]').focus();
+};
+
+/* ---------- Résultats des sondages ---------- */
+let pollFor = null;
+async function showPollResults(h){
+  pollFor = h; const box = $('pollRes');
+  box.innerHTML = '<div class="muted">Chargement des votes…</div>';
+  if (!$('pollDlg').open) $('pollDlg').showModal();
+  try{
+    const r = await fetch(`${h.wh}/messages/${h.id}${h.thread ? '?thread_id=' + encodeURIComponent(h.thread) : ''}`);
+    const j = await r.json().catch(() => null);
+    if (!r.ok) throw new Error(r.status === 404 ? 'message introuvable (supprimé ?)' : explain(j) || 'erreur ' + r.status);
+    if (!j.poll) throw new Error("ce message n'a pas de sondage");
+    const P = j.poll, counts = {}; (P.results?.answer_counts || []).forEach(c => counts[c.id] = c.count);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0), max = Math.max(0, ...Object.values(counts));
+    const end = P.expiry ? new Date(P.expiry) : null, done = P.results?.is_finalized || (end && end < new Date());
+    box.innerHTML = `<h3>📊 ${esc(P.question?.text || 'Sondage')}</h3>
+      <div class="hint" style="margin-top:0">${total} vote${total > 1 ? 's' : ''} · ${done ? '✅ Terminé' : end ? 'Se termine ' + fmtTs(Math.floor(end / 1000), 'R') : ''}${P.allow_multiselect ? ' · choix multiples' : ''}</div>
+      ${P.answers.map(a => { const n = counts[a.answer_id] || 0, pct = total ? Math.round(n / total * 100) : 0;
+        return `<div class="pres ${done && n && n === max ? 'win' : ''}"><div class="ptop"><span>${emojiImg(a.poll_media?.emoji)} ${esc(a.poll_media?.text || '')}${done && n && n === max ? ' 🏆' : ''}</span><b>${pct}% <small>(${n})</small></b></div><div class="bar"><i style="width:${pct}%"></i></div></div>`; }).join('')}`;
+  }catch(e){ box.innerHTML = `<div class="err">Impossible de lire le sondage : ${esc(e.message)}</div>`; }
+}
+$('pollRefresh').onclick = () => pollFor && showPollResults(pollFor);
+$('pollClose').onclick = () => $('pollDlg').close();
 document.addEventListener('click', e => {
   const b = e.target.closest('.tb button');
   if (b){
@@ -2045,6 +2201,18 @@ $('mnav').onclick = e => {
   window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
+/* ---------- Application installable ---------- */
+let installEvt = null;
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('btnInstall').hidden = false; });
+window.addEventListener('appinstalled', () => { $('btnInstall').hidden = true; installEvt = null; toast('📲 Embed Sender est installé !', 'ok', 4000); });
+$('btnInstall').onclick = async () => {
+  if (!installEvt) return;
+  installEvt.prompt();
+  await installEvt.userChoice.catch(() => {});
+  installEvt = null; $('btnInstall').hidden = true;
+};
+
 /* ---------- Démarrage ---------- */
 const savedMsgs = LS.get('msgs', null), draft = LS.get('draft', null);
 if (savedMsgs && Array.isArray(savedMsgs.list) && savedMsgs.list.length){
@@ -2060,6 +2228,8 @@ bindAll(document, () => state, 's');
 addToolbar(document.querySelector('textarea[data-s=content]'));
 refreshTop();
 renderPoll();
+if (!Array.isArray(state.buttons)) state.buttons = [];
+renderButtons();
 setPv(LS.get('pv', 'desk'));
 renderVars();
 setAccent(LS.get('accent', 0));
