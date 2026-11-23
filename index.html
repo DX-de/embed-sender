@@ -425,6 +425,37 @@ body.light .dbtn{background:#6d6f78}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+/* ---------- Écran d'accueil ---------- */
+#welcome{max-width:640px;padding:22px}
+.wl-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.wl-head h3{margin:0 0 2px;font-size:20px}
+.wl-logo{font-size:34px;width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:var(--grad,var(--accent));flex:none}
+.wl-q{font-weight:800;color:var(--head);font-size:15px;margin:4px 0 10px}
+.wl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wl-grid button{white-space:normal;min-width:0;width:100%;display:grid;gap:4px;justify-items:start;text-align:left;padding:14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text);box-shadow:none!important;transition:border-color .15s,transform .15s,background .15s}
+.wl-grid button:hover{border-color:rgba(var(--accent-rgb),.8);background:rgba(var(--accent-rgb),.12);transform:translateY(-2px)}
+.wl-grid .wl-ic{font-size:26px}
+.wl-grid b{font-size:15px;color:var(--head)}
+.wl-grid small{font-size:12.5px;color:var(--muted);font-weight:400;line-height:1.4}
+body.light .wl-grid button{background:rgba(0,0,0,.02)}
+.wl-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:13px}
+@media (max-width:600px){ .wl-grid{grid-template-columns:1fr} }
+
+/* ---------- Mode simple : seules les options essentielles restent visibles ---------- */
+.mode-btn{font-weight:700}
+body.simple #btnUndo,body.simple #btnRedo,body.simple #btnShare,body.simple #btnExport,body.simple #btnImport,body.simple #schedBtn,
+body.simple [data-tab=history],
+body.simple #left > .card:has(#msgTabs),body.simple #left > .card:has([data-s=username]),body.simple #left > .card:has(#pollOn),
+body.simple #left > .card:has(#btnList),body.simple #left > .card:has(#drop),
+body.simple .embed-ed details[data-sec=author],body.simple .embed-ed details[data-sec=fields],body.simple .embed-ed details[data-sec=footer],
+body.simple .embed-ed details[data-sec=body] > label:nth-of-type(2),body.simple .embed-ed details[data-sec=body] > input[data-k=url],
+body.simple .embed-ed details[data-sec=images] > :not(summary):not(label:first-of-type):not([data-k=image]),
+body.simple .embed-ed .grip,body.simple .embed-ed [data-a=up],body.simple .embed-ed [data-a=down],body.simple .embed-ed [data-a=dup]{display:none!important}
+body.simple .embed-ed details[data-sec=images] > summary{font-size:0}
+body.simple .embed-ed details[data-sec=images] > summary::after{content:"Image";font-size:13px}
+.simple-note{margin:0 0 12px;padding:10px 12px;border-radius:10px;font-size:12.5px;background:rgba(240,178,50,.1);border:1px solid rgba(240,178,50,.45);color:var(--text)}
+.simple-note a{color:var(--head);font-weight:700}
+
 /* ---------- Bloc-notes ---------- */
 .notes-layout{display:grid;grid-template-columns:minmax(170px,230px) 1fr;gap:12px;align-items:start}
 .notes-side{display:grid;gap:8px}
@@ -505,8 +536,10 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
 </head>
 <body>
 <header>
-  <div class="brand"><span class="logo">📨</span><div><h1>Embed Sender</h1><div class="hint" style="margin:0">Crée et envoie des embeds Discord via webhook · <kbd>Ctrl</kbd>+<kbd>Entrée</kbd> pour envoyer</div></div></div>
+  <div class="brand"><span class="logo">📨</span><div><h1>Embed Sender</h1><div class="hint" style="margin:0">Envoie de jolis messages sur ton serveur Discord, sans bot</div></div></div>
   <div class="hbtns">
+    <button class="sec" id="btnHome" title="Revenir à l'écran d'accueil">🏠 Accueil</button>
+    <button class="sec mode-btn" id="btnMode" title="Afficher ou masquer les options avancées"></button>
     <button class="sec" id="btnUndo" title="Annuler (Ctrl+Z hors d'un champ)">↶</button>
     <button class="sec" id="btnRedo" title="Rétablir (Ctrl+Y hors d'un champ)">↷</button>
     <button class="sec" id="btnTheme" title="Thème clair / sombre">🌙</button>
@@ -646,6 +679,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
       <button class="sec wide" id="addEmbed">+ Ajouter un embed vide</button>
     </div>
 
+    <div class="simple-note" id="simpleNote" hidden>⚙️ Ce message utilise des options avancées (<span id="simpleNoteWhat"></span>). <a href="#" id="simpleNoteBtn">Passer en mode avancé</a> pour les voir.</div>
     <div class="sendbar">
       <div id="sendInfo" class="hint"></div>
       <div class="sched">
@@ -854,6 +888,24 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
     <div class="actions"><button value="cancel" class="sec">Fermer</button><button id="dlgOk" value="ok"></button></div>
   </form>
 </dialog>
+<dialog id="welcome" class="welcome">
+  <div class="wl-head">
+    <span class="wl-logo">📨</span>
+    <div><h3>Bienvenue sur Embed Sender</h3>
+    <div class="hint" style="margin:0">Envoie de jolis messages sur ton serveur Discord, sans bot et sans coder.</div></div>
+  </div>
+  <div class="wl-q">Que veux-tu faire ?</div>
+  <div class="wl-grid">
+    <button data-w="message"><span class="wl-ic">📢</span><b>Envoyer un message</b><small>Une annonce, une info, une règle… dans un joli cadre coloré.</small></button>
+    <button data-w="patch"><span class="wl-ic">📋</span><b>Publier un patchnote</b><small>Sur Discord et sur le site ViceCity en même temps.</small></button>
+    <button data-w="template"><span class="wl-ic">📁</span><b>Partir d'un modèle</b><small>Règlement, recrutement, événement… déjà mis en forme.</small></button>
+    <button data-w="notes"><span class="wl-ic">📝</span><b>Mes notes</b><small>Tes idées et brouillons, gardés ici.</small></button>
+  </div>
+  <div class="wl-foot">
+    <label class="chk" style="margin:0"><input type="checkbox" id="wlSkip"> Ne plus afficher au démarrage</label>
+    <span class="hint" style="margin:0">Tu peux revenir ici avec <b>🏠 Accueil</b></span>
+  </div>
+</dialog>
 <dialog id="help">
   <h3>👋 Bienvenue sur Embed Sender</h3>
   <div class="hint" style="margin-top:0">Crée de beaux messages Discord et envoie-les avec un webhook, en 4 étapes :</div>
@@ -863,6 +915,8 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
     <li><span><b>Compose ton message</b> : texte, embeds, sondage, fichiers… L'aperçu se met à jour en direct.</span></li>
     <li><span><b>Envoie</b> avec 🚀, ou programme l'envoi avec ⏰.</span></li>
   </ol>
+  <h4>✨ Mode simple et ⚙️ mode avancé</h4>
+  <div class="hint" style="margin-top:0">Par défaut, Embed Sender n'affiche que l'essentiel : webhook, texte, un cadre (embed) avec titre, description, couleur et image. Le bouton <b>⚙️ Mode avancé</b> en haut fait apparaître le reste : sondage, boutons, fichiers, profil, plusieurs messages, champs, pied de page… <b>🏠 Accueil</b> rouvre l'écran de départ.</div>
   <h4>📋 Publier un patchnote ViceCity</h4>
   <div class="hint" style="margin-top:0">Onglet <b>📋 Patchnote</b> (à droite) : écris la version, le titre et les changements, puis <b>⚡ Les deux</b>. Le patchnote s'ajoute au site et l'embed Discord est prêt : il ne reste qu'à cliquer sur 🚀 Envoyer. La première fois, connecte le site avec ta clé GitHub (section « 🌍 Connexion au site en ligne »).</div>
   <h4>📝 Bloc-notes</h4>
@@ -2421,6 +2475,65 @@ $('btnInstall').onclick = async () => {
 
 $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/embed-sender/'));
 
+/* ---------- Mode simple / avancé + écran d'accueil ---------- */
+(function(){
+  const setMode = m => {
+    document.body.classList.toggle('simple', m === 'simple');
+    $('btnMode').textContent = m === 'simple' ? '⚙️ Mode avancé' : '✨ Mode simple';
+    $('btnMode').title = m === 'simple' ? 'Afficher toutes les options (sondage, fichiers, boutons, plusieurs messages…)' : 'Revenir à l\'affichage simple';
+    LS.set('uiMode', m);
+    if (m === 'simple' && document.querySelector('.tabs button.on')?.dataset.tab === 'history') showTab('preview');
+    checkHidden();
+  };
+  $('btnMode').onclick = () => { const simple = document.body.classList.contains('simple'); setMode(simple ? 'advanced' : 'simple'); toast(simple ? '⚙️ Mode avancé : toutes les options sont visibles' : '✨ Mode simple : seulement l\'essentiel', 'ok'); };
+  $('simpleNoteBtn').onclick = e => { e.preventDefault(); setMode('advanced'); };
+
+  // En mode simple, prévenir si le message utilise des options cachées
+  function checkHidden(){
+    const note = $('simpleNote'); if (!note) return;
+    if (!document.body.classList.contains('simple')){ note.hidden = true; return; }
+    const used = [];
+    try{
+      if (messages.length > 1) used.push('plusieurs messages');
+      if (state.poll && state.poll.enabled) used.push('sondage');
+      if ((state.buttons || []).length) used.push('boutons');
+      if (document.querySelectorAll('#fileList > *').length) used.push('fichiers');
+      if (state.username || state.avatar) used.push('profil');
+      if (state.embeds.some(e => e.fields.length || e.author.name || e.footer.text || e.tsMode !== 'none' || e.thumbnail || e.url || (e.gallery || []).some(Boolean))) used.push('options d\'embed');
+    }catch(e){}
+    $('simpleNoteWhat').textContent = used.join(', ');
+    note.hidden = !used.length;
+  }
+  ['input', 'change', 'click'].forEach(ev => document.addEventListener(ev, () => setTimeout(checkHidden, 0), true));
+
+  // Écran d'accueil
+  const wl = $('welcome');
+  const toRight = () => { const mnav = $('mnav'); if (mnav && getComputedStyle(mnav).display !== 'none') mnav.querySelector('[data-mv="view"]')?.click(); document.getElementById('right')?.scrollIntoView({behavior: 'smooth', block: 'start'}); };
+  const toLeft = () => { const mnav = $('mnav'); if (mnav && getComputedStyle(mnav).display !== 'none') mnav.querySelector('[data-mv="edit"]')?.click(); };
+  wl.addEventListener('click', e => {
+    const b = e.target.closest('[data-w]'); if (!b) return;
+    LS.set('welcomeSkip', $('wlSkip').checked);
+    wl.close();
+    const w = b.dataset.w;
+    if (w === 'message'){
+      showTab('preview'); toLeft();
+      const hasWh = !!$('whUrl').value.trim();
+      const target = hasWh ? $('contentCard') : $('whCard');
+      target.scrollIntoView({behavior: 'smooth', block: 'center'});
+      target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+      setTimeout(() => (hasWh ? document.querySelector('textarea[data-s=content]') : $('whUrl')).focus({preventScroll: true}), 450);
+    }
+    if (w === 'patch'){ showTab('patch'); toRight(); }
+    if (w === 'template'){ showTab('templates'); toRight(); }
+    if (w === 'notes'){ showTab('notes'); toRight(); }
+  });
+  wl.addEventListener('close', () => LS.set('welcomeSkip', $('wlSkip').checked));
+  window.__openWelcome = () => { $('wlSkip').checked = LS.get('welcomeSkip', false); if (!wl.open) wl.showModal(); };
+  $('btnHome').onclick = () => window.__openWelcome();
+
+  setMode(LS.get('uiMode', 'simple'));
+})();
+
 /* ---------- Bloc-notes (onglet 📝 Notes) ----------
    Notes enregistrées dans ce navigateur (clé « notes »), incluses dans la Sauvegarde. */
 (function(){
@@ -2930,7 +3043,7 @@ renderVars();
 setAccent(LS.get('accent', 0));
 $('optConfetti').checked = LS.get('confetti', true);
 if (location.hash.startsWith('#m=')) setTimeout(loadFromHash, 300);
-else if (!LS.get('seenHelp', false)){ LS.set('seenHelp', true); setTimeout(openHelp, 500); }
+else if (!LS.get('welcomeSkip', false)) setTimeout(() => window.__openWelcome?.(), 300);
 $('whUrl').value = LS.get('currentWh', '') || (webhooks[0]?.url || '');
 onWhChange();
 renderEmbeds(); renderFiles(); renderHistory(); renderTemplates(); renderTs();
