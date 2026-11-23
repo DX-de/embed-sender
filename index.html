@@ -544,6 +544,14 @@ body.v2 .sendbar #sendBtn{font-size:15px;padding:12px 26px}
   .rc-row{grid-template-columns:90px 1fr auto}
 }
 
+/* Application Windows : bouton de téléchargement (caché dans l'application elle-même) */
+.app-dl{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:rgba(var(--accent-rgb),.12);border:1px solid rgba(var(--accent-rgb),.35);margin-bottom:6px}
+.app-dl b{display:block;color:var(--head)}
+.app-dl small{color:var(--muted);font-size:12.5px}
+.app-dl-btn{flex:none;padding:9px 16px;border-radius:10px;background:var(--grad,var(--accent));color:#fff!important;font-weight:700;text-decoration:none}
+.side-app{display:block;text-align:center;padding:8px;border-radius:10px;border:1px dashed var(--border);color:var(--text);text-decoration:none;font-size:13px;font-weight:600}
+.side-app:hover{border-color:var(--accent);color:var(--head)}
+body.in-app .side-app,body.in-app .app-dl{display:none}
 /* ---------- Écran d'accueil ---------- */
 #welcome{max-width:640px;padding:22px}
 .wl-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
@@ -668,6 +676,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
     </nav>
     <div class="side-foot">
       <a class="side-wh" id="sideWh" href="#/message"></a>
+      <a class="side-app" id="sideApp" href="https://dx-de.github.io/embed-sender/telechargement/Embed-Sender-Setup.exe" download title="Télécharger l'application Windows">💻 Application Windows</a>
       <div class="side-btns"><button class="sec sm" id="sideHelp">❓ Aide</button><button class="sec sm" id="sideTheme">🌙 Thème</button></div>
     </div>
   </aside>
@@ -1096,7 +1105,12 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
       </div>
       <div class="card">
         <h2><span class="ic">🌍</span>Embed Sender en ligne</h2>
-        <div class="hint" style="margin-top:0">Embed Sender est hébergé gratuitement sur GitHub Pages : ouvre-le depuis n'importe quel appareil, ou partage-le à ton équipe.</div>
+        <div class="app-dl">
+          <div><b>💻 Application Windows</b><small>Embed Sender dans sa propre fenêtre, avec une icône sur le Bureau. Toujours à jour.</small></div>
+          <a class="app-dl-btn" href="https://dx-de.github.io/embed-sender/telechargement/Embed-Sender-Setup.exe" download>⬇ Télécharger</a>
+        </div>
+        <div class="hint">Au premier lancement, si Windows affiche « Windows a protégé votre ordinateur » : <b>Informations complémentaires</b> → <b>Exécuter quand même</b>.</div>
+        <div class="hint">Embed Sender est hébergé gratuitement sur GitHub Pages : ouvre-le depuis n'importe quel appareil, ou partage-le à ton équipe.</div>
         <div class="pw" style="margin-top:8px"><input readonly value="https://dx-de.github.io/embed-sender/" aria-label="Adresse d'Embed Sender"><button class="sec" id="siteCopy">Copier</button></div>
         <ol class="steps small">
           <li><span>Sur ordinateur ou téléphone, le bouton <b>📲 Installer</b> (en haut) l'ajoute comme une application.</span></li>
@@ -3398,6 +3412,8 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
 
   render();
 })();
+
+if (/Electron/i.test(navigator.userAgent)) document.body.classList.add('in-app');
 
 /* ---------- Démarrage ---------- */
 const savedMsgs = LS.get('msgs', null), draft = LS.get('draft', null);
