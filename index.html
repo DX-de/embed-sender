@@ -676,7 +676,8 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
             <div><label for="vcpDate">Date</label><input type="date" id="vcpDate"></div>
           </div>
           <label for="vcpTitle">Titre</label><input id="vcpTitle" maxlength="120" placeholder="Ex : Nouveau garage à Vespucci">
-          <label for="vcpSum">Résumé <span style="font-weight:400">(facultatif)</span></label><textarea id="vcpSum" rows="2" maxlength="400" style="min-height:52px" placeholder="Une phrase qui résume la mise à jour"></textarea>
+          <label for="vcpSum">Texte du patchnote <span style="font-weight:400">(facultatif · comme sur Discord)</span></label><textarea id="vcpSum" rows="8" maxlength="4000" style="min-height:150px" placeholder="🔧 Corrections & optimisations du serveur&#10;&#10;✅ Corrections&#10;Correction du fichier index.html manquant…&#10;&#10;⚙️ Améliorations techniques&#10;Vérification des fichiers fxmanifest.lua…"></textarea>
+          <div class="hint" style="margin-top:4px">Écris librement, une ligne par élément. Une ligne qui commence par un emoji (🔧, ✅, ⚙️…) devient un titre sur le site. Tu peux aussi utiliser la liste « Changements » ci-dessous, ou les deux. <span id="vcpSumCnt"></span></div>
           <label>Changements <span style="font-weight:400">· Entrée = ligne suivante</span></label>
           <div id="vcpList" class="vcp-list"></div>
           <div class="vcp-add">
@@ -2471,7 +2472,7 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
       version: pd.version.trim(), date: toFr(pd.date || today()), title: pd.title.trim(), summary: pd.summary.trim(),
       changes: pd.changes.map(c => ({type: c.type, text: c.text.trim()})).filter(c => c.text),
     };
-    const miss = [!v.version && 'la version', !v.title && 'le titre', !v.changes.length && 'au moins un changement'].filter(Boolean);
+    const miss = [!v.version && 'la version', !v.title && 'le titre', !v.changes.length && !v.summary && 'un texte ou au moins un changement'].filter(Boolean);
     if (miss.length){ toast('Il manque ' + miss.join(', '), 'err'); return null; }
     return v;
   }
