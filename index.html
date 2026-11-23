@@ -425,6 +425,125 @@ body.light .dbtn{background:#6d6f78}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+/* =====================================================================
+   VERSION 2 : menu latéral + une page par chose
+   ===================================================================== */
+.app2{display:none}
+body.v2 .app2{display:block}
+body.v2 > header,body.v2 > main.wrap,body.v2 #mnav,body.v2 #guide,body.v2 #simpleNote{display:none!important}
+.tab-moved{display:block!important}
+
+/* Menu latéral */
+.side{position:fixed;inset:0 auto 0 0;width:240px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:18px;padding:18px 14px;z-index:50;overflow-y:auto}
+.side-brand{display:flex;gap:10px;align-items:center;padding:2px 6px}
+.side-logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--grad,var(--accent));font-size:21px;flex:none}
+.side-brand b{display:block;color:var(--head);font-size:15px}
+.side-brand small{color:var(--muted);font-size:11.5px}
+.side-nav{display:grid;gap:3px}
+.side-nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px;transition:background .15s,color .15s}
+.side-nav a:hover{background:rgba(255,255,255,.05);color:var(--head)}
+body.light .side-nav a:hover{background:rgba(0,0,0,.04)}
+.side-nav a.on{background:rgba(var(--accent-rgb),.18);color:var(--head);box-shadow:inset 3px 0 0 var(--accent)}
+.si{width:22px;text-align:center;font-size:16px}
+.side-foot{margin-top:auto;display:grid;gap:10px}
+.side-wh{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid var(--border);text-decoration:none;color:var(--head);font-size:13px;font-weight:600;min-width:0}
+body.light .side-wh{background:rgba(0,0,0,.03)}
+.side-wh small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+.side-wh span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dot.ok{background:#23a55a;box-shadow:0 0 8px #23a55a}
+.dot.warn{background:#f0b232}
+.side-btns{display:flex;gap:6px}
+.side-btns button{flex:1}
+.side-backdrop,.topbar{display:none}
+
+/* Pages */
+.view-wrap{margin-left:240px;padding:30px 34px 70px;max-width:1440px}
+.view{display:none}
+.view.on{display:block;animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+.page-head{margin-bottom:20px}
+.page-head h1{margin:0 0 4px;font-size:27px;color:var(--head);letter-spacing:-.01em}
+.page-head p{margin:0;color:var(--muted);font-size:14px}
+.row-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.head-actions{display:flex;gap:6px;flex-wrap:wrap}
+.head-actions button{font-size:12.5px}
+
+/* Accueil */
+.home-grid{display:grid;grid-template-columns:1.35fr 1fr;grid-auto-rows:minmax(96px,auto);gap:14px;margin-bottom:16px}
+.home-tile{display:grid;align-content:start;gap:6px;padding:18px 20px;border-radius:16px;background:var(--panel);border:1px solid var(--border);text-decoration:none;color:var(--text);transition:transform .15s,border-color .15s,box-shadow .15s}
+.home-tile:hover{transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.8);box-shadow:0 10px 26px rgba(0,0,0,.25)}
+.home-tile.big{grid-row:span 3;padding:28px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.28),rgba(var(--accent-rgb),.05)),var(--panel);border-color:rgba(var(--accent-rgb),.45)}
+.ht-ic{font-size:26px}
+.home-tile.big .ht-ic{font-size:48px;margin-bottom:6px}
+.home-tile b{font-size:16px;color:var(--head)}
+.home-tile.big b{font-size:24px}
+.home-tile small{color:var(--muted);font-size:13px;line-height:1.45;font-weight:400}
+.home-tile.big small{font-size:14.5px}
+.ht-go{margin-top:auto;padding-top:16px;font-weight:800;color:var(--head);font-size:15px}
+.home-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.home-status p{margin:0 0 4px;font-size:15px}
+.hs-stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 0;font-size:13px;color:var(--muted)}
+.hs-stats b{color:var(--head)}
+.btn-link{display:inline-block;font-weight:800;color:var(--head);text-decoration:none}
+.btn-link:hover{text-decoration:underline}
+.how-steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.how-steps li{display:flex;gap:12px;align-items:flex-start}
+.how-steps li > span{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--grad,var(--accent));color:#fff;font-weight:800;font-size:13px}
+.how-steps b{display:block;color:var(--head);font-size:14px}
+.how-steps small{color:var(--muted);font-size:12.5px;line-height:1.45}
+
+/* Nouveau message : étapes */
+.stepper{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stepper li{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--border);cursor:pointer;font-weight:700;color:var(--muted);transition:border-color .15s,background .15s}
+.stepper li:hover{border-color:rgba(var(--accent-rgb),.5)}
+.stepper li.on{border-color:var(--accent);color:var(--head);background:rgba(var(--accent-rgb),.14)}
+.stepper li.done{color:var(--text)}
+.sn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);flex:none;font-size:13px}
+body.light .sn{background:rgba(0,0,0,.06)}
+.stepper li.on .sn{background:var(--grad,var(--accent));color:#fff}
+.stepper li.done .sn{background:#23a55a;color:#fff;font-size:0}
+.stepper li.done .sn::before{content:"✓";font-size:14px}
+.compose-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+.compose-preview{position:sticky;top:20px}
+.pv-title{font-weight:800;color:var(--head);margin:0 0 8px;font-size:14px}
+.step-intro{margin-bottom:12px}
+.step-intro h2{margin:0 0 4px;font-size:19px;color:var(--head)}
+.step-intro p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.step-intro a{color:var(--head);font-weight:700}
+.step-nav{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+.step-nav button{padding:12px 22px;font-size:14px}
+.more-opts{padding:0}
+.more-opts > summary{padding:14px 16px;cursor:pointer;color:var(--head);margin:0}
+.more-opts > summary small{color:var(--muted);font-weight:400;margin-left:6px}
+.more-opts[open] > summary{border-bottom:1px solid var(--border)}
+#slotMore{padding:14px 14px 2px}
+#slotMore .card{box-shadow:none;background:rgba(0,0,0,.12)}
+body.light #slotMore .card{background:rgba(0,0,0,.02)}
+.recap3{padding:4px 16px}
+.rc-row{display:grid;grid-template-columns:140px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
+.rc-row:last-child{border-bottom:0}
+.rc-row > span:first-child{color:var(--muted)}
+.rc-row b{color:var(--head);overflow-wrap:anywhere}
+body.v2 .sendbar{position:static;box-shadow:none;margin-top:14px}
+body.v2 .sendbar #sendBtn{font-size:15px;padding:12px 26px}
+
+/* Téléphone / petite fenêtre */
+@media (max-width:900px){
+  .side{transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.5)}
+  body.side-open .side{transform:none}
+  body.side-open .side-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40}
+  .topbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:30;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border)}
+  .topbar b{color:var(--head);font-size:16px}
+  .view-wrap{margin-left:0;padding:18px 14px 70px}
+  .page-head h1{font-size:22px}
+  .home-grid,.home-row,.compose-grid{grid-template-columns:1fr}
+  .home-tile.big{grid-row:auto}
+  .compose-preview{position:static}
+  .stepper .st{font-size:12px}
+  .stepper li{padding:10px;gap:6px}
+  .rc-row{grid-template-columns:90px 1fr auto}
+}
+
 /* ---------- Écran d'accueil ---------- */
 #welcome{max-width:640px;padding:22px}
 .wl-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
@@ -535,6 +654,118 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
 </style>
 </head>
 <body>
+<div class="app2" id="app2">
+  <aside class="side" id="side">
+    <div class="side-brand"><span class="side-logo">📨</span><div><b>Embed Sender</b><small>Messages Discord, sans bot</small></div></div>
+    <nav class="side-nav" id="sideNav" aria-label="Menu principal">
+      <a href="#/accueil" data-view="home"><span class="si">🏠</span> Accueil</a>
+      <a href="#/message" data-view="compose"><span class="si">✉️</span> Nouveau message</a>
+      <a href="#/patchnote" data-view="patch"><span class="si">📋</span> Patchnote</a>
+      <a href="#/modeles" data-view="templates"><span class="si">📁</span> Modèles</a>
+      <a href="#/notes" data-view="notes"><span class="si">📝</span> Notes</a>
+      <a href="#/historique" data-view="history"><span class="si">🕘</span> Historique</a>
+      <a href="#/parametres" data-view="settings"><span class="si">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="side-foot">
+      <a class="side-wh" id="sideWh" href="#/message"></a>
+      <div class="side-btns"><button class="sec sm" id="sideHelp">❓ Aide</button><button class="sec sm" id="sideTheme">🌙 Thème</button></div>
+    </div>
+  </aside>
+  <div class="side-backdrop" id="sideBackdrop"></div>
+  <header class="topbar"><button class="sec" id="sideToggle" aria-label="Ouvrir le menu">☰</button><b id="topTitle">Embed Sender</b></header>
+
+  <div class="view-wrap">
+    <!-- ============ ACCUEIL ============ -->
+    <section class="view" id="view-home">
+      <div class="page-head"><h1>Bonjour 👋</h1><p>Que veux-tu faire aujourd'hui ?</p></div>
+      <div class="home-grid">
+        <a class="home-tile big" href="#/message"><span class="ht-ic">✉️</span><b>Envoyer un message</b><small>Une annonce, une info, une règle… dans un joli cadre coloré. Guidé en 3 étapes.</small><span class="ht-go">Commencer →</span></a>
+        <a class="home-tile" href="#/patchnote"><span class="ht-ic">📋</span><b>Publier un patchnote</b><small>Sur Discord et sur le site ViceCity en même temps.</small></a>
+        <a class="home-tile" href="#/modeles"><span class="ht-ic">📁</span><b>Partir d'un modèle</b><small>Règlement, recrutement, événement… déjà mis en forme.</small></a>
+        <a class="home-tile" href="#/notes"><span class="ht-ic">📝</span><b>Mes notes</b><small>Tes idées et brouillons.</small></a>
+      </div>
+      <div class="home-row">
+        <div class="card home-status" id="homeStatus"></div>
+        <div class="card home-how">
+          <h2><span class="ic">💡</span>Comment ça marche ?</h2>
+          <ol class="how-steps">
+            <li><span>1</span><div><b>Relie un salon</b><small>Sur Discord : Modifier le salon → Intégrations → Webhooks → Copier l'URL.</small></div></li>
+            <li><span>2</span><div><b>Écris ton message</b><small>Un texte, un cadre coloré (embed), ou les deux.</small></div></li>
+            <li><span>3</span><div><b>Vérifie et envoie</b><small>L'aperçu montre exactement ce qui sera publié.</small></div></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NOUVEAU MESSAGE ============ -->
+    <section class="view" id="view-compose">
+      <div class="page-head row-head">
+        <div><h1>Nouveau message</h1><p>Suis les 3 étapes. L'aperçu à droite montre exactement ce que verra ton serveur.</p></div>
+        <div class="head-actions" id="composeActions"></div>
+      </div>
+      <ol class="stepper" id="stepper">
+        <li data-step="1"><span class="sn">1</span><span class="st">Salon</span></li>
+        <li data-step="2"><span class="sn">2</span><span class="st">Écrire</span></li>
+        <li data-step="3"><span class="sn">3</span><span class="st">Vérifier et envoyer</span></li>
+      </ol>
+      <div class="compose-grid">
+        <div class="compose-main">
+          <div class="cstep" data-cstep="1">
+            <div class="step-intro"><h2>Dans quel salon envoyer le message ?</h2><p>Choisis un salon déjà enregistré dans la liste, ou colle l'adresse (URL) du webhook du salon puis clique sur <b>Enregistrer</b>.</p></div>
+            <div id="slotStep1"></div>
+            <div class="step-nav"><span></span><button data-go-step="2">Suivant : écrire le message →</button></div>
+          </div>
+          <div class="cstep" data-cstep="2" hidden>
+            <div class="step-intro"><h2>Écris ton message</h2><p>Un texte simple, un cadre coloré (embed), ou les deux. Pas d'idée ? <a href="#/modeles">Pars d'un modèle</a>.</p></div>
+            <div id="slotStep2"></div>
+            <details class="card more-opts" id="moreOpts">
+              <summary><b>➕ Options supplémentaires</b> <small>sondage, boutons, fichiers, nom et image du bot, plusieurs messages</small></summary>
+              <div id="slotMore"></div>
+            </details>
+            <div class="step-nav"><button class="sec" data-go-step="1">← Retour</button><button data-go-step="3">Suivant : vérifier →</button></div>
+          </div>
+          <div class="cstep" data-cstep="3" hidden>
+            <div class="step-intro"><h2>Vérifie, puis envoie</h2><p>Regarde l'aperçu : c'est exactement ce qui sera publié dans le salon.</p></div>
+            <div class="card recap3" id="recap3"></div>
+            <div id="slotSend"></div>
+            <div class="step-nav"><button class="sec" data-go-step="2">← Modifier le message</button><span></span></div>
+          </div>
+        </div>
+        <aside class="compose-preview">
+          <div class="pv-title">👁 Aperçu en direct</div>
+          <div id="slotPreview"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ AUTRES PAGES ============ -->
+    <section class="view" id="view-patch">
+      <div class="page-head"><h1>Patchnote ViceCity</h1><p>Écris la mise à jour une fois : elle part sur le site ViceCity et devient un message Discord prêt à envoyer.</p></div>
+      <div id="slotPatch"></div>
+    </section>
+    <section class="view" id="view-templates">
+      <div class="page-head"><h1>Modèles</h1><p>Clique sur <b>Utiliser</b> : le modèle s'ouvre dans « Nouveau message », il ne reste qu'à l'adapter.</p></div>
+      <div id="slotTemplates"></div>
+    </section>
+    <section class="view" id="view-notes">
+      <div class="page-head"><h1>Notes</h1><p>Tes idées et brouillons, enregistrés automatiquement dans ce navigateur.</p></div>
+      <div id="slotNotes"></div>
+    </section>
+    <section class="view" id="view-history">
+      <div class="page-head"><h1>Historique</h1><p>Les messages envoyés depuis ce navigateur. Tu peux les rouvrir pour les modifier ou les supprimer de Discord.</p></div>
+      <div id="slotHistory"></div>
+    </section>
+    <section class="view" id="view-settings">
+      <div class="page-head"><h1>Paramètres</h1><p>Sauvegarde, apparence et outils avancés.</p></div>
+      <div class="card">
+        <h2><span class="ic">🧰</span>Outils avancés</h2>
+        <div class="cdesc">Pour les habitués : partager un message par lien, voir ou coller le code JSON d'un message, installer l'application.</div>
+        <div class="actions" style="justify-content:flex-start" id="slotAdvBtns"></div>
+      </div>
+      <div id="slotSettings"></div>
+    </section>
+  </div>
+</div>
 <header>
   <div class="brand"><span class="logo">📨</span><div><h1>Embed Sender</h1><div class="hint" style="margin:0">Envoie de jolis messages sur ton serveur Discord, sans bot</div></div></div>
   <div class="hbtns">
@@ -725,7 +956,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
         <ol class="pi-steps">
           <li><span class="pi-n">1</span><span><b>Écris</b> la version, le titre et les changements ci-dessous.</span></li>
           <li><span class="pi-n">2</span><span>Clique sur <b>⚡ Les deux</b> : le patchnote arrive sur le site et l'embed Discord se crée tout seul.</span></li>
-          <li><span class="pi-n">3</span><span>Choisis ton <b>webhook</b> (carte 🔗 Webhook) puis clique sur <b>🚀 Envoyer</b>.</span></li>
+          <li><span class="pi-n">3</span><span>La page <b>Nouveau message</b> s'ouvre avec ton patchnote : choisis le salon, vérifie, puis <b>🚀 Envoyer</b>.</span></li>
         </ol>
         <div class="vcp-conn" id="vcpConn"></div>
       </div>
@@ -3021,6 +3252,153 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
   fill();
 })();
 
+/* =====================================================================
+   VERSION 2 : un vrai site avec un menu et une page par chose.
+   On ne réécrit pas le moteur (envoi, aperçu, webhooks…) : on range
+   simplement ses blocs existants dans les nouvelles pages.
+   ===================================================================== */
+(function(){
+  const move = (el, slot) => { if (el && slot) slot.appendChild(el); };
+  const moveChildren = (from, slot) => { if (!from || !slot) return; while (from.firstChild) slot.appendChild(from.firstChild); };
+  const card = sel => { const el = typeof sel === 'string' ? document.querySelector(sel) : sel; return el ? el.closest('.card') : null; };
+
+  /* --- 1) Ranger les blocs existants dans les pages --- */
+  move($('whCard'), $('slotStep1'));
+  move($('contentCard'), $('slotStep2'));
+  move(card('#embeds'), $('slotStep2'));
+  move(card('[data-s=username]'), $('slotMore'));
+  move(card('#pollOn'), $('slotMore'));
+  move(card('#btnList'), $('slotMore'));
+  move(card('#drop'), $('slotMore'));
+  move(card('#msgTabs'), $('slotMore'));
+  move(document.querySelector('.sendbar'), $('slotSend'));
+  // On déplace les onglets entiers (leurs boutons écoutent les clics sur le conteneur)
+  const moveTab = (id, slot) => { const t = $(id); if (!t || !slot) return; t.classList.remove('tab', 'on'); t.classList.add('tab-moved'); slot.appendChild(t); };
+  moveTab('tab-preview', $('slotPreview'));
+  moveTab('tab-patch', $('slotPatch'));
+  moveTab('tab-templates', $('slotTemplates'));
+  moveTab('tab-notes', $('slotNotes'));
+  moveTab('tab-history', $('slotHistory'));
+  moveTab('tab-tools', $('slotSettings'));
+  ['btnShare', 'btnExport', 'btnImport', 'btnInstall'].forEach(id => move($(id), $('slotAdvBtns')));
+  ['btnUndo', 'btnRedo', 'btnNew'].forEach(id => move($(id), $('composeActions')));
+  if ($('btnUndo')) $('btnUndo').textContent = '↶ Annuler';
+  if ($('btnRedo')) $('btnRedo').textContent = '↷ Rétablir';
+  document.body.classList.remove('simple');
+  document.body.classList.add('v2');
+
+  /* --- 2) Navigation entre les pages (adresse #/page, le bouton Retour du navigateur marche) --- */
+  const ROUTES = {accueil: 'home', message: 'compose', patchnote: 'patch', modeles: 'templates', notes: 'notes', historique: 'history', parametres: 'settings'};
+  const SLUG = Object.fromEntries(Object.entries(ROUTES).map(([k, v]) => [v, k]));
+  const TITLES = {home: 'Accueil', compose: 'Nouveau message', patch: 'Patchnote', templates: 'Modèles', notes: 'Notes', history: 'Historique', settings: 'Paramètres'};
+  let view = 'home';
+  function render(){
+    const h = location.hash;
+    const key = h.startsWith('#m=') ? 'message' : h.replace(/^#\/?/, '');
+    view = ROUTES[key] || 'home';
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + view));
+    document.querySelectorAll('#sideNav a').forEach(a => a.classList.toggle('on', a.dataset.view === view));
+    $('topTitle').textContent = TITLES[view];
+    document.title = `${TITLES[view]} · Embed Sender`;
+    document.body.classList.remove('side-open');
+    if (view === 'compose') setStep(step, true);
+    if (view === 'settings'){ try{ renderVars(); }catch(e){} }
+    refreshStatus();
+    window.scrollTo({top: 0});
+  }
+  function navigate(v){
+    const target = '#/' + SLUG[v];
+    if (location.hash === target) render(); else location.hash = target;
+  }
+  window.addEventListener('hashchange', render);
+  $('sideToggle').onclick = () => document.body.classList.toggle('side-open');
+  $('sideBackdrop').onclick = () => document.body.classList.remove('side-open');
+  $('sideHelp').onclick = () => $('btnHelp').click();
+  $('sideTheme').onclick = () => $('btnTheme').click();
+
+  // Les anciens boutons qui « changeaient d'onglet » ouvrent maintenant la bonne page
+  let ready = false;
+  setTimeout(() => { ready = true; }, 0);
+  showTab = function(t){
+    if (!ready) return;   // au démarrage, l'ancien code rouvrait le dernier onglet : on l'ignore
+    const v = {preview: 'compose', patch: 'patch', notes: 'notes', templates: 'templates', history: 'history', tools: 'settings'}[t] || 'home';
+    if (v === 'compose') step = 2;
+    navigate(v);
+  };
+
+  /* --- 3) Nouveau message en 3 étapes --- */
+  const WH_RE = /^https:\/\/(?:(?:canary|ptb)\.)?discord(?:app)?\.com\/api\/(?:v\d+\/)?webhooks\/\d+\/[\w-]+/i;
+  let step = 1;
+  const whOk = () => WH_RE.test($('whUrl').value.trim()) || document.querySelectorAll('#whMulti input:checked').length > 0;
+  function salonName(){
+    const sel = $('whSelect'), opt = sel && sel.options[sel.selectedIndex];
+    if (opt && opt.value && !/nouveau/i.test(opt.textContent)) return opt.textContent.trim();
+    if (WH_RE.test($('whUrl').value.trim())) return 'Webhook collé (pas encore enregistré)';
+    return '';
+  }
+  function setStep(n, silent){
+    if (!silent && n > step){
+      if (n >= 2 && !whOk()){ toast('Choisis d\'abord un salon (colle l\'adresse du webhook)', 'err'); n = 1; }
+      else if (n >= 3 && isEmpty()){ toast('Écris d\'abord quelque chose : un texte ou un cadre', 'err'); n = 2; }
+    }
+    step = n;
+    document.querySelectorAll('.cstep').forEach(c => { c.hidden = +c.dataset.cstep !== n; });
+    document.querySelectorAll('#stepper li').forEach(li => {
+      const k = +li.dataset.step;
+      li.classList.toggle('on', k === n);
+      li.classList.toggle('done', k < n);
+    });
+    if (n === 3) renderRecap();
+    if (!silent){
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      const first = n === 1 ? $('whUrl') : n === 2 ? document.querySelector('textarea[data-s=content]') : $('sendBtn');
+      setTimeout(() => first && first.focus({preventScroll: true}), 350);
+    }
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-go-step]'); if (b){ setStep(+b.dataset.goStep); return; }
+    const li = e.target.closest('#stepper li'); if (li) setStep(+li.dataset.step);
+  });
+  function renderRecap(){
+    const used = [];
+    try{
+      if (messages.length > 1) used.push(`${messages.length} messages`);
+      if (state.poll && state.poll.enabled) used.push('sondage');
+      if ((state.buttons || []).length) used.push(`${state.buttons.length} bouton(s)`);
+      if (document.querySelectorAll('#fileList > *').length) used.push('fichiers joints');
+      if (state.username) used.push(`nom affiché « ${state.username} »`);
+    }catch(e){}
+    const emb = state.embeds.filter(e => toApiEmbed(e)).length;
+    const name = salonName();
+    $('recap3').innerHTML = `
+      <div class="rc-row"><span>Salon</span><b>${name ? esc(name) : '⚠️ aucun salon choisi'}</b><button class="sec sm" data-go-step="1">Changer</button></div>
+      <div class="rc-row"><span>Texte</span><b>${state.content.trim() ? `${state.content.trim().length} caractères` : 'aucun'}</b><button class="sec sm" data-go-step="2">Modifier</button></div>
+      <div class="rc-row"><span>Cadres (embeds)</span><b>${emb || 'aucun'}</b><button class="sec sm" data-go-step="2">Modifier</button></div>
+      ${used.length ? `<div class="rc-row"><span>Options</span><b>${esc(used.join(', '))}</b><span></span></div>` : ''}`;
+  }
+
+  /* --- 4) État du salon (menu + accueil) --- */
+  function refreshStatus(){
+    const name = salonName(), ok = whOk();
+    $('sideWh').innerHTML = ok ? `<span class="dot ok"></span><span><small>Salon</small>${esc(name || 'relié')}</span>` : `<span class="dot warn"></span><span><small>Salon</small>Aucun salon relié</span>`;
+    let hist = [];
+    try{ hist = LS.get('history', []) || []; }catch(e){}
+    const last = hist.length ? Math.max(...hist.map(h => +h.date || 0)) : 0;
+    $('homeStatus').innerHTML = `
+      <h2><span class="ic">📡</span>Ton salon Discord</h2>
+      ${ok ? `<p class="hs-ok">🟢 <b>${esc(name || 'Salon relié')}</b></p><p class="hint">Tes messages partiront dans ce salon.</p>`
+           : `<p class="hs-warn">🟠 <b>Aucun salon relié</b></p><p class="hint">Pour envoyer un message, il faut d'abord relier un salon (adresse du webhook). Ça prend 1 minute.</p>`}
+      <div class="hs-stats"><span><b>${hist.length}</b> message${hist.length > 1 ? 's' : ''} envoyé${hist.length > 1 ? 's' : ''}</span>${last ? `<span>Dernier envoi : <b>${new Date(last).toLocaleDateString('fr-FR')}</b></span>` : ''}</div>
+      <a class="btn-link" href="#/message">${ok ? 'Écrire un message →' : 'Relier un salon →'}</a>`;
+  }
+  ['input', 'change', 'click'].forEach(ev => document.addEventListener(ev, () => setTimeout(() => { refreshStatus(); if (view === 'compose' && step === 3) renderRecap(); }, 0), true));
+
+  /* --- 5) Après avoir chargé un modèle ou un message de l'historique : ouvrir l'étape 2 --- */
+  $('slotTemplates').addEventListener('click', e => { if (e.target.closest('[data-tl],[data-tb]')) setTimeout(() => { if (!isEmpty()){ step = 2; navigate('compose'); } }, 50); });
+
+  render();
+})();
+
 /* ---------- Démarrage ---------- */
 const savedMsgs = LS.get('msgs', null), draft = LS.get('draft', null);
 if (savedMsgs && Array.isArray(savedMsgs.list) && savedMsgs.list.length){
@@ -3043,7 +3421,7 @@ renderVars();
 setAccent(LS.get('accent', 0));
 $('optConfetti').checked = LS.get('confetti', true);
 if (location.hash.startsWith('#m=')) setTimeout(loadFromHash, 300);
-else if (!LS.get('welcomeSkip', false)) setTimeout(() => window.__openWelcome?.(), 300);
+/* la page Accueil remplace l'ancienne fenêtre de bienvenue */
 $('whUrl').value = LS.get('currentWh', '') || (webhooks[0]?.url || '');
 onWhChange();
 renderEmbeds(); renderFiles(); renderHistory(); renderTemplates(); renderTs();
