@@ -425,6 +425,31 @@ body.light .dbtn{background:#6d6f78}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+/* ---------- Bloc-notes ---------- */
+.notes-layout{display:grid;grid-template-columns:minmax(170px,230px) 1fr;gap:12px;align-items:start}
+.notes-side{display:grid;gap:8px}
+.notes-side input{margin:0}
+.note-list{display:grid;gap:6px;max-height:440px;overflow:auto;padding-right:2px}
+.note-item{display:grid;gap:2px;text-align:left;width:100%;padding:9px 10px;border-radius:10px;background:rgba(0,0,0,.18);border:1px solid var(--border);color:var(--text);cursor:pointer;box-shadow:none!important;transition:border-color .15s,background .15s}
+.note-item:hover{border-color:rgba(var(--accent-rgb),.5)}
+.note-item.on{border-color:rgba(var(--accent-rgb),.9);background:rgba(var(--accent-rgb),.14)}
+.note-item b{font-size:13px;color:var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-item small{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
+.note-item .nd{font-size:10.5px;opacity:.75}
+body.light .note-item{background:rgba(255,255,255,.6)}
+.notes-editor{display:grid;gap:8px;min-width:0}
+.notes-editor input{font-weight:700;font-size:15px;margin:0}
+.notes-editor textarea{min-height:320px;line-height:1.5;margin:0}
+.note-meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+.note-meta .saved{color:#3ba55c}
+.note-actions{display:flex;flex-wrap:wrap;gap:6px}
+.note-actions .del{margin-left:auto}
+.notes-empty{display:grid;place-items:center;gap:4px;text-align:center;padding:40px 10px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px}
+.notes-empty b{color:var(--head)}
+.notes-empty-ic{font-size:34px}
+.notes-empty[hidden],.notes-editor[hidden]{display:none!important}
+@media (max-width:760px){ .notes-layout{grid-template-columns:1fr} .note-list{max-height:220px} .notes-editor textarea{min-height:220px} }
+
 /* ---------- Guide et explications ---------- */
 .guide{margin-bottom:16px;padding:14px 16px;border-radius:var(--radius,12px);background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.04));border:1px solid rgba(var(--accent-rgb),.3)}
 .guide-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--head);font-size:14px}
@@ -648,6 +673,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
     <nav class="tabs">
       <button data-tab="preview" class="on">👁 Aperçu</button>
       <button data-tab="patch">📋 Patchnote</button>
+      <button data-tab="notes">📝 Notes</button>
       <button data-tab="history">🕘 Historique</button>
       <button data-tab="templates">📁 Modèles</button>
       <button data-tab="tools">🧰 Outils</button>
@@ -726,6 +752,36 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
           <input type="file" id="vcpFileIn" accept=".js,text/javascript" hidden>
         </div>
     </div>
+    <div class="tab" id="tab-notes">
+      <div class="card notes-card">
+        <h2><span class="ic">📝</span>Bloc-notes <span class="cnt" id="notesCnt"></span></h2>
+        <div class="cdesc">Garde tes idées, brouillons d'annonces, infos du serveur… Tout est enregistré automatiquement dans ce navigateur, et inclus dans la Sauvegarde (onglet Outils).</div>
+        <div class="notes-layout">
+          <aside class="notes-side">
+            <button class="wide" id="noteNew">+ Nouvelle note</button>
+            <input id="noteSearch" placeholder="🔎 Rechercher dans les notes…" aria-label="Rechercher dans les notes">
+            <div id="noteList" class="note-list"></div>
+          </aside>
+          <div class="notes-editor" id="noteEditor" hidden>
+            <input id="noteTitle" maxlength="100" placeholder="Titre de la note" aria-label="Titre de la note">
+            <textarea id="noteText" placeholder="Écris ici… (enregistrement automatique)" aria-label="Contenu de la note"></textarea>
+            <div class="note-meta"><span id="noteSaved"></span><span id="noteChars"></span></div>
+            <div class="note-actions">
+              <button class="sec sm" id="noteCopy" title="Copier le texte de la note">📋 Copier</button>
+              <button class="sec sm" id="noteToMsg" title="Ajouter le texte de la note au message Discord">💬 Mettre dans le message</button>
+              <button class="sec sm" id="noteToEmbed" title="Créer un embed : titre = titre de la note, description = texte">🧩 Créer un embed</button>
+              <button class="sec sm" id="notePin">📌 Épingler</button>
+              <button class="del sm" id="noteDel" title="Supprimer cette note">🗑 Supprimer</button>
+            </div>
+          </div>
+          <div class="notes-empty" id="noteEmpty">
+            <div class="notes-empty-ic">📝</div>
+            <b>Aucune note ouverte</b>
+            <span>Clique sur « + Nouvelle note » pour commencer.</span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="tab" id="tab-history">
       <div class="hint" style="margin:0 0 8px">Les messages envoyés depuis ce navigateur. Tu peux les recharger pour les modifier ou les supprimer de Discord.</div>
       <input id="histQ" placeholder="🔎 Rechercher dans l'historique…" style="margin-bottom:8px">
@@ -765,7 +821,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
       </div>
       <div class="card">
         <h2><span class="ic">💾</span>Sauvegarde</h2>
-        <div class="hint" style="margin-top:0">Tes webhooks, modèles et ton historique sont stockés dans ce navigateur. Exporte-les pour les garder ou les transférer sur un autre PC.</div>
+        <div class="hint" style="margin-top:0">Tes webhooks, modèles, notes et ton historique sont stockés dans ce navigateur. Exporte-les pour les garder ou les transférer sur un autre PC.</div>
         <div class="actions" style="justify-content:flex-start">
           <button class="sec sm" id="bkExport">⬇ Exporter mes données</button>
           <button class="sec sm" id="bkImport">⬆ Importer une sauvegarde</button>
@@ -809,6 +865,8 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
   </ol>
   <h4>📋 Publier un patchnote ViceCity</h4>
   <div class="hint" style="margin-top:0">Onglet <b>📋 Patchnote</b> (à droite) : écris la version, le titre et les changements, puis <b>⚡ Les deux</b>. Le patchnote s'ajoute au site et l'embed Discord est prêt : il ne reste qu'à cliquer sur 🚀 Envoyer. La première fois, connecte le site avec ta clé GitHub (section « 🌍 Connexion au site en ligne »).</div>
+  <h4>📝 Bloc-notes</h4>
+  <div class="hint" style="margin-top:0">Onglet <b>📝 Notes</b> : garde tes idées et brouillons. Enregistrement automatique, recherche, notes épinglées, et un clic pour les mettre dans le message ou en faire un embed.</div>
   <h4>⌨️ Raccourcis clavier</h4>
   <table class="keys">
     <tr><td><kbd>Ctrl</kbd> + <kbd>Entrée</kbd></td><td>Envoyer le message ouvert</td></tr>
@@ -1600,7 +1658,7 @@ $('btnTheme').onclick = () => setTheme(document.body.classList.contains('light')
 
 /* ---------- Sauvegarde ---------- */
 $('bkExport').onclick = () => {
-  const data = {app: 'embed-sender', version: 3, date: new Date().toISOString(), webhooks, templates, history};
+  const data = {app: 'embed-sender', version: 3, date: new Date().toISOString(), webhooks, templates, history, notes: LS.get('notes', [])};
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
   a.download = `embed-sender-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
@@ -1617,8 +1675,9 @@ $('bkFile').onchange = async e => {
     webhooks = merge(webhooks, d.webhooks, 'url'); templates = merge(templates, d.templates, 'name');
     history = merge(history, d.history, 'id').sort((a, b) => b.date - a.date).slice(0, 50);
     LS.set('webhooks', webhooks); LS.set('templates', templates); LS.set('history', history);
+    LS.set('notes', merge(LS.get('notes', []), Array.isArray(d.notes) ? d.notes : [], 'id')); window.__notesReload?.();
     renderWhSelect(); renderTemplates(); renderHistory();
-    toast(`Sauvegarde importée : ${(d.webhooks || []).length} webhook(s), ${(d.templates || []).length} modèle(s), ${(d.history || []).length} message(s)`, 'ok', 4000);
+    toast(`Sauvegarde importée : ${(d.webhooks || []).length} webhook(s), ${(d.templates || []).length} modèle(s), ${(d.history || []).length} message(s), ${(d.notes || []).length} note(s)`, 'ok', 4000);
   }catch(err){ toast('Import impossible : ' + err.message, 'err'); }
 };
 $('sendBtn').onclick = send;
@@ -2361,6 +2420,112 @@ $('btnInstall').onclick = async () => {
 };
 
 $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/embed-sender/'));
+
+/* ---------- Bloc-notes (onglet 📝 Notes) ----------
+   Notes enregistrées dans ce navigateur (clé « notes »), incluses dans la Sauvegarde. */
+(function(){
+  let notes = LS.get('notes', []);
+  if (!Array.isArray(notes)) notes = [];
+  let cur = LS.get('noteCur', null);
+  let timer = null;
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const save = () => LS.set('notes', notes);
+  const sorted = () => [...notes].sort((a, b) => (b.pinned - a.pinned) || (b.updated - a.updated));
+  const curNote = () => notes.find(n => n.id === cur);
+  const fmtDate = t => new Date(t).toLocaleString('fr-FR', {day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit'});
+  const titleOf = n => (n.title || '').trim() || ((n.text || '').trim().split('\n')[0] || 'Note sans titre').slice(0, 60);
+
+  function renderList(){
+    const q = $('noteSearch').value.trim().toLowerCase();
+    const list = sorted().filter(n => !q || ((n.title || '') + ' ' + (n.text || '')).toLowerCase().includes(q));
+    $('noteList').innerHTML = list.length
+      ? list.map(n => `<button class="note-item${n.id === cur ? ' on' : ''}" data-note="${esc(n.id)}">
+          <b>${n.pinned ? '📌 ' : ''}${esc(titleOf(n))}</b>
+          <small>${esc((n.text || '').replace(/\s+/g, ' ').trim().slice(0, 80)) || '<i>Vide</i>'}</small>
+          <small class="nd">${fmtDate(n.updated)}</small></button>`).join('')
+      : `<div class="hint" style="padding:8px">${q ? 'Aucune note trouvée.' : 'Aucune note pour le moment.'}</div>`;
+    $('notesCnt').textContent = notes.length ? `${notes.length} note${notes.length > 1 ? 's' : ''}` : '';
+    const has = !!curNote();
+    $('noteEditor').hidden = !has; $('noteEmpty').hidden = has;
+  }
+  function meta(n, saving){
+    $('noteChars').textContent = `${n.text.length} caractère${n.text.length > 1 ? 's' : ''}`;
+    $('noteSaved').textContent = saving ? '… enregistrement' : '✓ Enregistrée · ' + fmtDate(n.updated);
+    $('noteSaved').className = saving ? 'saving' : 'saved';
+  }
+  function open(id){
+    flush();
+    cur = id || null; LS.set('noteCur', cur);
+    const n = curNote();
+    if (n){
+      $('noteTitle').value = n.title || ''; $('noteText').value = n.text || '';
+      $('notePin').textContent = n.pinned ? '📌 Désépingler' : '📌 Épingler';
+      meta(n);
+    }
+    renderList();
+  }
+  function flush(){ if (timer){ clearTimeout(timer); timer = null; save(); } }
+  function edited(){
+    const n = curNote(); if (!n) return;
+    n.title = $('noteTitle').value; n.text = $('noteText').value; n.updated = Date.now();
+    meta(n, true);
+    clearTimeout(timer);
+    timer = setTimeout(() => { timer = null; save(); meta(n); renderList(); }, 400);
+  }
+  $('noteTitle').addEventListener('input', edited);
+  $('noteText').addEventListener('input', edited);
+  // Dans une note : Ctrl+Entrée n'envoie pas le message Discord, Ctrl+S enregistre la note
+  ['noteTitle', 'noteText'].forEach(id => $(id).addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.key.toLowerCase() === 's')){
+      e.stopPropagation();
+      if (e.key.toLowerCase() === 's'){ e.preventDefault(); flush(); const n = curNote(); if (n){ meta(n); renderList(); } toast('Note enregistrée', 'ok'); }
+    }
+  }));
+  window.addEventListener('beforeunload', flush);
+
+  $('noteNew').onclick = () => {
+    const n = {id: uid(), title: '', text: '', pinned: false, created: Date.now(), updated: Date.now()};
+    notes.push(n); save(); $('noteSearch').value = ''; open(n.id); $('noteTitle').focus();
+  };
+  $('noteSearch').addEventListener('input', renderList);
+  $('noteList').addEventListener('click', e => { const b = e.target.closest('[data-note]'); if (b) open(b.dataset.note); });
+
+  $('noteCopy').onclick = () => { const n = curNote(); if (!n || !n.text.trim()) return toast('La note est vide', 'err'); copy(n.text); };
+  $('noteToMsg').onclick = () => {
+    const n = curNote(); if (!n || !n.text.trim()) return toast('La note est vide', 'err');
+    const ta = document.querySelector('textarea[data-s=content]');
+    const val = ta.value.trim() ? ta.value.replace(/\s*$/, '') + '\n' + n.text : n.text;
+    if (val.length > 2000) return toast('Trop long pour le texte du message (2000 caractères max) : utilise « Créer un embed »', 'err', 6000);
+    ta.value = val; ta.dispatchEvent(new Event('input', {bubbles: true}));
+    showTab('preview');
+    ta.scrollIntoView({behavior: 'smooth', block: 'center'});
+    toast('💬 Note ajoutée au message', 'ok');
+  };
+  $('noteToEmbed').onclick = () => {
+    const n = curNote(); if (!n || !(n.text.trim() || (n.title || '').trim())) return toast('La note est vide', 'err');
+    if (n.text.length > 4096) return toast('Trop long pour un embed (4096 caractères max)', 'err');
+    const emb = {...newEmbed(), title: (n.title || '').trim().slice(0, 256), description: n.text};
+    const empty = state.embeds.findIndex(e => !toApiEmbed(e));   // réutilise l'embed vide de départ
+    if (empty >= 0) state.embeds[empty] = emb;
+    else if (state.embeds.length >= 10) return toast('10 embeds maximum par message', 'err');
+    else state.embeds.push(emb);
+    renderEmbeds(); update(); showTab('preview');
+    toast('🧩 Embed créé à partir de la note', 'ok');
+  };
+  $('notePin').onclick = () => { const n = curNote(); if (!n) return; n.pinned = !n.pinned; save(); open(n.id); };
+  $('noteDel').onclick = () => {
+    const n = curNote(); if (!n) return;
+    if (!confirm(`Supprimer la note « ${titleOf(n)} » ?\nElle sera effacée définitivement de ce navigateur.`)) return;
+    clearTimeout(timer); timer = null;
+    notes = notes.filter(x => x.id !== n.id); save();
+    open(sorted()[0]?.id);
+    toast('Note supprimée', 'ok');
+  };
+
+  // Appelé après l'import d'une sauvegarde
+  window.__notesReload = () => { notes = LS.get('notes', []); if (!Array.isArray(notes)) notes = []; open(curNote() ? cur : sorted()[0]?.id); };
+  open(curNote() ? cur : sorted()[0]?.id);
+})();
 
 /* ---------- Guide « Comment ça marche ? » (étapes 1-2-3 avec suivi) ---------- */
 (function(){
