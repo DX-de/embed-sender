@@ -690,7 +690,7 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
             <summary>Options de l'embed</summary>
             <div class="vcp-row">
               <div><label for="vcpMention">Mention</label><input id="vcpMention" placeholder="@everyone ou <@&ID_du_rôle>"></div>
-              <div><label for="vcpColor">Couleur</label><input type="color" id="vcpColor" value="#e94560" style="height:38px;padding:4px"></div>
+              <div><label for="vcpColor">Couleur</label><input type="color" id="vcpColor" value="#3b82f6" style="height:38px;padding:4px"></div>
             </div>
             <label for="vcpSite">Adresse du site ViceCity <span style="font-weight:400">(ajoute un bouton « Voir sur le site »)</span></label>
             <input id="vcpSite" placeholder="https://vicecity-rp.fr/">
@@ -2413,7 +2413,8 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
     correction: {emoji: '🛠️', label: 'Corrections', one: 'Correction'},
     suppression: {emoji: '🗑️', label: 'Suppressions', one: 'Suppression'},
   };
-  const cfg = Object.assign({mention: '', siteUrl: 'https://dx-de.github.io/vicecity-site/', color: '#e94560', username: ''}, LS.get('vcpCfg', {}));
+  const cfg = Object.assign({mention: '', siteUrl: 'https://dx-de.github.io/vicecity-site/', color: '#3b82f6', username: ''}, LS.get('vcpCfg', {}));
+  if (String(cfg.color).toLowerCase() === '#e94560') cfg.color = '#3b82f6'; // ancienne couleur corail → bleu du site
   let pd = Object.assign({version: '', date: '', title: '', summary: '', changes: [{type: 'ajout', text: ''}]}, LS.get('vcpDraft', {}));
   const saveDraft = () => LS.set('vcpDraft', pd);
   const saveCfg = () => LS.set('vcpCfg', cfg);
@@ -2426,7 +2427,7 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
   /* --- Formulaire --- */
   function fill(){
     $('vcpVer').value = pd.version; $('vcpDate').value = pd.date || today(); $('vcpTitle').value = pd.title; $('vcpSum').value = pd.summary;
-    $('vcpMention').value = cfg.mention; $('vcpSite').value = cfg.siteUrl; $('vcpColor').value = cfg.color || '#e94560'; $('vcpName').value = cfg.username;
+    $('vcpMention').value = cfg.mention; $('vcpSite').value = cfg.siteUrl; $('vcpColor').value = cfg.color || '#3b82f6'; $('vcpName').value = cfg.username;
     renderList();
   }
   function renderList(){
@@ -2491,7 +2492,7 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
     const link = site ? `${site.replace(/\/?$/, '/')}patchnotes.html#${slug(v.version)}` : '';
     const embed = {
       title: `📋 Patchnote ${v.version} — ${v.title}`.slice(0, 256),
-      color: parseInt(String(cfg.color || '#e94560').replace('#', ''), 16) || 0xe94560,
+      color: parseInt(String(cfg.color || '#3b82f6').replace('#', ''), 16) || 0x3b82f6,
       fields: fields.slice(0, 25),
       footer: {text: `ViceCity RP · ${v.date}`},
     };
