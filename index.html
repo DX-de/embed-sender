@@ -425,6 +425,19 @@ body.light .dbtn{background:#6d6f78}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+/* ---------- Patchnote ViceCity ---------- */
+.vcp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vcp-list{display:grid;gap:6px}
+.vcp-item{display:flex;gap:6px;align-items:center}
+.vcp-item select{width:auto;flex:none;min-width:150px}
+.vcp-item input{flex:1}
+.vcp-item button{flex:none}
+.vcp-add{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.vcp-versions{display:grid;gap:6px;margin-top:8px}
+.vcp-ver{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.vcp-ver b{font-family:Consolas,monospace}
+.vcp-ver span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12px}
+@media (max-width:600px){ .vcp-row{grid-template-columns:1fr} .vcp-item{flex-wrap:wrap} .vcp-item select{min-width:0;flex:1} }
 </style>
 </head>
 <body>
@@ -598,6 +611,46 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
       </div>
     </div>
     <div class="tab" id="tab-tools">
+      <div class="card" id="vcPatch">
+        <h2><span class="ic">📋</span>Patchnote ViceCity</h2>
+        <div class="hint" style="margin-top:0">Écris le patchnote une seule fois : il devient un embed Discord <b>et</b> il s'ajoute à la page Patchnotes du site ViceCity.</div>
+        <div class="vcp-row">
+          <div><label for="vcpVer">Version</label><input id="vcpVer" maxlength="20" placeholder="1.2.0"></div>
+          <div><label for="vcpDate">Date</label><input type="date" id="vcpDate"></div>
+        </div>
+        <label for="vcpTitle">Titre</label><input id="vcpTitle" maxlength="120" placeholder="Ex : Nouveau garage à Vespucci">
+        <label for="vcpSum">Résumé <span style="font-weight:400">(facultatif)</span></label><textarea id="vcpSum" rows="2" maxlength="400" style="min-height:52px" placeholder="Une phrase qui résume la mise à jour"></textarea>
+        <label>Changements <span style="font-weight:400">· Entrée = ligne suivante</span></label>
+        <div id="vcpList" class="vcp-list"></div>
+        <div class="vcp-add">
+          <button class="sec sm" data-vcp-add="ajout">+ ✅ Ajout</button>
+          <button class="sec sm" data-vcp-add="amelioration">+ ⬆️ Amélioration</button>
+          <button class="sec sm" data-vcp-add="correction">+ 🛠️ Correction</button>
+          <button class="sec sm" data-vcp-add="suppression">+ 🗑️ Suppression</button>
+        </div>
+        <details id="vcpOpts">
+          <summary>Options de l'embed</summary>
+          <div class="vcp-row">
+            <div><label for="vcpMention">Mention</label><input id="vcpMention" placeholder="@everyone ou <@&ID_du_rôle>"></div>
+            <div><label for="vcpColor">Couleur</label><input type="color" id="vcpColor" value="#e94560" style="height:38px;padding:4px"></div>
+          </div>
+          <label for="vcpSite">Adresse du site ViceCity <span style="font-weight:400">(ajoute un bouton « Voir sur le site »)</span></label>
+          <input id="vcpSite" placeholder="https://vicecity-rp.fr/">
+          <label for="vcpName">Nom du profil</label><input id="vcpName" maxlength="80" placeholder="ViceCity RP • Patchnotes">
+        </details>
+        <div class="actions" style="justify-content:flex-start">
+          <button class="sm" id="vcpEmbed">🧩 Créer l'embed</button>
+          <button class="sm" id="vcpPublish">🌐 Publier sur le site</button>
+          <button class="sec sm" id="vcpBoth">⚡ Les deux</button>
+          <button class="sec sm" id="vcpReset" title="Vider le formulaire">Nouveau</button>
+        </div>
+        <div class="hint" id="vcpFileInfo"></div>
+        <details id="vcpSiteList">
+          <summary>Versions déjà sur le site</summary>
+          <div id="vcpVersions" class="vcp-versions"><div class="hint">Publie une première fois (ou relie le fichier) pour voir la liste.</div></div>
+        </details>
+        <input type="file" id="vcpFileIn" accept=".js,text/javascript" hidden>
+      </div>
       <div class="card">
         <h2><span class="ic">🎨</span>Apparence</h2>
         <label style="margin-top:0">Couleur du site</label>
@@ -2212,6 +2265,265 @@ $('btnInstall').onclick = async () => {
   await installEvt.userChoice.catch(() => {});
   installEvt = null; $('btnInstall').hidden = true;
 };
+
+/* ---------- Patchnote ViceCity : embed Discord + page Patchnotes du site ----------
+   Le site lit ses patchnotes dans js/patchnotes.js (window.VC_PATCHNOTES = [...]).
+   « Publier sur le site » réécrit ce fichier directement sur le PC (navigateurs Chrome / Edge / Opera),
+   sinon il propose de télécharger le fichier mis à jour à remplacer à la main. */
+(function(){
+  const TYPES = {
+    ajout: {emoji: '✅', label: 'Ajouts', one: 'Ajout'},
+    amelioration: {emoji: '⬆️', label: 'Améliorations', one: 'Amélioration'},
+    correction: {emoji: '🛠️', label: 'Corrections', one: 'Correction'},
+    suppression: {emoji: '🗑️', label: 'Suppressions', one: 'Suppression'},
+  };
+  const cfg = Object.assign({mention: '', siteUrl: '', color: '#e94560', username: ''}, LS.get('vcpCfg', {}));
+  let pd = Object.assign({version: '', date: '', title: '', summary: '', changes: [{type: 'ajout', text: ''}]}, LS.get('vcpDraft', {}));
+  const saveDraft = () => LS.set('vcpDraft', pd);
+  const saveCfg = () => LS.set('vcpCfg', cfg);
+  const today = () => { const d = new Date(), z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`; };
+  const toFr = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : (iso || ''); };
+  const toIso = fr => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(fr || ''); return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; };
+  const slug = v => 'v-' + String(v).replace(/[^\w.-]+/g, '').replace(/\./g, '-');
+  const absUrl = u => /^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '';
+
+  /* --- Formulaire --- */
+  function fill(){
+    $('vcpVer').value = pd.version; $('vcpDate').value = pd.date || today(); $('vcpTitle').value = pd.title; $('vcpSum').value = pd.summary;
+    $('vcpMention').value = cfg.mention; $('vcpSite').value = cfg.siteUrl; $('vcpColor').value = cfg.color || '#e94560'; $('vcpName').value = cfg.username;
+    renderList();
+  }
+  function renderList(){
+    if (!pd.changes.length) pd.changes.push({type: 'ajout', text: ''});
+    $('vcpList').innerHTML = pd.changes.map((c, i) => `<div class="vcp-item">
+      <select data-vcp-type="${i}" aria-label="Type du changement ${i + 1}">${Object.entries(TYPES).map(([t, d]) => `<option value="${t}"${c.type === t ? ' selected' : ''}>${d.emoji} ${d.one}</option>`).join('')}</select>
+      <input data-vcp-text="${i}" value="${esc(c.text)}" maxlength="300" placeholder="Décris le changement…" aria-label="Changement ${i + 1}">
+      <button class="del" data-vcp-del="${i}" title="Retirer cette ligne">✕</button></div>`).join('');
+  }
+  function addRow(type, after){
+    const i = after == null ? pd.changes.length : after + 1;
+    pd.changes.splice(i, 0, {type, text: ''}); renderList(); saveDraft();
+    document.querySelector(`[data-vcp-text="${i}"]`)?.focus();
+  }
+  [['vcpVer', 'version'], ['vcpTitle', 'title'], ['vcpSum', 'summary']].forEach(([id, k]) => $(id).addEventListener('input', e => { pd[k] = e.target.value; saveDraft(); }));
+  $('vcpDate').addEventListener('input', e => { pd.date = e.target.value; saveDraft(); });
+  [['vcpMention', 'mention'], ['vcpSite', 'siteUrl'], ['vcpColor', 'color'], ['vcpName', 'username']].forEach(([id, k]) => $(id).addEventListener('input', e => { cfg[k] = e.target.value; saveCfg(); }));
+  $('vcpList').addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.vcpText != null){ pd.changes[+t.dataset.vcpText].text = t.value; saveDraft(); }
+  });
+  $('vcpList').addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.vcpType != null){ pd.changes[+t.dataset.vcpType].type = t.value; saveDraft(); }
+  });
+  $('vcpList').addEventListener('keydown', e => {
+    const t = e.target;
+    if (e.key === 'Enter' && t.dataset.vcpText != null){ e.preventDefault(); e.stopPropagation(); addRow(pd.changes[+t.dataset.vcpText].type, +t.dataset.vcpText); }
+  });
+  $('vcpList').addEventListener('click', e => {
+    const b = e.target.closest('[data-vcp-del]'); if (!b) return;
+    pd.changes.splice(+b.dataset.vcpDel, 1); renderList(); saveDraft();
+  });
+  document.querySelectorAll('[data-vcp-add]').forEach(b => b.addEventListener('click', () => addRow(b.dataset.vcpAdd)));
+  $('vcpReset').addEventListener('click', () => {
+    if (!confirm('Vider le formulaire du patchnote ?')) return;
+    pd = {version: '', date: today(), title: '', summary: '', changes: [{type: 'ajout', text: ''}]}; saveDraft(); fill();
+  });
+
+  // Patchnote propre (sans lignes vides) au format du site
+  function current(){
+    const v = {
+      version: pd.version.trim(), date: toFr(pd.date || today()), title: pd.title.trim(), summary: pd.summary.trim(),
+      changes: pd.changes.map(c => ({type: c.type, text: c.text.trim()})).filter(c => c.text),
+    };
+    const miss = [!v.version && 'la version', !v.title && 'le titre', !v.changes.length && 'au moins un changement'].filter(Boolean);
+    if (miss.length){ toast('Il manque ' + miss.join(', '), 'err'); return null; }
+    return v;
+  }
+
+  /* --- Embed Discord (même mise en forme que le bouton du site) --- */
+  function payloadFor(v){
+    const fields = [];
+    Object.entries(TYPES).forEach(([t, d]) => {
+      const lines = v.changes.filter(c => c.type === t).map(c => `• ${c.text}`);
+      let chunk = [], part = 0;
+      const flush = () => { if (!chunk.length) return; fields.push({name: `${d.emoji} ${d.label}${part ? ' (suite)' : ''}`, value: chunk.join('\n').slice(0, 1024)}); chunk = []; part++; };
+      lines.forEach(l => { if ((chunk.join('\n') + '\n' + l).length > 1000) flush(); chunk.push(l.slice(0, 1000)); });
+      flush();
+    });
+    const site = absUrl(cfg.siteUrl);
+    const link = site ? `${site.replace(/\/?$/, '/')}patchnotes.html#${slug(v.version)}` : '';
+    const embed = {
+      title: `📋 Patchnote ${v.version} — ${v.title}`.slice(0, 256),
+      color: parseInt(String(cfg.color || '#e94560').replace('#', ''), 16) || 0xe94560,
+      fields: fields.slice(0, 25),
+      footer: {text: `ViceCity RP · ${v.date}`},
+    };
+    if (v.summary) embed.description = v.summary.slice(0, 4000);
+    if (link) embed.url = link;
+    const p = {embeds: [embed], username: (cfg.username || 'ViceCity RP • Patchnotes').slice(0, 80)};
+    if (cfg.mention.trim()) p.content = cfg.mention.trim();
+    if (link) p.components = [{type: 1, components: [{type: 2, style: 5, label: 'Voir sur le site', url: link, emoji: {name: '🌐'}}]}];
+    return p;
+  }
+  function makeEmbed(v, ask = true){
+    if (ask && !isEmpty() && !confirm('Remplacer le message en cours par l\'embed du patchnote ?')) return false;
+    loadState(fromApi(payloadFor(v)));
+    document.querySelector('[data-tab=preview]')?.click();
+    return true;
+  }
+  $('vcpEmbed').addEventListener('click', () => {
+    const v = current(); if (!v) return;
+    if (makeEmbed(v)) toast('🧩 Embed prêt : choisis ton webhook puis 🚀 Envoyer', 'ok', 4000);
+  });
+
+  /* --- Fichier js/patchnotes.js du site --- */
+  const HEADER = `/* =========================================================
+   ViceCity RP — PATCHNOTES
+   Ce fichier est mis à jour automatiquement par Embed Sender
+   (onglet Outils → « Patchnote ViceCity » → Publier sur le site).
+   Vous pouvez aussi le modifier à la main, en gardant le format JSON :
+   guillemets doubles, virgules entre les éléments, version la plus récente EN PREMIER.
+   type : "ajout" | "amelioration" | "correction" | "suppression"
+   ========================================================= */
+`;
+  function parseFile(text){
+    const at = text.indexOf('window.VC_PATCHNOTES');
+    if (at < 0) throw new Error('format');
+    const start = text.indexOf('[', at), end = text.lastIndexOf(']');
+    if (start < 0 || end < start) throw new Error('format');
+    const list = JSON.parse(text.slice(start, end + 1));
+    if (!Array.isArray(list)) throw new Error('format');
+    return {head: text.slice(0, at), list};
+  }
+  const serialize = (head, list) => (head.trim() ? head : HEADER) + 'window.VC_PATCHNOTES = ' + JSON.stringify(list, null, 2) + ';\n';
+  function merge(list, v){
+    const i = list.findIndex(x => String(x.version).trim() === v.version);
+    if (i >= 0){
+      if (!confirm(`La version ${v.version} existe déjà sur le site. La remplacer ?`)) return null;
+      list[i] = v;
+    } else list.unshift(v);
+    return list;
+  }
+
+  // Petit stockage du lien vers le fichier (IndexedDB) pour ne le choisir qu'une fois
+  const idb = (mode, fn) => new Promise((res, rej) => {
+    const r = indexedDB.open('embed-sender-vcp', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onerror = () => rej(r.error);
+    r.onsuccess = () => {
+      const db = r.result;
+      try{
+        const tx = db.transaction('kv', mode), q = fn(tx.objectStore('kv'));
+        tx.oncomplete = () => { db.close(); res(q && q.result); };
+        tx.onerror = tx.onabort = () => { db.close(); rej(tx.error); };
+      }catch(e){ db.close(); rej(e); }
+    };
+  });
+  const canFS = 'showOpenFilePicker' in window;
+  async function getHandle(pick = false){
+    let h = null;
+    if (!pick){ try{ h = await idb('readonly', s => s.get('file')); }catch(e){} }
+    if (!h){
+      [h] = await showOpenFilePicker({id: 'vcp', types: [{description: 'patchnotes.js du site ViceCity', accept: {'text/javascript': ['.js']}}]});
+      try{ await idb('readwrite', s => s.put(h, 'file')); }catch(e){}
+    }
+    if ((await h.queryPermission({mode: 'readwrite'})) !== 'granted' && (await h.requestPermission({mode: 'readwrite'})) !== 'granted') throw new Error('perm');
+    return h;
+  }
+  async function readSite(pick){
+    const h = await getHandle(pick);
+    const parsed = parseFile(await (await h.getFile()).text());
+    $('vcpFileInfo').innerHTML = `📁 Fichier relié : <b>${esc(h.name)}</b> · ${parsed.list.length} version(s) sur le site · <a href="#" id="vcpChange">changer de fichier</a>`;
+    return {h, ...parsed};
+  }
+  async function writeSite(h, head, list){
+    const w = await h.createWritable(); await w.write(serialize(head, list)); await w.close();
+    renderVersions(list);
+  }
+  const fsError = e => {
+    if (e?.name === 'AbortError') return;
+    if (e?.message === 'format') toast('Ce fichier n\'est pas le patchnotes.js du site ViceCity (choisis vicecity-site/js/patchnotes.js)', 'err', 7000);
+    else if (e?.message === 'perm') toast('Autorisation refusée : impossible d\'écrire dans le fichier', 'err');
+    else if (e instanceof SyntaxError) toast('patchnotes.js contient une erreur de format (JSON) : corrige-le à la main', 'err', 7000);
+    else toast('Erreur avec le fichier : ' + (e?.message || e), 'err');
+  };
+
+  async function publish(v){
+    if (canFS){
+      try{
+        const {h, head, list} = await readSite(false);
+        const next = merge(list, v); if (!next) return false;
+        await writeSite(h, head, next);
+        toast(`🌐 Version ${v.version} publiée sur le site !`, 'ok', 4000);
+        return true;
+      }catch(e){
+        // fichier relié déplacé ou supprimé → on redemande
+        if (e?.name === 'NotFoundError'){ try{ await idb('readwrite', s => s.delete('file')); }catch(_){} toast('Fichier introuvable : choisis à nouveau patchnotes.js', 'err'); }
+        else fsError(e);
+        return false;
+      }
+    }
+    // Navigateur sans accès aux fichiers : on lit le fichier puis on télécharge la version mise à jour
+    return new Promise(resolve => {
+      const inp = $('vcpFileIn'); inp.value = '';
+      inp.onchange = async () => {
+        try{
+          const {head, list} = parseFile(await inp.files[0].text());
+          const next = merge(list, v); if (!next) return resolve(false);
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([serialize(head, next)], {type: 'text/javascript'}));
+          a.download = 'patchnotes.js'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          toast('⬇ patchnotes.js téléchargé : remplace celui du dossier js/ du site', 'ok', 7000);
+          resolve(true);
+        }catch(e){ fsError(e); resolve(false); }
+      };
+      toast('Choisis le fichier js/patchnotes.js du site', '', 3500);
+      inp.click();
+    });
+  }
+  $('vcpPublish').addEventListener('click', async () => { const v = current(); if (v) await publish(v); });
+  $('vcpBoth').addEventListener('click', async () => {
+    const v = current(); if (!v) return;
+    if (!(await publish(v))) return;
+    if (makeEmbed(v)) toast(`🌐 Publié sur le site · 🧩 embed prêt : choisis ton webhook puis 🚀 Envoyer`, 'ok', 5000);
+  });
+  $('vcpFileInfo').addEventListener('click', async e => {
+    if (e.target.id !== 'vcpChange') return;
+    e.preventDefault();
+    try{ const {list} = await readSite(true); renderVersions(list); toast('Fichier relié', 'ok'); }catch(err){ fsError(err); }
+  });
+
+  /* --- Versions déjà en ligne : recharger ou retirer --- */
+  let siteList = [];
+  function renderVersions(list){
+    siteList = list;
+    $('vcpVersions').innerHTML = list.length ? list.map((x, i) => `<div class="vcp-ver"><b>${esc(x.version)}</b><span>${esc(x.title)} · ${esc(x.date)}</span>
+      <button class="sec sm" data-vcp-load="${i}">Modifier</button><button class="del" data-vcp-rm="${i}" title="Retirer du site">✕</button></div>`).join('')
+      : '<div class="hint">Aucune version sur le site.</div>';
+  }
+  $('vcpSiteList').addEventListener('toggle', async () => {
+    if (!$('vcpSiteList').open || !canFS) return;
+    try{ const {list} = await readSite(false); renderVersions(list); }catch(e){ fsError(e); }
+  });
+  $('vcpVersions').addEventListener('click', async e => {
+    const ld = e.target.closest('[data-vcp-load]'), rm = e.target.closest('[data-vcp-rm]');
+    if (ld){
+      const x = siteList[+ld.dataset.vcpLoad];
+      pd = {version: x.version, date: toIso(x.date) || today(), title: x.title, summary: x.summary || '', changes: (x.changes || []).map(c => ({type: c.type, text: c.text}))};
+      saveDraft(); fill(); $('vcPatch').scrollIntoView({behavior: 'smooth', block: 'start'});
+      toast(`Version ${x.version} chargée : modifie puis republie`, 'ok');
+    }
+    if (rm){
+      const x = siteList[+rm.dataset.vcpRm];
+      if (!confirm(`Retirer la version ${x.version} de la page Patchnotes du site ?`)) return;
+      try{ const {h, head, list} = await readSite(false); await writeSite(h, head, list.filter(y => String(y.version) !== String(x.version))); toast(`Version ${x.version} retirée du site`, 'ok'); }catch(err){ fsError(err); }
+    }
+  });
+
+  if (!canFS) $('vcpFileInfo').textContent = 'ℹ️ Ce navigateur ne peut pas écrire directement dans le fichier : « Publier » te fera télécharger le patchnotes.js à jour.';
+  fill();
+})();
 
 /* ---------- Démarrage ---------- */
 const savedMsgs = LS.get('msgs', null), draft = LS.get('draft', null);
