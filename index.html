@@ -425,6 +425,44 @@ body.light .dbtn{background:#6d6f78}
 body.light .pbar{border-bottom-color:rgba(0,0,0,.08)}
 body.light *{scrollbar-color:#c4c9ce transparent}
 body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-box}
+/* ---------- Guide et explications ---------- */
+.guide{margin-bottom:16px;padding:14px 16px;border-radius:var(--radius,12px);background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.04));border:1px solid rgba(var(--accent-rgb),.3)}
+.guide-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--head);font-size:14px}
+.guide-head .icon{padding:2px 8px}
+.guide-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.guide-steps li{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:rgba(0,0,0,.18);border:1px solid var(--border);cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.guide-steps li:hover{border-color:rgba(var(--accent-rgb),.6);transform:translateY(-1px)}
+.gnum{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;background:rgba(255,255,255,.1);color:var(--head);transition:background .2s}
+.gtxt{display:grid;gap:1px;min-width:0}
+.gtxt b{color:var(--head);font-size:13px}
+.gtxt small{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.guide-steps li.now{border-color:rgba(var(--accent-rgb),.8);background:rgba(var(--accent-rgb),.14);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.15)}
+.guide-steps li.now .gnum{background:var(--grad,var(--accent));color:#fff}
+.guide-steps li.done .gnum{background:#23a55a;color:#fff;font-size:0}
+.guide-steps li.done .gnum::before{content:"✓";font-size:14px}
+.guide-steps li.done small{color:#3ba55c}
+.guide-alt{margin-top:10px;font-size:12.5px;color:var(--muted)}
+.guide-alt a{color:var(--head);font-weight:600}
+body.light .guide-steps li{background:rgba(255,255,255,.6)}
+.need,.opt{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;margin-left:2px}
+.need{background:rgba(var(--accent-rgb),.18);color:var(--head);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.4)}
+.opt{background:rgba(255,255,255,.06);color:var(--muted);box-shadow:inset 0 0 0 1px var(--border)}
+body.light .opt{background:rgba(0,0,0,.04)}
+.cdesc{font-size:12.5px;color:var(--muted);margin:-4px 0 10px;line-height:1.45}
+.whhelp summary{margin-top:8px}
+.card.flash{animation:card-flash 1.4s ease}
+@keyframes card-flash{0%,35%{border-color:rgba(var(--accent-rgb),.9);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.25)}100%{}}
+.patch-intro .pi-steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pi-steps li{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)}
+.pi-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;background:var(--grad,var(--accent));color:#fff}
+.vcp-conn{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.18);border:1px solid var(--border)}
+.vcp-conn .conn{font-weight:700;font-size:13px}
+.vcp-conn .conn.ok{color:#3ba55c}
+.vcp-conn .conn.warn{color:#f0b232}
+.vcp-conn .conn-sub{flex:1;min-width:160px;font-size:12px;color:var(--muted)}
+body.light .vcp-conn{background:rgba(0,0,0,.03)}
+@media (max-width:700px){ .guide-steps{grid-template-columns:1fr} }
+
 /* ---------- Patchnote ViceCity ---------- */
 .vcp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .vcp-list{display:grid;gap:6px}
@@ -458,8 +496,19 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
 
 <main class="wrap">
   <section id="left">
-    <div class="card">
-      <h2><span class="ic">🔗</span>Webhook</h2>
+    <div class="guide" id="guide">
+      <div class="guide-head"><b>Comment ça marche ?</b><button class="icon" id="guideHide" title="Masquer ce guide (tu peux le réafficher depuis l'aide ❓)">✕</button></div>
+      <ol class="guide-steps">
+        <li data-go="whCard" id="gStep1"><span class="gnum">1</span><span class="gtxt"><b>Relie ton salon</b><small>Colle l'adresse du webhook</small></span></li>
+        <li data-go="contentCard" id="gStep2"><span class="gnum">2</span><span class="gtxt"><b>Écris ton message</b><small>Un texte et/ou un embed</small></span></li>
+        <li data-go="sendBtn" id="gStep3"><span class="gnum">3</span><span class="gtxt"><b>Envoie</b><small>Bouton 🚀 tout en bas</small></span></li>
+      </ol>
+      <div class="guide-alt">📋 Un patchnote ViceCity à publier ? <a href="#" id="guidePatch">Ouvre l'onglet Patchnote</a> : il remplit tout pour toi.</div>
+    </div>
+
+    <div class="card" id="whCard">
+      <h2><span class="ic">🔗</span>Webhook <span class="need">obligatoire</span></h2>
+      <div class="cdesc">L'adresse secrète d'un salon Discord : c'est elle qui permet d'y envoyer des messages.</div>
       <div class="whrow">
         <select id="whSelect" aria-label="Webhooks enregistrés"></select>
         <button class="sec" id="whSave">Enregistrer</button>
@@ -472,6 +521,16 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
         <button class="sec" id="whCheck">Vérifier</button>
       </div>
       <div id="whInfo" class="whinfo"></div>
+      <details class="whhelp" id="whHelp">
+        <summary>❓ Comment obtenir l'adresse d'un webhook ?</summary>
+        <ol class="steps small">
+          <li><span>Sur Discord, survole le salon voulu et clique sur ⚙️ <b>Modifier le salon</b>.</span></li>
+          <li><span>Va dans <b>Intégrations</b> → <b>Webhooks</b> → <b>Nouveau webhook</b>.</span></li>
+          <li><span>Donne-lui un nom (ex : <i>ViceCity RP</i>) et une image si tu veux.</span></li>
+          <li><span>Clique sur <b>Copier l'URL du webhook</b>, colle-la ci-dessus, puis <b>Vérifier</b> et <b>Enregistrer</b>.</span></li>
+        </ol>
+        <div class="hint">🔒 Garde cette adresse secrète : n'importe qui l'ayant pourrait écrire dans ton salon. Elle reste uniquement dans ce navigateur.</div>
+      </details>
       <div id="whMulti"></div>
       <details id="whEdit" hidden>
         <summary>Modifier le nom / l'avatar du webhook sur Discord</summary>
@@ -485,7 +544,8 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
     </div>
 
     <div class="card">
-      <h2><span class="ic">🗂️</span>Messages <span class="cnt">jusqu'à 10, envoyés dans l'ordre</span></h2>
+      <h2><span class="ic">🗂️</span>Messages <span class="opt">facultatif</span></h2>
+      <div class="cdesc">Pour envoyer plusieurs messages d'affilée (jusqu'à 10). La plupart du temps, un seul suffit : ignore cette carte.</div>
       <div id="msgTabs" class="mtabs"></div>
       <div class="mact">Message actuel :
         <button class="icon" data-ma="left" title="Déplacer avant">←</button><button class="icon" data-ma="right" title="Déplacer après">→</button>
@@ -494,7 +554,8 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
     </div>
 
     <div class="card">
-      <h2><span class="ic">👤</span>Profil & options</h2>
+      <h2><span class="ic">👤</span>Profil & options <span class="opt">facultatif</span></h2>
+      <div class="cdesc">Le nom et l'image affichés à la place de ceux du webhook. Laisse vide pour garder ceux du webhook.</div>
       <div class="row">
         <div><label>Nom affiché</label><input data-s="username" maxlength="80" placeholder="Nom du webhook par défaut"></div>
         <div><label>Avatar (URL)</label><input data-s="avatar" placeholder="https://..."></div>
@@ -514,13 +575,14 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="contentCard">
       <h2><span class="ic">💬</span>Message <span class="cnt" id="contentCnt"></span></h2>
+      <div class="cdesc">Le texte simple du message. Tu peux t'en passer si tu utilises un embed (plus bas).</div>
       <textarea data-s="content" maxlength="2000" placeholder="Texte au-dessus des embeds… (markdown Discord supporté)"></textarea>
     </div>
 
     <div class="card">
-      <h2><span class="ic">📊</span>Sondage <span class="cnt" id="pollCnt"></span></h2>
+      <h2><span class="ic">📊</span>Sondage <span class="opt">facultatif</span> <span class="cnt" id="pollCnt"></span></h2>
       <label class="chk" style="margin-top:0"><input type="checkbox" id="pollOn"> Ajouter un sondage au message</label>
       <div id="pollBody" hidden>
         <label>Question</label><input id="pollQ" maxlength="300" placeholder="Quelle est ta question ?">
@@ -537,14 +599,15 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
     </div>
 
     <div class="card">
-      <h2><span class="ic">🔘</span>Boutons de lien <span class="cnt" id="btnCnt"></span></h2>
+      <h2><span class="ic">🔘</span>Boutons de lien <span class="opt">facultatif</span> <span class="cnt" id="btnCnt"></span></h2>
       <div id="btnList"></div>
       <button class="sec sm" id="btnAdd" style="margin-top:8px">+ Bouton</button>
       <div class="hint">Jusqu'à 25 boutons sous le message (5 par ligne), qui ouvrent un lien. Les boutons qui font une action (donner un rôle…) demandent un vrai bot.</div>
     </div>
 
     <div class="card">
-      <h2><span class="ic">📎</span>Fichiers <span class="cnt" id="fileCnt"></span></h2>
+      <h2><span class="ic">📎</span>Fichiers <span class="opt">facultatif</span> <span class="cnt" id="fileCnt"></span></h2>
+      <div class="cdesc">Images, vidéos ou documents joints au message.</div>
       <div id="drop" class="drop">Glisse des fichiers ici ou <label class="linkish">parcours<input type="file" id="fileIn" multiple hidden></label></div>
       <div id="fileList"></div>
       <div class="hint">Astuce : mets <code>attachment://nom.png</code> comme URL d'image d'un embed pour y afficher un fichier joint (bouton « Copier le lien »).</div>
@@ -552,6 +615,7 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
 
     <div class="card">
       <h2><span class="ic">🧩</span>Embeds <span class="cnt" id="embedCnt"></span></h2>
+      <div class="cdesc">Les jolis blocs colorés (titre, description, image…). Commence par un <b>ajout rapide</b> ci-dessous, puis modifie le texte.</div>
       <div id="embeds"></div>
       <div class="quick" id="quickAdd"><span class="hint" style="margin:0">Ajout rapide :</span></div>
       <button class="sec wide" id="addEmbed">+ Ajouter un embed vide</button>
@@ -583,6 +647,7 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
   <section id="right">
     <nav class="tabs">
       <button data-tab="preview" class="on">👁 Aperçu</button>
+      <button data-tab="patch">📋 Patchnote</button>
       <button data-tab="history">🕘 Historique</button>
       <button data-tab="templates">📁 Modèles</button>
       <button data-tab="tools">🧰 Outils</button>
@@ -593,6 +658,72 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
         <div class="pbar"><span class="dots"><i></i><i></i><i></i></span><span class="chan"># <b>aperçu</b></span><span class="pcount" id="pcount"></span></div>
         <div class="preview" id="preview"></div>
       </div>
+    </div>
+    <div class="tab" id="tab-patch">
+      <div class="card patch-intro">
+        <h2><span class="ic">📋</span>Publier un patchnote ViceCity</h2>
+        <ol class="pi-steps">
+          <li><span class="pi-n">1</span><span><b>Écris</b> la version, le titre et les changements ci-dessous.</span></li>
+          <li><span class="pi-n">2</span><span>Clique sur <b>⚡ Les deux</b> : le patchnote arrive sur le site et l'embed Discord se crée tout seul.</span></li>
+          <li><span class="pi-n">3</span><span>Choisis ton <b>webhook</b> (carte 🔗 Webhook) puis clique sur <b>🚀 Envoyer</b>.</span></li>
+        </ol>
+        <div class="vcp-conn" id="vcpConn"></div>
+      </div>
+        <div class="card" id="vcPatch">
+          <h2><span class="ic">✏️</span>Ton patchnote</h2>
+          <div class="vcp-row">
+            <div><label for="vcpVer">Version</label><input id="vcpVer" maxlength="20" placeholder="1.2.0"></div>
+            <div><label for="vcpDate">Date</label><input type="date" id="vcpDate"></div>
+          </div>
+          <label for="vcpTitle">Titre</label><input id="vcpTitle" maxlength="120" placeholder="Ex : Nouveau garage à Vespucci">
+          <label for="vcpSum">Résumé <span style="font-weight:400">(facultatif)</span></label><textarea id="vcpSum" rows="2" maxlength="400" style="min-height:52px" placeholder="Une phrase qui résume la mise à jour"></textarea>
+          <label>Changements <span style="font-weight:400">· Entrée = ligne suivante</span></label>
+          <div id="vcpList" class="vcp-list"></div>
+          <div class="vcp-add">
+            <button class="sec sm" data-vcp-add="ajout">+ ✅ Ajout</button>
+            <button class="sec sm" data-vcp-add="amelioration">+ ⬆️ Amélioration</button>
+            <button class="sec sm" data-vcp-add="correction">+ 🛠️ Correction</button>
+            <button class="sec sm" data-vcp-add="suppression">+ 🗑️ Suppression</button>
+          </div>
+          <details id="vcpOpts">
+            <summary>Options de l'embed</summary>
+            <div class="vcp-row">
+              <div><label for="vcpMention">Mention</label><input id="vcpMention" placeholder="@everyone ou <@&ID_du_rôle>"></div>
+              <div><label for="vcpColor">Couleur</label><input type="color" id="vcpColor" value="#e94560" style="height:38px;padding:4px"></div>
+            </div>
+            <label for="vcpSite">Adresse du site ViceCity <span style="font-weight:400">(ajoute un bouton « Voir sur le site »)</span></label>
+            <input id="vcpSite" placeholder="https://vicecity-rp.fr/">
+            <label for="vcpName">Nom du profil</label><input id="vcpName" maxlength="80" placeholder="ViceCity RP • Patchnotes">
+          </details>
+          <details id="vcpGhBox">
+            <summary>🌍 Connexion au site en ligne (GitHub)</summary>
+            <div class="hint" style="margin-top:6px">Avec une clé GitHub, « Publier sur le site » met directement à jour le <b>site en ligne</b> (visible par tous en 1 à 2 minutes). Sans clé, Embed Sender écrit seulement dans le fichier <code>patchnotes.js</code> de ton PC.</div>
+            <label for="vcpGhRepo">Dépôt du site</label><input id="vcpGhRepo" placeholder="DX-de/vicecity-site" spellcheck="false">
+            <label for="vcpGhToken">Clé d'accès GitHub</label>
+            <div class="pw"><input id="vcpGhToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"><button class="sec" id="vcpGhEye" title="Afficher / masquer">👁</button><button class="sec" id="vcpGhTest">Tester</button></div>
+            <div class="hint" id="vcpGhInfo"></div>
+            <ol class="steps small">
+              <li><span>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</span></li>
+              <li><span><b>Token name</b> : <code>Embed Sender</code> · <b>Expiration</b> : au choix.</span></li>
+              <li><span><b>Repository access</b> : <i>Only select repositories</i> → <code>vicecity-site</code>.</span></li>
+              <li><span><b>Permissions</b> → <b>Contents</b> : <i>Read and write</i>.</span></li>
+              <li><span><b>Generate token</b>, copie la clé et colle-la ici, puis <b>Tester</b>.</span></li>
+            </ol>
+            <div class="hint">🔒 La clé reste dans ce navigateur (comme tes webhooks), n'est pas incluse dans la sauvegarde et ne peut modifier que le dépôt du site. Ne la partage jamais.</div>
+          </details>
+          <div class="actions" style="justify-content:flex-start">
+            <button class="sm" id="vcpEmbed">🧩 Créer l'embed</button>
+            <button class="sm" id="vcpPublish">🌐 Publier sur le site</button>
+            <button class="sec sm" id="vcpBoth">⚡ Les deux</button>
+            <button class="sec sm" id="vcpReset" title="Vider le formulaire">Nouveau</button>
+          </div>
+          <div class="hint" id="vcpFileInfo"></div>
+          <details id="vcpSiteList">
+            <summary>Versions déjà sur le site</summary>
+            <div id="vcpVersions" class="vcp-versions"><div class="hint">Publie une première fois (ou relie le fichier) pour voir la liste.</div></div>
+          </details>
+          <input type="file" id="vcpFileIn" accept=".js,text/javascript" hidden>
+        </div>
     </div>
     <div class="tab" id="tab-history">
       <div class="hint" style="margin:0 0 8px">Les messages envoyés depuis ce navigateur. Tu peux les recharger pour les modifier ou les supprimer de Discord.</div>
@@ -611,62 +742,6 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
       </div>
     </div>
     <div class="tab" id="tab-tools">
-      <div class="card" id="vcPatch">
-        <h2><span class="ic">📋</span>Patchnote ViceCity</h2>
-        <div class="hint" style="margin-top:0">Écris le patchnote une seule fois : il devient un embed Discord <b>et</b> il s'ajoute à la page Patchnotes du site ViceCity.</div>
-        <div class="vcp-row">
-          <div><label for="vcpVer">Version</label><input id="vcpVer" maxlength="20" placeholder="1.2.0"></div>
-          <div><label for="vcpDate">Date</label><input type="date" id="vcpDate"></div>
-        </div>
-        <label for="vcpTitle">Titre</label><input id="vcpTitle" maxlength="120" placeholder="Ex : Nouveau garage à Vespucci">
-        <label for="vcpSum">Résumé <span style="font-weight:400">(facultatif)</span></label><textarea id="vcpSum" rows="2" maxlength="400" style="min-height:52px" placeholder="Une phrase qui résume la mise à jour"></textarea>
-        <label>Changements <span style="font-weight:400">· Entrée = ligne suivante</span></label>
-        <div id="vcpList" class="vcp-list"></div>
-        <div class="vcp-add">
-          <button class="sec sm" data-vcp-add="ajout">+ ✅ Ajout</button>
-          <button class="sec sm" data-vcp-add="amelioration">+ ⬆️ Amélioration</button>
-          <button class="sec sm" data-vcp-add="correction">+ 🛠️ Correction</button>
-          <button class="sec sm" data-vcp-add="suppression">+ 🗑️ Suppression</button>
-        </div>
-        <details id="vcpOpts">
-          <summary>Options de l'embed</summary>
-          <div class="vcp-row">
-            <div><label for="vcpMention">Mention</label><input id="vcpMention" placeholder="@everyone ou <@&ID_du_rôle>"></div>
-            <div><label for="vcpColor">Couleur</label><input type="color" id="vcpColor" value="#e94560" style="height:38px;padding:4px"></div>
-          </div>
-          <label for="vcpSite">Adresse du site ViceCity <span style="font-weight:400">(ajoute un bouton « Voir sur le site »)</span></label>
-          <input id="vcpSite" placeholder="https://vicecity-rp.fr/">
-          <label for="vcpName">Nom du profil</label><input id="vcpName" maxlength="80" placeholder="ViceCity RP • Patchnotes">
-        </details>
-        <details id="vcpGhBox">
-          <summary>🌍 Connexion au site en ligne (GitHub)</summary>
-          <div class="hint" style="margin-top:6px">Avec une clé GitHub, « Publier sur le site » met directement à jour le <b>site en ligne</b> (visible par tous en 1 à 2 minutes). Sans clé, Embed Sender écrit seulement dans le fichier <code>patchnotes.js</code> de ton PC.</div>
-          <label for="vcpGhRepo">Dépôt du site</label><input id="vcpGhRepo" placeholder="DX-de/vicecity-site" spellcheck="false">
-          <label for="vcpGhToken">Clé d'accès GitHub</label>
-          <div class="pw"><input id="vcpGhToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"><button class="sec" id="vcpGhEye" title="Afficher / masquer">👁</button><button class="sec" id="vcpGhTest">Tester</button></div>
-          <div class="hint" id="vcpGhInfo"></div>
-          <ol class="steps small">
-            <li><span>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</span></li>
-            <li><span><b>Token name</b> : <code>Embed Sender</code> · <b>Expiration</b> : au choix.</span></li>
-            <li><span><b>Repository access</b> : <i>Only select repositories</i> → <code>vicecity-site</code>.</span></li>
-            <li><span><b>Permissions</b> → <b>Contents</b> : <i>Read and write</i>.</span></li>
-            <li><span><b>Generate token</b>, copie la clé et colle-la ici, puis <b>Tester</b>.</span></li>
-          </ol>
-          <div class="hint">🔒 La clé reste dans ce navigateur (comme tes webhooks), n'est pas incluse dans la sauvegarde et ne peut modifier que le dépôt du site. Ne la partage jamais.</div>
-        </details>
-        <div class="actions" style="justify-content:flex-start">
-          <button class="sm" id="vcpEmbed">🧩 Créer l'embed</button>
-          <button class="sm" id="vcpPublish">🌐 Publier sur le site</button>
-          <button class="sec sm" id="vcpBoth">⚡ Les deux</button>
-          <button class="sec sm" id="vcpReset" title="Vider le formulaire">Nouveau</button>
-        </div>
-        <div class="hint" id="vcpFileInfo"></div>
-        <details id="vcpSiteList">
-          <summary>Versions déjà sur le site</summary>
-          <div id="vcpVersions" class="vcp-versions"><div class="hint">Publie une première fois (ou relie le fichier) pour voir la liste.</div></div>
-        </details>
-        <input type="file" id="vcpFileIn" accept=".js,text/javascript" hidden>
-      </div>
       <div class="card">
         <h2><span class="ic">🎨</span>Apparence</h2>
         <label style="margin-top:0">Couleur du site</label>
@@ -698,14 +773,14 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
         <div class="hint">⚠️ Le fichier contient les URL de tes webhooks : ne le partage pas.</div>
       </div>
       <div class="card">
-        <h2><span class="ic">🌍</span>Mettre le site en ligne</h2>
-        <div class="hint" style="margin-top:0">Pour l'utiliser depuis ton téléphone, n'importe où, ou le partager avec ton équipe, tu peux l'héberger gratuitement :</div>
+        <h2><span class="ic">🌍</span>Embed Sender en ligne</h2>
+        <div class="hint" style="margin-top:0">Embed Sender est hébergé gratuitement sur GitHub Pages : ouvre-le depuis n'importe quel appareil, ou partage-le à ton équipe.</div>
+        <div class="pw" style="margin-top:8px"><input readonly value="https://dx-de.github.io/embed-sender/" aria-label="Adresse d'Embed Sender"><button class="sec" id="siteCopy">Copier</button></div>
         <ol class="steps small">
-          <li><span>Renomme le fichier <code>webhook-embed.html</code> en <code>index.html</code> et place-le seul dans un dossier.</span></li>
-          <li><span>Va sur <b>app.netlify.com/drop</b> (ou GitHub Pages) et glisse ce dossier dans la page.</span></li>
-          <li><span>Tu obtiens une adresse <code>https://…</code> à ouvrir partout. Crée un compte gratuit pour la garder.</span></li>
+          <li><span>Sur ordinateur ou téléphone, le bouton <b>📲 Installer</b> (en haut) l'ajoute comme une application.</span></li>
+          <li><span>Chaque appareil garde <b>ses propres</b> webhooks : utilise la <b>Sauvegarde</b> ci-dessus pour les transférer.</span></li>
         </ol>
-        <div class="hint">🔒 Les webhooks restent enregistrés dans le navigateur de chaque personne, jamais sur le site lui-même. Les liens « 🔗 Partager » fonctionnent pleinement une fois le site en ligne.</div>
+        <div class="hint">🔒 Les webhooks et la clé GitHub restent dans le navigateur de chaque personne, jamais sur le site lui-même.</div>
       </div>
       <div class="card">
         <h2><span class="ic">📘</span>Aide-mémoire markdown</h2>
@@ -731,6 +806,8 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
     <li><span><b>Compose ton message</b> : texte, embeds, sondage, fichiers… L'aperçu se met à jour en direct.</span></li>
     <li><span><b>Envoie</b> avec 🚀, ou programme l'envoi avec ⏰.</span></li>
   </ol>
+  <h4>📋 Publier un patchnote ViceCity</h4>
+  <div class="hint" style="margin-top:0">Onglet <b>📋 Patchnote</b> (à droite) : écris la version, le titre et les changements, puis <b>⚡ Les deux</b>. Le patchnote s'ajoute au site et l'embed Discord est prêt : il ne reste qu'à cliquer sur 🚀 Envoyer. La première fois, connecte le site avec ta clé GitHub (section « 🌍 Connexion au site en ligne »).</div>
   <h4>⌨️ Raccourcis clavier</h4>
   <table class="keys">
     <tr><td><kbd>Ctrl</kbd> + <kbd>Entrée</kbd></td><td>Envoyer le message ouvert</td></tr>
@@ -741,7 +818,7 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
   </table>
   <h4>💡 Astuces</h4>
   <div class="hint" style="margin-top:0">Glisse la poignée <b>⋮⋮</b> d'un embed ou un onglet de message pour changer l'ordre. Tout est enregistré dans ton navigateur : pense à la Sauvegarde (onglet Outils).</div>
-  <div class="actions"><button id="helpClose">C'est parti !</button></div>
+  <div class="actions"><button class="sec" id="helpGuide">Réafficher le guide</button><button id="helpClose">C'est parti !</button></div>
 </dialog>
 <dialog id="pollDlg">
   <div id="pollRes"></div>
@@ -2282,6 +2359,48 @@ $('btnInstall').onclick = async () => {
   installEvt = null; $('btnInstall').hidden = true;
 };
 
+$('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/embed-sender/'));
+
+/* ---------- Guide « Comment ça marche ? » (étapes 1-2-3 avec suivi) ---------- */
+(function(){
+  const guide = $('guide');
+  const WH_RE = /^https:\/\/(?:(?:canary|ptb)\.)?discord(?:app)?\.com\/api\/(?:v\d+\/)?webhooks\/\d+\/[\w-]+/i;
+  const setHidden = h => { guide.hidden = h; LS.set('guideHidden', h); };
+  if (LS.get('guideHidden', false)) guide.hidden = true;
+  $('guideHide').onclick = () => { setHidden(true); toast('Guide masqué · réaffiche-le depuis l\'aide ❓'); };
+  $('helpGuide').onclick = () => { setHidden(false); $('help').close(); guide.scrollIntoView({behavior: 'smooth', block: 'start'}); };
+  $('guidePatch').onclick = e => {
+    e.preventDefault(); showTab('patch');
+    const mnav = $('mnav'); if (mnav && getComputedStyle(mnav).display !== 'none') mnav.querySelector('[data-mv="view"]')?.click();
+    document.getElementById('right')?.scrollIntoView({behavior: 'smooth', block: 'start'});
+  };
+  // Clic sur une étape : on va à la bonne carte et on la fait briller
+  guide.addEventListener('click', e => {
+    const li = e.target.closest('[data-go]'); if (!li) return;
+    const el = $(li.dataset.go); if (!el) return;
+    if (document.body.classList.contains('mv-view')) document.querySelector('#mnav [data-mv="edit"]')?.click();
+    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    const card = el.closest('.card') || el;
+    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    if (li.dataset.go === 'whCard') setTimeout(() => $('whUrl').focus({preventScroll: true}), 400);
+    if (li.dataset.go === 'contentCard') setTimeout(() => document.querySelector('textarea[data-s=content]')?.focus({preventScroll: true}), 400);
+  });
+  function refresh(){
+    const s1 = WH_RE.test($('whUrl').value.trim()) || document.querySelectorAll('#whMulti input:checked').length > 0;
+    const s2 = typeof isEmpty === 'function' ? !isEmpty() : false;
+    const steps = [[$('gStep1'), s1], [$('gStep2'), s2], [$('gStep3'), false]];
+    const cur = steps.findIndex(([, done]) => !done);
+    steps.forEach(([li, done], i) => { li.classList.toggle('done', done); li.classList.toggle('now', i === cur); });
+    $('gStep1').querySelector('small').textContent = s1 ? 'Webhook prêt ✓' : 'Colle l\'adresse du webhook';
+    $('gStep2').querySelector('small').textContent = s2 ? 'Message prêt ✓' : 'Un texte et/ou un embed';
+    $('gStep3').querySelector('small').textContent = s1 && s2 ? 'Clique sur 🚀 Envoyer !' : 'Bouton 🚀 tout en bas';
+  }
+  // Mise à jour à chaque modification (saisie, clics, chargement d'un modèle…)
+  ['input', 'change', 'click'].forEach(ev => document.addEventListener(ev, () => setTimeout(refresh, 0), true));
+  window.addEventListener('load', refresh);
+  setTimeout(refresh, 400);
+})();
+
 /* ---------- Patchnote ViceCity : embed Discord + page Patchnotes du site ----------
    Le site lit ses patchnotes dans js/patchnotes.js (window.VC_PATCHNOTES = [...]).
    « Publier sur le site » réécrit ce fichier directement sur le PC (navigateurs Chrome / Edge / Opera),
@@ -2476,7 +2595,16 @@ $('btnInstall').onclick = async () => {
   function ghStatus(msg){
     $('vcpGhInfo').innerHTML = msg || (ghOn() ? `✅ Publication vers le site en ligne : <b>${esc(gh.repo)}</b>` : 'Aucune clé : publication dans le fichier du PC.');
     $('vcpPublish').textContent = ghOn() ? '🌐 Publier sur le site en ligne' : '🌐 Publier sur le site';
+    $('vcpConn').innerHTML = ghOn()
+      ? `<span class="conn ok">🟢 Site en ligne connecté</span><span class="conn-sub">${esc(gh.repo)} · les patchnotes arrivent sur le site en 1 à 2 min</span><button class="sec sm" data-conn-open>Réglages</button>`
+      : `<span class="conn warn">🟠 Site en ligne pas encore connecté</span><span class="conn-sub">Sans connexion, le patchnote n'est écrit que sur ton PC.</span><button class="sm" data-conn-open>Connecter le site</button>`;
   }
+  $('vcpConn').addEventListener('click', e => {
+    if (!e.target.closest('[data-conn-open]')) return;
+    const box = $('vcpGhBox'); box.open = true;
+    box.scrollIntoView({behavior: 'smooth', block: 'start'});
+    setTimeout(() => (gh.token ? $('vcpGhTest') : $('vcpGhToken')).focus({preventScroll: true}), 400);
+  });
   const b64ToText = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, '')), c => c.charCodeAt(0)));
   const textToB64 = t => { const u = new TextEncoder().encode(t); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
   async function ghApi(method, body){
