@@ -638,6 +638,22 @@ body.light ::-webkit-scrollbar-thumb{background:#c4c9ce;background-clip:padding-
           <input id="vcpSite" placeholder="https://vicecity-rp.fr/">
           <label for="vcpName">Nom du profil</label><input id="vcpName" maxlength="80" placeholder="ViceCity RP • Patchnotes">
         </details>
+        <details id="vcpGhBox">
+          <summary>🌍 Connexion au site en ligne (GitHub)</summary>
+          <div class="hint" style="margin-top:6px">Avec une clé GitHub, « Publier sur le site » met directement à jour le <b>site en ligne</b> (visible par tous en 1 à 2 minutes). Sans clé, Embed Sender écrit seulement dans le fichier <code>patchnotes.js</code> de ton PC.</div>
+          <label for="vcpGhRepo">Dépôt du site</label><input id="vcpGhRepo" placeholder="DX-de/vicecity-site" spellcheck="false">
+          <label for="vcpGhToken">Clé d'accès GitHub</label>
+          <div class="pw"><input id="vcpGhToken" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"><button class="sec" id="vcpGhEye" title="Afficher / masquer">👁</button><button class="sec" id="vcpGhTest">Tester</button></div>
+          <div class="hint" id="vcpGhInfo"></div>
+          <ol class="steps small">
+            <li><span>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</span></li>
+            <li><span><b>Token name</b> : <code>Embed Sender</code> · <b>Expiration</b> : au choix.</span></li>
+            <li><span><b>Repository access</b> : <i>Only select repositories</i> → <code>vicecity-site</code>.</span></li>
+            <li><span><b>Permissions</b> → <b>Contents</b> : <i>Read and write</i>.</span></li>
+            <li><span><b>Generate token</b>, copie la clé et colle-la ici, puis <b>Tester</b>.</span></li>
+          </ol>
+          <div class="hint">🔒 La clé reste dans ce navigateur (comme tes webhooks), n'est pas incluse dans la sauvegarde et ne peut modifier que le dépôt du site. Ne la partage jamais.</div>
+        </details>
         <div class="actions" style="justify-content:flex-start">
           <button class="sm" id="vcpEmbed">🧩 Créer l'embed</button>
           <button class="sm" id="vcpPublish">🌐 Publier sur le site</button>
@@ -2277,7 +2293,7 @@ $('btnInstall').onclick = async () => {
     correction: {emoji: '🛠️', label: 'Corrections', one: 'Correction'},
     suppression: {emoji: '🗑️', label: 'Suppressions', one: 'Suppression'},
   };
-  const cfg = Object.assign({mention: '', siteUrl: '', color: '#e94560', username: ''}, LS.get('vcpCfg', {}));
+  const cfg = Object.assign({mention: '', siteUrl: 'https://dx-de.github.io/vicecity-site/', color: '#e94560', username: ''}, LS.get('vcpCfg', {}));
   let pd = Object.assign({version: '', date: '', title: '', summary: '', changes: [{type: 'ajout', text: ''}]}, LS.get('vcpDraft', {}));
   const saveDraft = () => LS.set('vcpDraft', pd);
   const saveCfg = () => LS.set('vcpCfg', cfg);
@@ -2449,7 +2465,72 @@ $('btnInstall').onclick = async () => {
     else toast('Erreur avec le fichier : ' + (e?.message || e), 'err');
   };
 
+  /* --- Site en ligne : lecture / écriture de js/patchnotes.js via l'API GitHub --- */
+  const gh = Object.assign({repo: 'DX-de/vicecity-site', branch: 'main', path: 'js/patchnotes.js', token: ''}, LS.get('vcpGh', {}));
+  const saveGh = () => LS.set('vcpGh', gh);
+  const ghOn = () => !!gh.token.trim() && /^[\w.-]+\/[\w.-]+$/.test(gh.repo.trim());
+  $('vcpGhRepo').value = gh.repo; $('vcpGhToken').value = gh.token;
+  $('vcpGhRepo').addEventListener('input', e => { gh.repo = e.target.value.trim(); saveGh(); ghStatus(); });
+  $('vcpGhToken').addEventListener('input', e => { gh.token = e.target.value.trim(); saveGh(); ghStatus(); });
+  $('vcpGhEye').addEventListener('click', () => { const i = $('vcpGhToken'); i.type = i.type === 'password' ? 'text' : 'password'; });
+  function ghStatus(msg){
+    $('vcpGhInfo').innerHTML = msg || (ghOn() ? `✅ Publication vers le site en ligne : <b>${esc(gh.repo)}</b>` : 'Aucune clé : publication dans le fichier du PC.');
+    $('vcpPublish').textContent = ghOn() ? '🌐 Publier sur le site en ligne' : '🌐 Publier sur le site';
+  }
+  const b64ToText = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, '')), c => c.charCodeAt(0)));
+  const textToB64 = t => { const u = new TextEncoder().encode(t); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+  async function ghApi(method, body){
+    const url = `https://api.github.com/repos/${gh.repo.trim()}/contents/${gh.path}` + (method === 'GET' ? `?ref=${encodeURIComponent(gh.branch)}&t=${Date.now()}` : '');
+    const r = await fetch(url, {method, headers: {Accept: 'application/vnd.github+json', Authorization: `Bearer ${gh.token.trim()}`, 'X-GitHub-Api-Version': '2022-11-28', ...(body ? {'Content-Type': 'application/json'} : {})}, body: body ? JSON.stringify(body) : undefined, cache: 'no-store'});
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok){ const e = new Error(d.message || 'HTTP ' + r.status); e.status = r.status; throw e; }
+    return d;
+  }
+  async function ghRead(){
+    const d = await ghApi('GET');
+    return {sha: d.sha, ...parseFile(b64ToText(d.content || ''))};
+  }
+  async function ghWrite(cur, list, message){
+    await ghApi('PUT', {message, branch: gh.branch, sha: cur.sha, content: textToB64(serialize(cur.head, list))});
+    renderVersions(list);
+  }
+  const ghError = e => {
+    if (e?.message === 'format' || e instanceof SyntaxError) return fsError(e);
+    const s = e?.status;
+    const msg = s === 401 ? 'Clé GitHub invalide ou expirée'
+      : s === 403 ? 'Cette clé n\'a pas le droit d\'écrire : vérifie « Contents : Read and write » et le dépôt choisi'
+      : s === 404 ? `Introuvable : vérifie le dépôt (${gh.repo}) et que la clé y a accès`
+      : s === 409 ? 'Le site a changé entre-temps : réessaie'
+      : 'Erreur GitHub : ' + (e?.message || e);
+    toast(msg, 'err', 7000); ghStatus('❌ ' + esc(msg));
+  };
+  $('vcpGhTest').addEventListener('click', async () => {
+    if (!ghOn()) return toast('Indique le dépôt et colle ta clé GitHub', 'err');
+    $('vcpGhInfo').textContent = '⏳ Test en cours…';
+    try{
+      const {list} = await ghRead();
+      const repo = await fetch(`https://api.github.com/repos/${gh.repo.trim()}`, {headers: {Accept: 'application/vnd.github+json', Authorization: `Bearer ${gh.token.trim()}`}}).then(r => r.json());
+      const canWrite = !!(repo.permissions && (repo.permissions.push || repo.permissions.admin));
+      ghStatus(canWrite ? `✅ Connecté à <b>${esc(gh.repo)}</b> · ${list.length} version(s) sur le site · écriture autorisée`
+        : `⚠️ Lecture OK (${list.length} version(s)) mais <b>pas d'écriture</b> : mets « Contents : Read and write »`);
+      renderVersions(list);
+    }catch(e){ ghError(e); }
+  });
+  ghStatus();
+
   async function publish(v){
+    if (ghOn()){
+      try{
+        $('vcpGhInfo').textContent = '⏳ Publication sur le site en ligne…';
+        const cur = await ghRead();
+        const next = merge(cur.list, v); if (!next){ ghStatus(); return false; }
+        await ghWrite(cur, next, `Patchnote ${v.version} — ${v.title}`);
+        const site = absUrl(cfg.siteUrl) || `https://${gh.repo.split('/')[0].toLowerCase()}.github.io/${gh.repo.split('/')[1]}/`;
+        ghStatus(`✅ Version ${esc(v.version)} publiée · en ligne dans 1 à 2 min : <a href="${esc(site.replace(/\/?$/, '/'))}patchnotes.html#${slug(v.version)}" target="_blank" rel="noopener">voir la page</a>`);
+        toast(`🌐 Version ${v.version} publiée sur le site en ligne !`, 'ok', 5000);
+        return true;
+      }catch(e){ ghError(e); return false; }
+    }
     if (canFS){
       try{
         const {h, head, list} = await readSite(false);
@@ -2503,7 +2584,9 @@ $('btnInstall').onclick = async () => {
       : '<div class="hint">Aucune version sur le site.</div>';
   }
   $('vcpSiteList').addEventListener('toggle', async () => {
-    if (!$('vcpSiteList').open || !canFS) return;
+    if (!$('vcpSiteList').open) return;
+    if (ghOn()){ try{ renderVersions((await ghRead()).list); }catch(e){ ghError(e); } return; }
+    if (!canFS) return;
     try{ const {list} = await readSite(false); renderVersions(list); }catch(e){ fsError(e); }
   });
   $('vcpVersions').addEventListener('click', async e => {
@@ -2517,7 +2600,12 @@ $('btnInstall').onclick = async () => {
     if (rm){
       const x = siteList[+rm.dataset.vcpRm];
       if (!confirm(`Retirer la version ${x.version} de la page Patchnotes du site ?`)) return;
-      try{ const {h, head, list} = await readSite(false); await writeSite(h, head, list.filter(y => String(y.version) !== String(x.version))); toast(`Version ${x.version} retirée du site`, 'ok'); }catch(err){ fsError(err); }
+      const keep = list => list.filter(y => String(y.version) !== String(x.version));
+      if (ghOn()){
+        try{ const cur = await ghRead(); await ghWrite(cur, keep(cur.list), `Retrait du patchnote ${x.version}`); toast(`Version ${x.version} retirée du site en ligne`, 'ok'); }catch(err){ ghError(err); }
+        return;
+      }
+      try{ const {h, head, list} = await readSite(false); await writeSite(h, head, keep(list)); toast(`Version ${x.version} retirée du site`, 'ok'); }catch(err){ fsError(err); }
     }
   });
 
