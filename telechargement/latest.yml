@@ -1,0 +1,8 @@
+version: 1.1.0
+files:
+  - url: Embed-Sender-Setup.exe
+    sha512: IBAwmSIH5TaOqvxIx6AsC3W88VO06J9IBNYCX9t/mZ+Pfz/f4ZNN8DUmhUB+zhaf04CkLiImgIlmwxOYoDQWnQ==
+    size: 82046246
+path: Embed-Sender-Setup.exe
+sha512: IBAwmSIH5TaOqvxIx6AsC3W88VO06J9IBNYCX9t/mZ+Pfz/f4ZNN8DUmhUB+zhaf04CkLiImgIlmwxOYoDQWnQ==
+releaseDate: '2026-11-25T09:41:50.221Z'
