@@ -601,6 +601,11 @@ body.light .tn-card{background:rgba(255,255,255,.6)}
 .tn-ro{padding:8px 12px;border-radius:10px;font-size:12.5px;background:rgba(240,178,50,.1);border:1px solid rgba(240,178,50,.4)}
 @media (max-width:900px){ .team-grid,.team-choice{grid-template-columns:1fr} .tc-sep{justify-self:center} }
 
+/* ---------- Bandeau de mise à jour ---------- */
+.upd-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:200;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 32px);padding:12px 16px;border-radius:14px;background:var(--panel);border:1px solid rgba(var(--accent-rgb),.6);box-shadow:0 16px 40px rgba(0,0,0,.5);color:var(--text);font-size:14px;animation:rise .35s ease both}
+.upd-bar b{color:var(--head)}
+.upd-bar[hidden]{display:none}
+
 /* ---------- Écran d'accueil ---------- */
 #welcome{max-width:640px;padding:22px}
 .wl-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
@@ -872,6 +877,15 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
         <h2><span class="ic">🧰</span>Outils avancés</h2>
         <div class="cdesc">Pour les habitués : partager un message par lien, voir ou coller le code JSON d'un message, installer l'application.</div>
         <div class="actions" style="justify-content:flex-start" id="slotAdvBtns"></div>
+      </div>
+      <div class="card" id="appUpdCard" hidden>
+        <h2><span class="ic">💻</span>Application Windows</h2>
+        <div class="cdesc">L'application vérifie toute seule les mises à jour, les télécharge en arrière-plan, puis te propose de redémarrer pour les installer.</div>
+        <div class="hint" id="appUpdInfo" style="font-size:13px"></div>
+        <div class="actions" style="justify-content:flex-start">
+          <button class="sec sm" id="appUpdCheck">🔎 Rechercher une mise à jour</button>
+          <button class="sm" id="appUpdInstall" hidden>🔄 Redémarrer et installer</button>
+        </div>
       </div>
       <div id="slotSettings"></div>
     </section>
@@ -3530,8 +3544,6 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
   render();
 })();
 
-if (/Electron/i.test(navigator.userAgent)) document.body.classList.add('in-app');
-
 /* =====================================================================
    ÉQUIPE : notes partagées par Discord, sans compte ni serveur.
    - Le salon Discord de l'équipe (via son webhook) sert de stockage :
@@ -3893,6 +3905,76 @@ if (/Electron/i.test(navigator.userAgent)) document.body.classList.add('in-app')
   // Mise à jour automatique en ouvrant les pages Notes ou Équipe (au plus une fois par minute)
   window.addEventListener('hashchange', () => { if (/#\/(notes|equipe)/.test(location.hash) && team && Date.now() - (cache.at || 0) > 60000) refresh(false); });
   if (team && /#\/(notes|equipe)/.test(location.hash)) refresh(false);
+})();
+
+/* =====================================================================
+   MISES À JOUR
+   1) Le site : si une nouvelle version est publiée pendant qu'Embed Sender
+      est ouvert, un bandeau propose de recharger (version.json).
+   2) L'application Windows : elle vérifie et télécharge seule ses mises à
+      jour, puis propose « Redémarrer et installer » (window.embedSenderApp).
+   ===================================================================== */
+const ES_VERSION = '2026.11.25.2';
+(function(){
+  const bar = document.createElement('div');
+  bar.className = 'upd-bar'; bar.id = 'updBar'; bar.hidden = true; bar.setAttribute('role', 'status');
+  document.body.appendChild(bar);
+  let siteNew = null, appState = null;
+  function render(){
+    if (appState && appState.status === 'ready'){
+      bar.innerHTML = `<span>🎉 La version <b>${esc(appState.version)}</b> de l'application est prête.</span><button id="updApp">🔄 Redémarrer et installer</button><button class="sec sm" id="updLater">Plus tard</button>`;
+      bar.hidden = false;
+      $('updApp').onclick = () => window.embedSenderApp.install();
+    } else if (appState && appState.status === 'downloading'){
+      bar.innerHTML = `<span>⬇ Téléchargement de la mise à jour <b>${esc(appState.version || '')}</b>… ${appState.percent || 0} %</span>`;
+      bar.hidden = false;
+    } else if (siteNew){
+      bar.innerHTML = `<span>✨ Une nouvelle version d'Embed Sender est disponible.</span><button id="updSite">🔄 Mettre à jour</button><button class="sec sm" id="updLater">Plus tard</button>`;
+      bar.hidden = false;
+      $('updSite').onclick = () => location.reload();
+    } else bar.hidden = true;
+    const later = $('updLater');
+    if (later) later.onclick = () => { bar.hidden = true; siteNew = null; if (appState && appState.status === 'ready') appState = {...appState, dismissed: true}; };
+    renderAppCard();
+  }
+  // 1) Nouvelle version du site
+  async function checkSite(){
+    try{
+      const r = await fetch('version.json?t=' + Date.now(), {cache: 'no-store'});
+      if (!r.ok) return;
+      const v = (await r.json()).version;
+      if (v && v !== ES_VERSION){ siteNew = v; render(); }
+    }catch(e){}
+  }
+  setTimeout(checkSite, 15000);
+  setInterval(checkSite, 10 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkSite(); });
+
+  // 2) Application Windows
+  const app = window.embedSenderApp;
+  if (app){
+    document.body.classList.add('in-app');
+    app.onUpdate(s => { if (appState && appState.dismissed && s.status === 'ready') return; appState = s; render(); });
+    app.version().then(s => { appState = s; render(); }).catch(() => {});
+  }
+  // Carte « Application » dans Paramètres
+  function renderAppCard(){
+    const c = $('appUpdCard'); if (!c) return;
+    if (!app){ c.hidden = true; return; }
+    c.hidden = false;
+    const s = appState || {};
+    const label = s.status === 'checking' ? '🔎 Recherche en cours…'
+      : s.status === 'downloading' ? `⬇ Téléchargement de la version ${esc(s.version || '')} (${s.percent || 0} %)`
+      : s.status === 'ready' ? `🎉 Version ${esc(s.version)} prête à installer`
+      : s.status === 'uptodate' ? '✅ L\'application est à jour'
+      : s.status === 'error' ? '⚠️ Impossible de vérifier pour le moment (pas d\'internet ?)'
+      : '';
+    $('appUpdInfo').innerHTML = `Version installée : <b>${esc(s.current || '?')}</b>${label ? ' · ' + label : ''}`;
+    $('appUpdInstall').hidden = s.status !== 'ready';
+  }
+  if ($('appUpdCheck')) $('appUpdCheck').onclick = () => app && app.check();
+  if ($('appUpdInstall')) $('appUpdInstall').onclick = () => app && app.install();
+  render();
 })();
 
 /* ---------- Démarrage ---------- */
