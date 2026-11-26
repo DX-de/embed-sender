@@ -599,6 +599,54 @@ body.light .tn-card{background:rgba(255,255,255,.6)}
 .tn-dlg input{font-weight:700;font-size:15px;margin:0}
 .tn-dlg textarea{min-height:240px;line-height:1.5;margin:0}
 .tn-ro{padding:8px 12px;border-radius:10px;font-size:12.5px;background:rgba(240,178,50,.1);border:1px solid rgba(240,178,50,.4)}
+/* Notes d'équipe : recherche, photos, nouveautés */
+.tn-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tn-tools input{flex:1 1 200px;margin:0}
+.tn-tools select{flex:0 1 180px;margin:0}
+.tn-card{position:relative;align-content:start}
+.tn-thumb{position:relative;display:block;margin:-12px -12px 2px;height:120px;border-radius:12px 12px 0 0;overflow:hidden;background:rgba(0,0,0,.25)}
+.tn-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.tn-card:hover .tn-thumb img{transform:scale(1.04)}
+.tn-thumb i{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.65);padding:2px 8px;border-radius:999px}
+.tn-new{position:absolute;top:8px;left:8px;z-index:1;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--grad);padding:2px 8px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tn-card:not(:has(.tn-thumb)) .tn-new{position:static;justify-self:start;order:-1}
+.tn-foot{display:flex;gap:10px;font-size:11.5px;color:var(--muted)}
+.tn-unread{font-size:11px;font-weight:700;color:#fff;background:var(--grad);padding:1px 8px;border-radius:999px;margin-left:6px;text-transform:none;letter-spacing:0}
+.tn-dlg{max-width:760px;width:min(760px,calc(100vw - 24px))}
+.tn-read{padding:12px 14px;border-radius:10px;background:rgba(0,0,0,.15);border:1px solid var(--border);max-height:45vh;overflow:auto;line-height:1.5}
+body.light .tn-read{background:rgba(0,0,0,.03)}
+.tn-photos{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:auto;scrollbar-color:rgba(var(--accent-rgb),.7) rgba(255,255,255,.06)}
+.tn-photos::-webkit-scrollbar{height:10px}
+.tn-photos::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.7);border-radius:10px}
+.tn-photos::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:10px}
+.tn-photos:empty{display:none}
+.tn-ph{position:relative;flex:0 0 auto;width:150px;height:110px;border-radius:10px;overflow:hidden;border:1px solid var(--border);scroll-snap-align:start;background:rgba(0,0,0,.25)}
+.tn-ph img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;display:block}
+.tn-ph .tn-phx{position:absolute;top:5px;right:5px;width:24px;height:24px;padding:0;border-radius:50%;background:rgba(0,0,0,.7)!important;color:#fff;font-size:12px;box-shadow:none!important}
+.tn-ph .tn-phx:hover{background:var(--danger)!important}
+.tn-ph.new::after{content:"nouvelle";position:absolute;left:6px;bottom:6px;font-size:10px;font-weight:700;color:#fff;background:rgba(var(--accent-rgb),.85);padding:1px 6px;border-radius:999px}
+.tn-ph-err{display:grid;place-items:center;height:100%;font-size:11px;color:var(--muted);text-align:center;padding:6px}
+.tn-addph{flex:0 0 auto;width:150px;height:110px;border-radius:10px;border:2px dashed var(--border);background:transparent!important;color:var(--muted);box-shadow:none!important;display:grid;place-items:center;font-size:13px;white-space:normal;scroll-snap-align:start}
+.tn-addph:hover{border-color:var(--accent);color:var(--head)}
+.tn-dlg.drag{outline:3px dashed var(--accent);outline-offset:-6px}
+.tn-phhint{font-size:12px;color:var(--muted);margin-top:-4px}
+/* Visionneuse de photo (avec barres de défilement) */
+.tv{width:min(1200px,calc(100vw - 16px));max-width:none;height:min(92vh,1000px);padding:0;overflow:hidden;display:none}
+.tv[open]{display:flex;flex-direction:column}
+.tv-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tv-bar .tv-name{flex:1;min-width:120px;font-weight:600;color:var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tv-bar .tv-z{min-width:58px;text-align:center;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tv-bar a{text-decoration:none}
+.tv-scroll{flex:1;overflow:scroll;background:repeating-conic-gradient(rgba(255,255,255,.04) 0 25%,transparent 0 50%) 0 0/24px 24px;cursor:grab;scrollbar-width:auto;scrollbar-color:rgba(var(--accent-rgb),.8) rgba(255,255,255,.08)}
+.tv-scroll.drag{cursor:grabbing}
+.tv-scroll::-webkit-scrollbar{width:14px;height:14px}
+.tv-scroll::-webkit-scrollbar-thumb{background:rgba(var(--accent-rgb),.8);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+.tv-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.06)}
+.tv-scroll::-webkit-scrollbar-corner{background:transparent}
+.tv-stage{min-width:100%;min-height:100%;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;width:max-content}
+.tv-stage img{display:block;max-width:none;user-select:none;-webkit-user-drag:none;box-shadow:0 8px 30px rgba(0,0,0,.5);border-radius:4px}
+.tv-foot{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+.tv-foot:has(#tvPrev[hidden]){display:none}
 @media (max-width:900px){ .team-grid,.team-choice{grid-template-columns:1fr} .tc-sep{justify-self:center} }
 
 /* ---------- Bandeau de mise à jour ---------- */
@@ -822,12 +870,30 @@ body.light .vcp-conn{background:rgba(0,0,0,.03)}
         <div class="tn-ro" id="tnRo" hidden>👀 Écrite par un autre membre : seul son auteur peut la modifier.</div>
         <input id="tnTitle" maxlength="200" placeholder="Titre de la note" aria-label="Titre de la note">
         <textarea id="tnText" maxlength="4000" placeholder="Écris ici… (visible par toute l'équipe)" aria-label="Texte de la note"></textarea>
+        <div class="tn-read md" id="tnRead" hidden></div>
+        <div class="tn-photos" id="tnPhotos" aria-label="Photos de la note"></div>
+        <div class="tn-phhint" id="tnPhHint">📷 Ajoute jusqu'à 10 photos : bouton « Ajouter », glisser-déposer, ou <kbd>Ctrl</kbd>+<kbd>V</kbd> d'une capture d'écran.</div>
+        <input type="file" id="tnFile" accept="image/*" multiple hidden>
         <div class="note-actions">
           <button id="tnSave">💾 Publier pour l'équipe</button>
           <button class="sec sm" id="tnCopy">📋 Copier</button>
           <button class="sec sm" id="tnToMsg">💬 Mettre dans le message</button>
           <button class="del sm" id="tnDel">🗑 Supprimer</button>
         </div>
+      </dialog>
+      <dialog id="tvDlg" class="tv" aria-label="Photo">
+        <div class="tv-bar">
+          <span class="tv-name" id="tvName"></span>
+          <button class="sec sm" id="tvOut" title="Dézoomer (−)">−</button>
+          <span class="tv-z" id="tvZ">100%</span>
+          <button class="sec sm" id="tvIn" title="Zoomer (+)">+</button>
+          <button class="sec sm" id="tvFit" title="Afficher l'image en entier (F)">⤢ Ajuster</button>
+          <button class="sec sm" id="tvReal" title="Taille réelle (1)">1:1</button>
+          <button class="sec sm" id="tvOpen" title="Ouvrir dans un nouvel onglet">↗</button>
+          <button class="sec sm" id="tvClose" aria-label="Fermer">✕</button>
+        </div>
+        <div class="tv-scroll" id="tvScroll"><div class="tv-stage"><img id="tvImg" alt=""></div></div>
+        <div class="tv-foot"><button class="sec sm" id="tvPrev">‹ Précédente</button><span id="tvIdx"></span><button class="sec sm" id="tvNext">Suivante ›</button></div>
       </dialog>
       <div id="slotNotes"></div>
     </section>
@@ -3781,11 +3847,11 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
       const next = {};
       for (const [mid, aid, u] of idx.t){
         const old = cache.notes[mid];
-        if (old && old.u === u){ next[mid] = old; continue; }
+        // Les liens des photos Discord expirent : on relit les notes avec photos au bout de 12 h
+        const stale = old && old.img && old.img.length && Date.now() - (old.ft || 0) > 12 * 3600e3;
+        if (old && old.u === u && !stale){ next[mid] = old; continue; }
         try{
-          const msg = await wh('GET', `/messages/${mid}`);
-          const e = (msg.embeds && msg.embeds[0]) || {};
-          next[mid] = {mid, a: aid, u, t: e.title || '', x: e.description || '', an: (e.author && e.author.name) || '', av: (e.author && e.author.icon_url) || ''};
+          next[mid] = noteFromMsg(await wh('GET', `/messages/${mid}`), mid, aid, u);
         }catch(err){ if (err.status !== 404) throw err; }   // note supprimée à la main dans Discord : on l'ignore
       }
       cache.notes = next; cache.at = Date.now(); saveCache();
@@ -3800,6 +3866,36 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
     const m = (cache.members || []).find(x => x.id === n.a);
     return {name: (m && m.name) || n.an || 'Membre', avatar: (m && m.avatar) || n.av || defaultAvatar(n.a)};
   };
+  // Note lue depuis son message Discord (texte de l'embed + photos jointes)
+  function noteFromMsg(msg, mid, aid, u){
+    const e = (msg.embeds && msg.embeds[0]) || {};
+    const img = (msg.attachments || []).filter(a => /^image\//.test(a.content_type || '') || a.width)
+      .map(a => ({id: a.id, url: a.url, name: a.filename, w: a.width, h: a.height}));
+    return {mid, a: aid, u, t: e.title || '', x: e.description || '', an: (e.author && e.author.name) || '', av: (e.author && e.author.icon_url) || '', img, ft: Date.now()};
+  }
+  // Relit une note (ex. lien de photo expiré) — une seule fois par note et par visite
+  const reloading = new Set();
+  async function reloadNote(mid){
+    const old = cache.notes[mid];
+    if (!team || !old || reloading.has(mid)) return;
+    reloading.add(mid);
+    try{
+      cache.notes[mid] = noteFromMsg(await wh('GET', `/messages/${mid}`), mid, old.a, old.u); saveCache();
+      renderGrid();
+      if ($('tnDlg').open && editing === mid){ photos = [...cache.notes[mid].img.map(p => ({...p, old: true})), ...photos.filter(p => !p.old)]; renderPhotos(); }
+    }catch(e){}
+  }
+
+  // « Nouveau » : notes des autres membres pas encore ouvertes sur cet appareil
+  const seen = LS.get('tnSeen', {}) || {};
+  const isNew = n => !!me && n.a !== me.id && seen[n.mid] !== n.u;
+  const markSeen = n => { if (n && seen[n.mid] !== n.u){ seen[n.mid] = n.u; LS.set('tnSeen', seen); } };
+
+  // Texte sans les symboles de mise en forme (pour l'aperçu des cartes)
+  const plainText = s => String(s || '').replace(/```[\s\S]*?```/g, ' ').replace(/^\s*(#{1,3}|-#|>|[-*]|\d+\.)\s+/gm, '')
+    .replace(/\*\*|__|~~|\|\||[*_`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
+  let tnQ = '', tnWho = '';
+  const allNotes = () => Object.values(cache.notes).sort((a, b) => b.u - a.u);
   function renderTeamNotes(){
     const body = $('tnBody');
     if (!team){
@@ -3807,21 +3903,165 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
       body.innerHTML = `<div class="tn-empty">Partage des notes avec ton équipe : crée ou rejoins une équipe dans la page <a href="#/equipe">👥 Équipe</a>.</div>`;
       return;
     }
-    const list = Object.values(cache.notes).sort((a, b) => b.u - a.u);
-    $('tnCnt').textContent = list.length ? `${list.length}` : '';
+    const list = allNotes(), unread = list.filter(isNew).length;
+    $('tnCnt').innerHTML = list.length ? `${list.length}${unread ? ` <span class="tn-unread">${unread} nouvelle${unread > 1 ? 's' : ''}</span>` : ''}` : '';
+    const authors = [...new Map(list.map(n => [n.a, authorOf(n).name])).entries()];
+    if (tnWho && !authors.some(([id]) => id === tnWho)) tnWho = '';
     body.innerHTML = `
       <div class="tn-bar"><span class="hint" style="margin:0">Équipe <b>${esc(team.name)}</b>${cache.at ? ' · à jour le ' + fmt(cache.at) : ''}</span>
         <span><button class="sec sm" id="tnRefresh">🔄 Actualiser</button> <button class="sm" id="tnNew">+ Note d'équipe</button></span></div>
-      ${list.length ? `<div class="tn-grid">${list.map(n => { const au = authorOf(n); return `
-        <button class="tn-card" data-tn="${esc(n.mid)}">
-          <span class="tn-by"><img class="me-av xs" src="${esc(au.avatar)}" alt="">${esc(au.name)}<small>${fmt(n.u)}</small></span>
-          <b>${esc(n.t || 'Note sans titre')}</b>
-          <small class="tn-prev">${esc((n.x || '').replace(/\s+/g, ' ').slice(0, 140)) || '<i>Vide</i>'}</small>
-        </button>`; }).join('')}</div>` : '<div class="tn-empty">Aucune note partagée pour le moment. Clique sur « + Note d\'équipe ».</div>'}`;
+      ${list.length ? `<div class="tn-tools">
+          <input id="tnQ" type="search" placeholder="🔎 Rechercher dans les notes de l'équipe…" value="${esc(tnQ)}" aria-label="Rechercher">
+          ${authors.length > 1 ? `<select id="tnWho" aria-label="Filtrer par membre"><option value="">👥 Tous les membres</option>${authors.map(([id, name]) => `<option value="${esc(id)}"${id === tnWho ? ' selected' : ''}>${esc(name)}</option>`).join('')}</select>` : ''}
+        </div>
+        <div class="tn-grid" id="tnGrid"></div>` : '<div class="tn-empty">Aucune note partagée pour le moment. Clique sur « + Note d\'équipe ».</div>'}`;
     $('tnRefresh').onclick = () => refresh(true);
     $('tnNew').onclick = () => openNote(null);
+    if (list.length){
+      $('tnQ').oninput = e => { tnQ = e.target.value; renderGrid(); };
+      if ($('tnWho')) $('tnWho').onchange = e => { tnWho = e.target.value; renderGrid(); };
+      renderGrid();
+    }
+  }
+  function renderGrid(){
+    const g = $('tnGrid'); if (!g) return;
+    const q = tnQ.trim().toLowerCase();
+    const list = allNotes().filter(n => (!tnWho || n.a === tnWho) && (!q || `${n.t} ${n.x} ${authorOf(n).name}`.toLowerCase().includes(q)));
+    g.innerHTML = list.length ? list.map(n => { const au = authorOf(n), img = n.img || []; return `
+      <button class="tn-card" data-tn="${esc(n.mid)}">
+        ${isNew(n) ? '<span class="tn-new">Nouveau</span>' : ''}
+        ${img.length ? `<span class="tn-thumb"><img src="${esc(img[0].url)}" alt="" loading="lazy" data-stale="${esc(n.mid)}">${img.length > 1 ? `<i>📷 ${img.length}</i>` : '<i>📷</i>'}</span>` : ''}
+        <span class="tn-by"><img class="me-av xs" src="${esc(au.avatar)}" alt="">${esc(au.name)}<small>${fmt(n.u)}</small></span>
+        <b>${esc(n.t || 'Note sans titre')}</b>
+        <small class="tn-prev">${esc(plainText(n.x).slice(0, 140)) || (img.length ? '<i>Photos</i>' : '<i>Vide</i>')}</small>
+      </button>`; }).join('') : '<div class="tn-empty" style="grid-column:1/-1">Aucune note ne correspond à ta recherche.</div>';
   }
   $('tnBody').addEventListener('click', e => { const c = e.target.closest('[data-tn]'); if (c) openNote(c.dataset.tn); });
+  // Une miniature ne se charge plus (lien expiré) : on relit la note
+  $('tnBody').addEventListener('error', e => { const im = e.target; if (im.tagName === 'IMG' && im.dataset.stale) reloadNote(im.dataset.stale); }, true);
+
+  /* ---------- Photos d'une note ---------- */
+  let photos = [], tnMine = false;   // {old:true, id, url, name} (déjà sur Discord) ou {file, url, name} (à envoyer)
+  function renderPhotos(){
+    $('tnPhotos').innerHTML = photos.map((p, i) => `<div class="tn-ph${p.old ? '' : ' new'}">
+        <img src="${esc(p.url)}" alt="${esc(p.name || 'Photo')}" data-ph="${i}" title="Agrandir"${p.old && editing ? ` data-stale="${esc(editing)}"` : ''}>
+        ${tnMine ? `<button class="tn-phx" type="button" data-rmph="${i}" title="Retirer cette photo">✕</button>` : ''}</div>`).join('')
+      + (tnMine && photos.length < 10 ? '<button class="tn-addph" type="button" id="tnAddPh">📷<br>Ajouter des photos</button>' : '');
+  }
+  async function shrink(f){
+    const ext = ((f.type.split('/')[1] || 'png').replace('jpeg', 'jpg').replace(/[^a-z0-9]/g, '') || 'png').slice(0, 5);
+    const name = `photo-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}.${ext}`;
+    if (f.size <= 8e6 || f.type === 'image/gif') return new File([f], name, {type: f.type});
+    try{   // trop lourde pour Discord : on la réduit (2560 px max, JPEG)
+      const bmp = await createImageBitmap(f), k = Math.min(1, 2560 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .85));
+      return new File([blob], name.replace(/\.\w+$/, '.jpg'), {type: 'image/jpeg'});
+    }catch(e){ return new File([f], name, {type: f.type}); }
+  }
+  async function addPhotos(list){
+    if (!tnMine) return;
+    const imgs = [...list].filter(f => f && /^image\//.test(f.type));
+    if (!imgs.length) return toast('Seules les images sont acceptées', 'err');
+    const room = 10 - photos.length;
+    if (room <= 0) return toast('10 photos maximum par note', 'err');
+    if (imgs.length > room) toast(`Seulement ${room} photo${room > 1 ? 's' : ''} ajoutée${room > 1 ? 's' : ''} : 10 maximum par note`, 'err');
+    for (const f of imgs.slice(0, room)){ const file = await shrink(f); photos.push({file, url: URL.createObjectURL(file), name: file.name}); }
+    renderPhotos();
+    const box = $('tnPhotos'); box.scrollTo({left: box.scrollWidth, behavior: 'smooth'});
+  }
+  $('tnPhotos').addEventListener('click', e => {
+    const v = e.target.closest('[data-ph]'), x = e.target.closest('[data-rmph]');
+    if (x){ const [p] = photos.splice(+x.dataset.rmph, 1); if (p && p.file) URL.revokeObjectURL(p.url); renderPhotos(); return; }
+    if (v) return openViewer(+v.dataset.ph);
+    if (e.target.closest('#tnAddPh')) $('tnFile').click();
+  });
+  $('tnPhotos').addEventListener('error', e => { const im = e.target; if (im.tagName === 'IMG' && im.dataset.stale) reloadNote(im.dataset.stale); }, true);
+  $('tnFile').onchange = e => { addPhotos(e.target.files); e.target.value = ''; };
+  $('tnDlg').addEventListener('paste', e => {
+    const fs = [...(e.clipboardData ? e.clipboardData.files : [])].filter(f => /^image\//.test(f.type));
+    if (tnMine && fs.length){ e.preventDefault(); addPhotos(fs); }
+  });
+  ['dragenter', 'dragover'].forEach(t => $('tnDlg').addEventListener(t, e => { if (!tnMine) return; e.preventDefault(); e.stopPropagation(); $('tnDlg').classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(t => $('tnDlg').addEventListener(t, e => {
+    if (t === 'dragleave' && $('tnDlg').contains(e.relatedTarget)) return;
+    $('tnDlg').classList.remove('drag');
+    if (t === 'drop' && tnMine){ e.preventDefault(); e.stopPropagation(); addPhotos(e.dataTransfer.files); }
+  }));
+  $('tnDlg').addEventListener('close', () => { photos.filter(p => p.file).forEach(p => URL.revokeObjectURL(p.url)); });
+
+  /* ---------- Visionneuse : zoom + barres de défilement ---------- */
+  const tvS = $('tvScroll'), tvImg = $('tvImg');
+  let tvList = [], tvI = 0, tvScale = 1;
+  function openViewer(i){
+    tvList = photos.map(p => ({url: p.url, name: p.name})); tvI = i;
+    if (!$('tvDlg').open) $('tvDlg').showModal();
+    showTv();
+  }
+  function showTv(){
+    const p = tvList[tvI]; if (!p) return;
+    $('tvName').textContent = p.name || 'Photo';
+    $('tvIdx').textContent = `${tvI + 1} / ${tvList.length}`;
+    $('tvPrev').hidden = $('tvNext').hidden = tvList.length < 2;
+    tvImg.style.width = '0px';
+    tvImg.onload = () => fitWidth();
+    tvImg.src = p.url;
+    if (tvImg.complete && tvImg.naturalWidth) fitWidth();
+  }
+  function setScale(s, cx, cy){
+    if (!tvImg.naturalWidth) return;
+    const ox = cx ?? tvS.clientWidth / 2, oy = cy ?? tvS.clientHeight / 2;
+    const rx = (tvS.scrollLeft + ox) / (tvS.scrollWidth || 1), ry = (tvS.scrollTop + oy) / (tvS.scrollHeight || 1);
+    tvScale = Math.min(8, Math.max(.05, s));
+    tvImg.style.width = Math.round(tvImg.naturalWidth * tvScale) + 'px'; tvImg.style.height = 'auto';
+    $('tvZ').textContent = Math.round(tvScale * 100) + '%';
+    tvS.scrollLeft = rx * tvS.scrollWidth - ox; tvS.scrollTop = ry * tvS.scrollHeight - oy;
+  }
+  // Par défaut : la photo prend toute la largeur, et on fait défiler vers le bas si elle est haute
+  function fitWidth(){ setScale(Math.min(1, (tvS.clientWidth - 24) / tvImg.naturalWidth)); tvS.scrollTop = 0; tvS.scrollLeft = 0; }
+  function fitAll(){ setScale(Math.min(1, (tvS.clientWidth - 24) / tvImg.naturalWidth, (tvS.clientHeight - 24) / tvImg.naturalHeight)); }
+  const tvGo = d => { if (tvList.length < 2) return; tvI = (tvI + d + tvList.length) % tvList.length; showTv(); };
+  $('tvIn').onclick = () => setScale(tvScale * 1.25);
+  $('tvOut').onclick = () => setScale(tvScale / 1.25);
+  $('tvFit').onclick = fitAll;
+  $('tvReal').onclick = () => setScale(1);
+  $('tvPrev').onclick = () => tvGo(-1);
+  $('tvNext').onclick = () => tvGo(1);
+  $('tvClose').onclick = () => $('tvDlg').close();
+  $('tvOpen').onclick = () => { const p = tvList[tvI]; if (p) window.open(p.url, '_blank', 'noopener'); };
+  tvS.addEventListener('wheel', e => {
+    if (!e.ctrlKey) return;   // molette = défiler ; Ctrl + molette = zoomer à l'endroit du curseur
+    e.preventDefault();
+    const r = tvS.getBoundingClientRect();
+    setScale(tvScale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX - r.left, e.clientY - r.top);
+  }, {passive: false});
+  let pan = null;   // glisser la photo avec la souris pour se déplacer
+  tvS.addEventListener('pointerdown', e => { if (e.button !== 0) return; pan = {x: e.clientX, y: e.clientY, l: tvS.scrollLeft, t: tvS.scrollTop}; tvS.classList.add('drag'); tvS.setPointerCapture(e.pointerId); });
+  tvS.addEventListener('pointermove', e => { if (!pan) return; tvS.scrollLeft = pan.l - (e.clientX - pan.x); tvS.scrollTop = pan.t - (e.clientY - pan.y); });
+  ['pointerup', 'pointercancel'].forEach(t => tvS.addEventListener(t, () => { pan = null; tvS.classList.remove('drag'); }));
+  tvImg.addEventListener('dblclick', e => { const r = tvS.getBoundingClientRect(); setScale(tvScale < .99 ? 1 : tvScale * 2, e.clientX - r.left, e.clientY - r.top); });
+  $('tvDlg').addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') tvGo(-1); else if (e.key === 'ArrowRight') tvGo(1);
+    else if (e.key === '+' || e.key === '=') setScale(tvScale * 1.25); else if (e.key === '-') setScale(tvScale / 1.25);
+    else if (e.key.toLowerCase() === 'f') fitAll(); else if (e.key === '1') setScale(1); else return;
+    e.preventDefault(); e.stopPropagation();
+  });
+
+  /* ---------- Envoi vers Discord avec des fichiers ---------- */
+  async function whForm(method, path, payload, files){
+    for (let tries = 0; tries < 4; tries++){
+      const fd = new FormData();
+      fd.append('payload_json', JSON.stringify(payload));
+      files.forEach((f, i) => fd.append(`files[${i}]`, f, f.name));
+      const r = await fetch(team.webhook + path, {method, body: fd});
+      if (r.status === 429){ const j = await r.json().catch(() => ({})); await sleep(((j.retry_after || 1) * 1000) + 100); continue; }
+      if (r.status === 413) throw new Error('Photos trop lourdes pour Discord : retire-en quelques-unes ou utilise des images plus légères');
+      if (!r.ok){ const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+      return r.json();
+    }
+    throw new Error('Discord est surchargé, réessaie dans un instant');
+  }
 
   let editing = null;   // mid de la note ouverte, ou null pour une nouvelle note
   function openNote(mid){
@@ -3834,37 +4074,57 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
     $('tnDate').textContent = n ? 'Modifiée le ' + fmt(n.u) : 'Nouvelle note d\'équipe';
     $('tnTitle').value = n ? n.t : ''; $('tnText').value = n ? n.x : '';
     $('tnTitle').readOnly = $('tnText').readOnly = !mine;
+    // Note d'un autre membre : texte mis en forme (gras, listes, liens…) au lieu de la zone d'édition
+    $('tnText').hidden = !mine; $('tnRead').hidden = mine;
+    if (!mine) $('tnRead').innerHTML = n.x && n.x.trim() ? md(n.x) : '<i class="muted">Pas de texte.</i>';
     $('tnRo').hidden = mine;
     $('tnSave').hidden = !mine; $('tnDel').hidden = !(n && mine);
     $('tnSave').textContent = n ? '💾 Enregistrer' : '📤 Publier pour l\'équipe';
+    tnMine = mine;
+    photos = ((n && n.img) || []).map(p => ({...p, old: true}));
+    renderPhotos();
+    $('tnPhHint').hidden = !mine;
+    $('tnDlg').classList.remove('drag');
     $('tnDlg').showModal();
+    if (n){ markSeen(n); renderTeamNotes(); }
+    if (n && n.img && n.img.length && Date.now() - (n.ft || 0) > 12 * 3600e3) reloadNote(mid);
     if (mine) setTimeout(() => (n ? $('tnText') : $('tnTitle')).focus(), 50);
   }
   $('tnClose').onclick = () => $('tnDlg').close();
-  const noteEmbed = (title, text) => ({
+  const noteEmbed = (title, text, img) => ({
     author: {name: me.name, icon_url: me.avatar}, title: title.slice(0, 256) || 'Note', ...(text.trim() ? {description: text.slice(0, 4096)} : {}),
+    ...(img ? {image: {url: 'attachment://' + img}} : {}),
     color: COLOR, footer: {text: `📝 Note d'équipe · ${team.name}`}, timestamp: new Date().toISOString(),
   });
   $('tnSave').onclick = async () => {
     const title = $('tnTitle').value.trim(), text = $('tnText').value;
-    if (!title && !text.trim()) return toast('La note est vide', 'err');
-    $('tnSave').disabled = true;
+    if (!title && !text.trim() && !photos.length) return toast('La note est vide', 'err');
+    const btn = $('tnSave'), label = btn.textContent, fresh = photos.filter(p => !p.old), files = fresh.map(p => p.file);
+    btn.disabled = true;
+    if (files.length) btn.textContent = `⏳ Envoi de ${files.length} photo${files.length > 1 ? 's' : ''}…`;
     try{
       const now = Date.now();
+      // La 1re photo s'affiche dans l'embed Discord, les autres en pièces jointes du message
+      const payload = {embeds: [noteEmbed(title || (photos.length ? '📷 Photos' : ''), text, photos[0] && photos[0].name)], allowed_mentions: {parse: []}};
+      const attachments = photos.map(p => p.old ? {id: p.id} : {id: fresh.indexOf(p), filename: p.file.name});
       if (!editing){
-        const msg = await wh('POST', '?wait=true', {username: 'Embed Sender · Notes', embeds: [noteEmbed(title, text)], allowed_mentions: {parse: []}});
+        payload.username = 'Embed Sender · Notes';
+        if (files.length) payload.attachments = attachments;
+        const msg = files.length ? await whForm('POST', '?wait=true', payload, files) : await wh('POST', '?wait=true', payload);
         try{ await updateIndex(i => { i.t.push([msg.id, me.id, now]); }); }
         catch(e){ await wh('DELETE', `/messages/${msg.id}`).catch(() => {}); throw e; }   // pas de note « orpheline »
         toast('📤 Note publiée pour l\'équipe', 'ok');
       } else {
-        await wh('PATCH', `/messages/${editing}`, {embeds: [noteEmbed(title, text)], allowed_mentions: {parse: []}});
+        payload.attachments = attachments;   // garde les photos restantes, retire celles supprimées
+        if (files.length) await whForm('PATCH', `/messages/${editing}`, payload, files);
+        else await wh('PATCH', `/messages/${editing}`, payload);
         await updateIndex(i => { const t = i.t.find(x => x[0] === editing); if (t) t[2] = now; });
         toast('💾 Note enregistrée', 'ok');
       }
       $('tnDlg').close();
       await refresh(false);
     }catch(e){ e.status ? teamErr(e) : toast(e.message, 'err', 6000); }
-    finally{ $('tnSave').disabled = false; }
+    finally{ btn.disabled = false; btn.textContent = label; }
   };
   $('tnDel').onclick = async () => {
     if (!editing || !confirm('Supprimer cette note pour toute l\'équipe ?\nElle sera aussi effacée du salon Discord.')) return;
@@ -3914,7 +4174,7 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
    2) L'application Windows : elle vérifie et télécharge seule ses mises à
       jour, puis propose « Redémarrer et installer » (window.embedSenderApp).
    ===================================================================== */
-const ES_VERSION = '2026.11.25.2';
+const ES_VERSION = '2026.11.26.1';
 (function(){
   const bar = document.createElement('div');
   bar.className = 'upd-bar'; bar.id = 'updBar'; bar.hidden = true; bar.setAttribute('role', 'status');
