@@ -3871,6 +3871,13 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
     const e = (msg.embeds && msg.embeds[0]) || {};
     const img = (msg.attachments || []).filter(a => /^image\//.test(a.content_type || '') || a.width)
       .map(a => ({id: a.id, url: a.url, name: a.filename, w: a.width, h: a.height}));
+    // Une photo affichée dans l'embed n'apparaît plus dans les pièces jointes : on la reprend depuis l'embed
+    const ei = e.image && e.image.url;
+    const bare = u => String(u || '').split('?')[0];
+    if (ei && !img.some(p => bare(p.url) === bare(ei))){
+      const name = decodeURIComponent(bare(ei).split('/').pop() || 'photo.png');
+      img.unshift({id: null, url: ei, name, w: e.image.width, h: e.image.height});
+    }
     return {mid, a: aid, u, t: e.title || '', x: e.description || '', an: (e.author && e.author.name) || '', av: (e.author && e.author.icon_url) || '', img, ft: Date.now()};
   }
   // Relit une note (ex. lien de photo expiré) — une seule fois par note et par visite
@@ -4099,13 +4106,22 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
   $('tnSave').onclick = async () => {
     const title = $('tnTitle').value.trim(), text = $('tnText').value;
     if (!title && !text.trim() && !photos.length) return toast('La note est vide', 'err');
-    const btn = $('tnSave'), label = btn.textContent, fresh = photos.filter(p => !p.old), files = fresh.map(p => p.file);
+    const btn = $('tnSave'), label = btn.textContent;
     btn.disabled = true;
-    if (files.length) btn.textContent = `⏳ Envoi de ${files.length} photo${files.length > 1 ? 's' : ''}…`;
     try{
+      // Anciennes photos rangées dans l'embed (sans n° de pièce jointe) : on les renvoie comme pièces jointes normales
+      for (const p of photos) if (p.old && !p.id){
+        const r = await fetch(p.url).catch(() => null);
+        if (!r || !r.ok) throw new Error('Impossible de récupérer une ancienne photo : retire-la puis ajoute-la à nouveau');
+        const b = await r.blob();
+        const file = new File([b], (p.name || 'photo.png').replace(/[^\w.-]/g, '_'), {type: b.type || 'image/png'});
+        Object.assign(p, {old: false, file, url: URL.createObjectURL(file)});
+      }
+      const fresh = photos.filter(p => !p.old), files = fresh.map(p => p.file);
+      if (files.length) btn.textContent = `⏳ Envoi de ${files.length} photo${files.length > 1 ? 's' : ''}…`;
       const now = Date.now();
-      // La 1re photo s'affiche dans l'embed Discord, les autres en pièces jointes du message
-      const payload = {embeds: [noteEmbed(title || (photos.length ? '📷 Photos' : ''), text, photos[0] && photos[0].name)], allowed_mentions: {parse: []}};
+      // Toutes les photos sont des pièces jointes du message (Discord les affiche sous l'embed)
+      const payload = {embeds: [noteEmbed(title || (photos.length ? '📷 Photos' : ''), text)], allowed_mentions: {parse: []}};
       const attachments = photos.map(p => p.old ? {id: p.id} : {id: fresh.indexOf(p), filename: p.file.name});
       if (!editing){
         payload.username = 'Embed Sender · Notes';
@@ -4174,7 +4190,7 @@ $('siteCopy') && ($('siteCopy').onclick = () => copy('https://dx-de.github.io/em
    2) L'application Windows : elle vérifie et télécharge seule ses mises à
       jour, puis propose « Redémarrer et installer » (window.embedSenderApp).
    ===================================================================== */
-const ES_VERSION = '2026.11.26.1';
+const ES_VERSION = '2026.11.26.2';
 (function(){
   const bar = document.createElement('div');
   bar.className = 'upd-bar'; bar.id = 'updBar'; bar.hidden = true; bar.setAttribute('role', 'status');
